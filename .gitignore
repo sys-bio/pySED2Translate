@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python wheels (libsed2 wheel is installed manually, not committed)
+*.whl
+libsed2-*.whl
