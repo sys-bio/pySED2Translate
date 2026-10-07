@@ -222,3 +222,22 @@ __marimo__/
 # Python wheels (libsed2 wheel is installed manually, not committed)
 *.whl
 libsed2-*.whl
+
+# Output of generated scripts and test runs (never committed)
+_run_output/
+pytest-cache-files-*/
+.coverage
+coverage.xml
+
+# Local environment created by scripts/setup_env.*
+.venv/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Running log of libsed2 gaps (local working file)
+GAPS.md

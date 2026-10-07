@@ -1,0 +1,16 @@
+# Normalize line endings so a file edited on Linux (LF) and one checked out on
+# Windows (CRLF) never show up as "changed" for line-ending reasons alone.
+# Git stores LF; working copies are checked out as LF too.  This also keeps
+# generated results files (CSV) byte-identical across platforms.
+* text=auto eol=lf
+
+# Binary files: never text-normalize these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.h5 binary
+*.hdf5 binary
+*.whl binary
