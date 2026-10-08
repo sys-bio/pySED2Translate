@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "backends": [
+    "roadrunner",
+    "copasi",
+    "opencor"
+  ],
+  "tasks": {
+    "aggregationCalculation": {
+      "roadrunner": {
+        "supported": false,
+        "deferred": true,
+        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+      },
+      "copasi": {
+        "supported": false,
+        "deferred": true,
+        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+      },
+      "opencor": {
+        "supported": false,
+        "deferred": true,
+        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+      }
+    },
+    "boundedODESimulation": {
+      "roadrunner": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "libopencor runs uniform time courses only; it cannot choose its own output points"
+      }
+    },
+    "boundedStochasticSimulation": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      }
+    },
+    "calculation": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "createDataBlock": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "csvImport": {
+      "roadrunner": {
+        "supported": true,
+        "check": "csv_import"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "csv_import"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "csv_import"
+      }
+    },
+    "dataImport": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+      }
+    },
+    "drawFromDistribution": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      }
+    },
+    "explicitODESimulation": {
+      "roadrunner": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "ode_simulation"
+      }
+    },
+    "explicitStochasticSimulation": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      }
+    },
+    "fluxBalanceAnalysis": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "flux balance analysis is deferred to a later phase",
+        "deferred": true
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "flux balance analysis is deferred to a later phase",
+        "deferred": true
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "flux balance analysis is deferred to a later phase",
+        "deferred": true
+      }
+    },
+    "jacobianFull": {
+      "roadrunner": {
+        "supported": true,
+        "check": "jacobian"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "jacobian",
+        "note": "COPASI differentiates by relative steps: a species whose value is 0 makes the task fail"
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "libopencor does not expose a Jacobian"
+      }
+    },
+    "jacobianReduced": {
+      "roadrunner": {
+        "supported": true,
+        "check": "jacobian"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "jacobian",
+        "note": "COPASI differentiates by relative steps: a species whose value is 0 makes the task fail"
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "libopencor does not expose a Jacobian"
+      }
+    },
+    "loop": {
+      "roadrunner": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "repeat"
+      }
+    },
+    "modelChange": {
+      "roadrunner": {
+        "supported": true,
+        "check": "model_change"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "model_change"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "model_change"
+      }
+    },
+    "modelElementList": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "modelImport": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true,
+        "note": "SBML is converted to CellML with sbml2cellml"
+      }
+    },
+    "numericRange": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "oneStepODESimulation": {
+      "roadrunner": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "ode_simulation"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "ode_simulation"
+      }
+    },
+    "oneStepStochasticSimulation": {
+      "roadrunner": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "copasi": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
+      }
+    },
+    "parameterRange": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "parameterScan": {
+      "roadrunner": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "repeat"
+      }
+    },
+    "range": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "relabelData": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    },
+    "scatter": {
+      "roadrunner": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "opencor": {
+        "supported": true,
+        "check": "repeat"
+      }
+    },
+    "steadyState": {
+      "roadrunner": {
+        "supported": true,
+        "check": "steady_state"
+      },
+      "copasi": {
+        "supported": true,
+        "check": "steady_state"
+      },
+      "opencor": {
+        "supported": false,
+        "reason": "libopencor does not support steady-state tasks from Python (SedSteadyState segfaults when run; see https://github.com/opencor/libopencor/issues/604)"
+      }
+    },
+    "stringFormation": {
+      "roadrunner": {
+        "supported": true
+      },
+      "copasi": {
+        "supported": true
+      },
+      "opencor": {
+        "supported": true
+      }
+    }
+  }
+}

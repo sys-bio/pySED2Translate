@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pysed2translate backend capability table",
+  "type": "object",
+  "required": ["schemaVersion", "backends", "tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "backends": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "tasks": {
+      "description": "Task _type -> backend -> entry. Every listed task has an entry for every backend.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "$ref": "#/$defs/entry" }
+      }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["supported"],
+      "additionalProperties": false,
+      "properties": {
+        "supported": { "type": "boolean", "description": "The default verdict." },
+        "reason": { "type": "string", "minLength": 1, "description": "Why not.  Required when supported is false." },
+        "deferred": { "type": "boolean", "description": "True if the task is out of scope for now rather than impossible." },
+        "verified": { "type": "boolean", "description": "False while the entry is an expectation that has not been confirmed by running the backend. Default true." },
+        "note": { "type": "string" },
+        "conditions": {
+          "description": "Checked in order; the first whose 'when' matches the task decides, otherwise 'supported' applies.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when", "supported"],
+            "additionalProperties": false,
+            "properties": {
+              "when": {
+                "description": "Dotted attribute path of the task -> list of values; all paths must match, a path matches if the task's value is any of the listed values (a missing attribute is null).",
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": { "type": "array", "minItems": 1 }
+              },
+              "supported": { "type": "boolean" },
+              "reason": { "type": "string", "minLength": 1 }
+            },
+            "if": { "properties": { "supported": { "const": false } } },
+            "then": { "required": ["reason"] }
+          }
+        },
+        "check": {
+          "type": "string",
+          "description": "Name of a function in capabilities/checks.py for conditions too complex for 'conditions'. It is called after 'conditions' find no match, and may veto a supported task."
+        }
+      },
+      "if": { "properties": { "supported": { "const": false } } },
+      "then": { "required": ["reason"] }
+    }
+  }
+}

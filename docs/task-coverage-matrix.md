@@ -15,33 +15,33 @@ A `_type` of - means the class has no discriminator of its own (abstract base, m
 | tasks | AbstractSimulation | - | - | - | - | - | - | P4.3 | base |
 | tasks | AbstractStochasticSimulation | - | - | - | - | - | - | stochastic (later) | base |
 | tasks | AbstractTask | - | - | - | - | - | - | all | base |
-| tasks | AggregationCalculation | aggregationCalculation | input | [id]:annotatedData | - | - | - | P4.2 | active |
-| tasks | BoundedODESimulation | boundedODESimulation | model, independentVariable, outputVariables, independentVariableSpan | [id]:annotatedData, [id].model:model | Y | Y | Y | P4.3 | active |
+| tasks | AggregationCalculation | aggregationCalculation | input | [id]:annotatedData | N | N | N (no function selector, S-006) | P4.2 | active |
+| tasks | BoundedODESimulation | boundedODESimulation | model, independentVariable, outputVariables, independentVariableSpan | [id]:annotatedData, [id].model:model | Y | Y | N (uniform time courses only) | P4.3 | active |
 | tasks | BoundedStochasticSimulation | boundedStochasticSimulation | model, independentVariable, outputVariables, independentVariableSpan | [id]:annotatedData, [id].model:model | ? | ? | ? | stochastic (later) | deferred |
 | tasks | Calculation | calculation | math | [id]:annotatedData | - | - | - | P4.2 | active |
 | tasks | CreateDataBlock | createDataBlock | data | [id]:annotatedData | - | - | - | P4.2 | active |
 | tasks | CsvImport | csvImport | location | [id]:annotatedData | - | - | - | P4.6 | active |
-| tasks | DataImport | dataImport | location, format | [id]:annotatedData | - | - | - | P4.6 | active |
+| tasks | DataImport | dataImport | location, format | [id]:annotatedData | N | N | N (no formats defined, S-012) | P4.6 | active |
 | tasks | DrawFromDistribution | drawFromDistribution | distribution, arguments | [id]:annotatedData | - | - | - | stochastic (later) | deferred |
 | tasks | ExplicitODESimulation | explicitODESimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | Y | Y | Y | P4.3 | active |
 | tasks | ExplicitStochasticSimulation | explicitStochasticSimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | ? | ? | ? | stochastic (later) | deferred |
 | tasks | FluxBalanceAnalysis | fluxBalanceAnalysis | model, outputVariables | [id]:annotatedData, [id].model:model | N | N | N | later phase | deferred |
-| tasks | JacobianFull | jacobianFull | model | [id]:annotatedData | Y | ? | N? | P4.4 | active |
-| tasks | JacobianReduced | jacobianReduced | model | [id]:annotatedData | Y | ? | N? | P4.4 | active |
+| tasks | JacobianFull | jacobianFull | model | [id]:annotatedData | Y | Y (not at 0 values) | N | P4.4 | active |
+| tasks | JacobianReduced | jacobianReduced | model | [id]:annotatedData | Y | Y (not at 0 values) | N | P4.4 | active |
 | tasks | Loop | loop | subTasks, range, loopVariables | [id]:annotatedData, [id].aggregates:annotatedData, [id].range:annotatedData, [id].index:annotatedData | Y | Y | Y | P4.5 | active |
-| tasks | ModelChange | modelChange | inputModel | [id].model:model | Y | Y | ? | P4.6 | active |
+| tasks | ModelChange | modelChange | inputModel | [id].model:model | Y | Y | Y (setValues, removeElements) | P4.6 | active |
 | tasks | ModelElementList | modelElementList | model | [id].strings:stringList | - | - | - | P4.2 | active |
 | tasks | ModelImport | modelImport | location, language | [id].model:model | Y | Y | Y (via sbml2cellml) | P4.3 | active |
 | tasks | NumericRange | numericRange | - | [id]:annotatedData | - | - | - | P4.5 | active |
-| tasks | OneStepODESimulation | oneStepODESimulation | model, independentVariable, outputVariables, independentStep | [id]:annotatedData, [id].model:model | Y | Y | ? | P4.3 | active |
+| tasks | OneStepODESimulation | oneStepODESimulation | model, independentVariable, outputVariables, independentStep | [id]:annotatedData, [id].model:model | Y | Y | Y | P4.3 | active |
 | tasks | OneStepStochasticSimulation | oneStepStochasticSimulation | model, independentVariable, outputVariables | [id]:annotatedData, [id].model:model, [id].independentStep:annotatedData | ? | ? | ? | stochastic (later) | deferred |
 | tasks | ParameterRange | parameterRange | modelElement | [id]:annotatedData | - | - | - | P4.5 | active |
-| tasks | ParameterScan | parameterScan | subTasks, model, parameterRanges | [id]:annotatedData, [id].aggregates:annotatedData, [id].ranges:annotatedData, [id].indexes:annotatedData | Y | Y | Y | P4.5 | active |
+| tasks | ParameterScan | parameterScan | subTasks, model, parameterRanges | [id]:annotatedData, [id].aggregates:annotatedData, [id].ranges:annotatedData, [id].indexes:annotatedData, [id].model:model | Y | Y | Y | P4.5 | active |
 | tasks | Range | range | - | [id]:annotatedData | - | - | - | P4.5 | active |
 | tasks | RelabelData | relabelData | input, labels | [id]:annotatedData | - | - | - | P4.2 | active |
 | tasks | Repeat | - | - | - | - | - | - | P4.5 | abstract mixin |
 | tasks | Scatter | scatter | subTasks, range | [id]:annotatedData, [id].aggregates:annotatedData, [id].range:annotatedData, [id].index:annotatedData | Y | Y | Y | P4.5 | active |
-| tasks | SteadyState | steadyState | model, outputVariables | [id]:annotatedData, [id].model:model | Y | Y | ? (libopencor has SedSteadyState/KINSOL) | P4.4 | active |
+| tasks | SteadyState | steadyState | model, outputVariables | [id]:annotatedData, [id].model:model | Y | Y | N (libopencor issue 604) | P4.4 | active |
 | tasks | StringFormation | stringFormation | concatenate | [id]:annotatedData, [id].strings:stringList | - | - | - | P4.2 | active |
 | outputs | AbstractOutput | - | - | - | - | - | - | all | base |
 | outputs | Plot | - | - | - | - | - | - | P4.6 | base |

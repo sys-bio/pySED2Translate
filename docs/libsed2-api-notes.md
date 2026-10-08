@@ -1,6 +1,7 @@
 # libsed2 Python API notes (for the translator)
 
-Surveyed against `libsed2-0.1.1-py3-none-any.whl` (Python 3.13).  Everything below was
+Surveyed against `libsed2-0.1.1-py3-none-any.whl` (Python 3.13); re-checked against the wheel of 2026-10-08 (same
+version number, newer build: ParameterScan `.model`, chained and comma bracket indexing, indexed aliases).  Everything below was
 exercised against real documents unless marked "not yet checked".  The library is
 generated; do not edit it.  Anything the translator needs that is missing is a gap: do not work around it, skip what needs it, and record it in a new `GAPS.md` (see build.md).
 
@@ -58,7 +59,8 @@ All public, in `libsed2`:
 * `libsed2.is_reference(text)` is True for a string that parses as a `#...` reference.
 * `libsed2.parse_reference("#tasks:sim1.model['S1']")` returns a `ParsedReference` with `collection`
   ('tasks'), `path` (['sim1']) and `accessors` (`[('dot','model'), ('index', RefIndex(kind='label', value='S1'))]`).
-  Index kinds are `int`, `label` and `range`.  Pure syntax: it never raises, and it ignores text after
+  Index kinds are `int`, `label` and `range`; each `RefIndex` has `same_bracket` (True for the second and later
+  indices written in one pair of brackets, `[a:b, n]`).  Pure syntax: it never raises, and it ignores text after
   the point where parsing stops, so check `is_reference` and `validate()` first.
 * `libsed2.get_sed_reference(doc, ref)` returns `(target, resolved_path)`: the element for `#tasks:`,
   `#outputs:` and `#styles:` references, the constant's raw value for `#constants:`.
@@ -106,3 +108,21 @@ for n in node.walk(): n.node_type, n.name, n.text, n.children
 | Shape of a task's output | `outputs_shape.resolve_output` (to verify) |
 | Math to Python | `parse_math` AST; semantics of each function by the translator |
 | Element id | `obj.get_id()` |
+
+## Repeats, plots and other attributes (checked in P2.13-P2.17)
+
+* Loop / Scatter / ParameterScan: `task.get_sub_tasks()` and `get_sub_tasks_item(id)`; `task.get_range()` (Loop,
+  Scatter), `task.get_parameter_ranges()` (list; each has `get_model_element_value()`), `task.get_loop_variables()`
+  and `get_loop_variables_item(name)` with `get_initial_value()` (the raw JSON value, a reference string or a literal)
+  and `get_subsequent_values()` (a reference string).  `outputVariableMap` is read like any OrRef attribute
+  (`get_output_variable_map_value()` is a dict of references).
+* Reference forms inside a repeat: `#tasks:rep:subTasks:id` (and `...:id.model`, `...:id['S1']`),
+  `#tasks:loop:loopVariables:name` (parse_reference gives `path=['loop','loopVariables','name']`), and the dotted
+  per-iteration outputs `#tasks:rep.range`, `.index`, `.ranges['k']`, `.indexes['k']`, and a ParameterScan's `.model`
+  (`#tasks:scan.model`; the colon form `#tasks:scan:model` does not validate); the dotted form of a sub-task (`#tasks:rep.subTasks.x`) is rejected by design.
+* A `math` string is always an expression (Calculation description), but libsed2's getters report one that begins
+  with `#` as a reference: `is_math_ref()` is true and `get_math_value()` raises, so the translator reads the text with
+  `get_math_ref()` (GAPS.md G-005).
+* Attribute getters with several words are snake case: `get_set_values_value()`, `is_set_set_values()`,
+  `get_x_error_lower()`, `get_right_y_axis()`.  Plot types are `plot2D` and `plot3D`; `plot.get_curves()` /
+  `get_surfaces()` list ids in document order; Axis attributes are OrRef (`get_scale_value()`, `get_min_value()`, ...).

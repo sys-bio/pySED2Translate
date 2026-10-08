@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysed2translate"
+version = "0.1.0"
+description = "Translate SED2 simulation experiment documents into Python scripts (roadrunner, COPASI or OpenCOR)."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { file = "LICENSE" }
+# libsed2 is not on PyPI: install the libsed2-<version>-py3-none-any.whl from the SED2 releases separately.
+dependencies = [
+    "numpy>=2.2",
+    "jsonschema>=4.18",
+]
+
+[project.optional-dependencies]
+roadrunner = ["tellurium>=2.2.13"]
+copasi = ["copasi-basico>=0.87"]
+opencor = ["libopencor", "sbml2cellml>=0.4.2"]
+plots = ["matplotlib>=3.9"]
+hdf5 = ["h5py>=3.10"]
+all = ["pysed2translate[roadrunner,copasi,opencor,plots,hdf5]"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+pysed2translate = "pysed2translate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pysed2translate = ["capabilities/*.json"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
