@@ -1,0 +1,87 @@
+{
+  "state": {
+    "x": 1.0,
+    "y": 0.0,
+    "p1": {
+      "_type": "process",
+      "address": "local:!procs.P1",
+      "interval": 1.0,
+      "inputs": {
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      },
+      "outputs": {
+        "x": [
+          "x"
+        ]
+      }
+    },
+    "p2": {
+      "_type": "process",
+      "address": "local:!procs.P2",
+      "interval": 1.0,
+      "inputs": {
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      },
+      "outputs": {
+        "y": [
+          "y"
+        ]
+      }
+    },
+    "s": 0.0,
+    "sum": {
+      "_type": "step",
+      "address": "local:!procs.Sum",
+      "config": {},
+      "inputs": {
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      },
+      "outputs": {
+        "s": [
+          "s"
+        ]
+      }
+    },
+    "emitter": {
+      "_type": "step",
+      "address": "local:RAMEmitter",
+      "config": {
+        "emit": {
+          "t": "float",
+          "x": "float",
+          "y": "float",
+          "s": "float"
+        }
+      },
+      "inputs": {
+        "t": [
+          "global_time"
+        ],
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ],
+        "s": [
+          "s"
+        ]
+      }
+    }
+  }
+}

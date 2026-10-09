@@ -1,0 +1,2 @@
+# The translator skips this document (exit status 11):
+backend 'viva wrappers (--wrappers strict, for roadrunner)' cannot perform task 'ss': W-6 no model input and no end-state model output (#tasks:ss.model uses the model the task would hand on)

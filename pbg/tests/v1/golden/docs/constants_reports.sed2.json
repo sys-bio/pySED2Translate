@@ -1,0 +1,55 @@
+{
+  "version": "v1.0.0",
+  "constants": {
+    "x": 3,
+    "vec": [
+      1,
+      2,
+      3
+    ],
+    "grid": [
+      [
+        1,
+        2
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "names": [
+      "a",
+      "b"
+    ],
+    "labelled": {
+      "p": 1,
+      "q": 2
+    }
+  },
+  "outputs": {
+    "scalar": {
+      "_type": "report",
+      "data": "#constants:x"
+    },
+    "vector": {
+      "_type": "report",
+      "data": "#constants:vec"
+    },
+    "slice": {
+      "_type": "report",
+      "data": "#constants:vec[1:]"
+    },
+    "cell": {
+      "_type": "report",
+      "data": "#constants:grid[1, 0]"
+    },
+    "names": {
+      "_type": "report",
+      "data": "#constants:names"
+    },
+    "keyed": {
+      "_type": "report",
+      "data": "#constants:labelled['q']"
+    }
+  }
+}

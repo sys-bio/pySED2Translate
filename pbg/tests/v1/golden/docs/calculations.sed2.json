@@ -1,0 +1,68 @@
+{
+  "version": "v1.0.0",
+  "constants": {
+    "a": [
+      1,
+      2,
+      3
+    ],
+    "b": 2,
+    "sep": "-"
+  },
+  "tasks": {
+    "c": {
+      "_type": "calculation",
+      "math": "1 + #constants:a * #constants:b"
+    },
+    "total": {
+      "_type": "calculation",
+      "math": "sum(#tasks:c) / 3"
+    },
+    "blk": {
+      "_type": "createDataBlock",
+      "data": {
+        "first": "#tasks:c",
+        "second": "#constants:a"
+      }
+    },
+    "lab": {
+      "_type": "relabelData",
+      "input": "#constants:a",
+      "labels": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    "txt": {
+      "_type": "stringFormation",
+      "concatenate": [
+        "n",
+        "#constants:sep",
+        "#tasks:total"
+      ]
+    }
+  },
+  "outputs": {
+    "c": {
+      "_type": "report",
+      "data": "#tasks:c"
+    },
+    "total": {
+      "_type": "report",
+      "data": "#tasks:total"
+    },
+    "blk": {
+      "_type": "report",
+      "data": "#tasks:blk"
+    },
+    "lab": {
+      "_type": "report",
+      "data": "#tasks:lab"
+    },
+    "txt": {
+      "_type": "report",
+      "data": "#tasks:txt"
+    }
+  }
+}

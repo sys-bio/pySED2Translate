@@ -1,0 +1,1405 @@
+{
+ "backends": {
+  "copasi": {
+   "00105": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00106": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00107": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00108": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00109": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00110": {
+    "run": "ERROR W-14",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00111": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00112": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00113": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00114": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00115": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00116": {
+    "run": "ERROR W-14",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00117": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00118": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00119": {
+    "run": "ERROR W-14",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00120": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00121": {
+    "run": "ERROR W-14",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00122": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00123": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00124": {
+    "run": "ERROR W-14",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00125": {
+    "refused": {
+     "s": [
+      "L-4",
+      "W-2"
+     ]
+    }
+   },
+   "00126": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00127": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00128": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00129": {
+    "refused": {
+     "s": [
+      "W-2",
+      "W-3"
+     ]
+    }
+   },
+   "00130": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00131": {
+    "run": "PASS",
+    "wrapped": {
+     "s1": "CopasiUTCStep",
+     "s2": "CopasiUTCStep"
+    }
+   },
+   "00132": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00133": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00134": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00135": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00136": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00137": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00138": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00139": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00140": {
+    "refused": {
+     "s": [
+      "W-3"
+     ]
+    }
+   },
+   "00141": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): KISAO:0000019 is not available: COPASI has no CVODE solver"
+   },
+   "00142": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): KISAO:0000288 is not available in copasi"
+   },
+   "00143": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): KISAO:0000280 is not available in copasi"
+   },
+   "00144": {
+    "refused": {
+     "s": [
+      "W-3"
+     ]
+    }
+   },
+   "00145": {
+    "refused": {
+     "s": [
+      "W-3"
+     ]
+    }
+   },
+   "00146": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): KISAO:0000032 is not available: COPASI has no fixed-step Runge-Kutta solver"
+   },
+   "00147": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): KISAO:0000030 is not available: COPASI has no Euler solver"
+   },
+   "00148": {
+    "refused": {
+     "s": [
+      "W-3"
+     ]
+    }
+   },
+   "00149": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): copasi's lsoda solver cannot honor the setting(s) useStiffSolver"
+   },
+   "00150": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): copasi's lsoda solver cannot honor the setting(s) maxInternalStepSize"
+   },
+   "00151": {
+    "host_unsupported": "backend 'copasi' cannot perform task 's' (explicitODESimulation): copasi's lsoda solver cannot honor the setting(s) initialStepSize"
+   },
+   "00152": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00153": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00154": {
+    "refused": {
+     "s": [
+      "W-8"
+     ]
+    }
+   },
+   "00155": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00156": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00157": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00158": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "CopasiSteadyStateStep"
+    }
+   },
+   "00159": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00160": {
+    "refused": {
+     "s": [
+      "W-6"
+     ],
+     "t": [
+      "L-1"
+     ]
+    }
+   },
+   "00161": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00162": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00163": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00164": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00165": {
+    "refused": {
+     "j": [
+      "W-8"
+     ],
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00166": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00167": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00168": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00169": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00170": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00171": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00172": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00201": {
+    "refused": {
+     "sc:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00202": {
+    "refused": {
+     "sc:subTasks:t": [
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00208": {
+    "refused": {
+     "lp:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00209": {
+    "refused": {
+     "lp:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00210": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00211": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00212": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00213": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00216": {
+    "refused": {
+     "ps:subTasks:s": [
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00217": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00221": {
+    "refused": {
+     "outer:subTasks:ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00231": {
+    "refused": {
+     "s0": [
+      "L-1"
+     ],
+     "s1": [
+      "L-1",
+      "W-6"
+     ]
+    }
+   },
+   "00232": {
+    "refused": {
+     "s1": [
+      "L-1"
+     ],
+     "s2": [
+      "L-1",
+      "W-6"
+     ]
+    }
+   },
+   "00233": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00234": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00235": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00236": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00238": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00247": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "CopasiUTCStep"
+    }
+   },
+   "00248": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00251": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00270": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00273": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00274": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00275": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00276": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00277": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00278": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00279": {
+    "refused": {
+     "sc:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00280": {
+    "refused": {
+     "ps:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00281": {
+    "refused": {
+     "lp:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00282": {
+    "refused": {
+     "repeat:subTasks:fbasim": [
+      "W-11"
+     ],
+     "repeat:subTasks:odesim": [
+      "W-10",
+      "W-3",
+      "W-6"
+     ]
+    }
+   }
+  },
+  "roadrunner": {
+   "00105": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00106": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00107": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00108": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00109": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00110": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00111": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00112": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00113": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00114": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00115": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00116": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00117": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00118": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00119": {
+    "run": "FAIL: report r: [22, 1]: actual 0.004431561182623341, expected 0.004425697988050785 (difference 5.86319e-06 > allowed 5.4257e-07)",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00120": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00121": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00122": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00123": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00124": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00125": {
+    "refused": {
+     "s": [
+      "L-4"
+     ]
+    }
+   },
+   "00126": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00127": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00128": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00129": {
+    "refused": {
+     "s": [
+      "W-1"
+     ]
+    }
+   },
+   "00130": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00131": {
+    "run": "PASS",
+    "wrapped": {
+     "s1": "TelluriumUTCStep",
+     "s2": "TelluriumUTCStep"
+    }
+   },
+   "00132": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00133": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00134": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00135": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00136": {
+    "refused": {
+     "s": [
+      "W-5"
+     ]
+    }
+   },
+   "00137": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00138": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00139": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00140": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00141": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00142": {
+    "refused": {
+     "s": [
+      "L-5"
+     ]
+    }
+   },
+   "00143": {
+    "refused": {
+     "s": [
+      "L-5"
+     ]
+    }
+   },
+   "00144": {
+    "host_unsupported": "backend 'roadrunner' cannot perform task 's' (explicitODESimulation): KISAO:0000088 is not available: roadrunner has no LSODA solver"
+   },
+   "00145": {
+    "host_unsupported": "backend 'roadrunner' cannot perform task 's' (explicitODESimulation): KISAO:0000304 is not available in roadrunner"
+   },
+   "00146": {
+    "refused": {
+     "s": [
+      "L-5"
+     ]
+    }
+   },
+   "00147": {
+    "host_unsupported": "backend 'roadrunner' cannot perform task 's' (explicitODESimulation): KISAO:0000030 is not available: roadrunner 2.10 has no Euler integrator"
+   },
+   "00148": {
+    "refused": {
+     "s": [
+      "W-1"
+     ]
+    }
+   },
+   "00149": {
+    "refused": {
+     "s": [
+      "W-1",
+      "W-5"
+     ]
+    }
+   },
+   "00150": {
+    "refused": {
+     "s": [
+      "W-1"
+     ]
+    }
+   },
+   "00151": {
+    "refused": {
+     "s": [
+      "W-1"
+     ]
+    }
+   },
+   "00152": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00153": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00154": {
+    "refused": {
+     "s": [
+      "W-8"
+     ]
+    }
+   },
+   "00155": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00156": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00157": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00158": {
+    "run": "SKIP W-7",
+    "wrapped": {
+     "s": "TelluriumSteadyStateStep"
+    }
+   },
+   "00159": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00160": {
+    "refused": {
+     "s": [
+      "W-6"
+     ],
+     "t": [
+      "L-1"
+     ]
+    }
+   },
+   "00161": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00162": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00163": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00164": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00165": {
+    "refused": {
+     "j": [
+      "W-8"
+     ],
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00166": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00167": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00168": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00169": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00170": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00171": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00172": {
+    "refused": {
+     "j": [
+      "W-8"
+     ]
+    }
+   },
+   "00201": {
+    "refused": {
+     "sc:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00202": {
+    "refused": {
+     "sc:subTasks:t": [
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00208": {
+    "refused": {
+     "lp:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00209": {
+    "refused": {
+     "lp:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00210": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00211": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00212": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00213": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00216": {
+    "refused": {
+     "ps:subTasks:s": [
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00217": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00221": {
+    "refused": {
+     "outer:subTasks:ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00231": {
+    "refused": {
+     "s0": [
+      "L-1"
+     ],
+     "s1": [
+      "L-1",
+      "W-6"
+     ]
+    }
+   },
+   "00232": {
+    "refused": {
+     "s1": [
+      "L-1"
+     ],
+     "s2": [
+      "L-1",
+      "W-6"
+     ]
+    }
+   },
+   "00233": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00234": {
+    "refused": {
+     "s1": [
+      "W-6"
+     ]
+    }
+   },
+   "00235": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00236": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00238": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00247": {
+    "run": "PASS",
+    "wrapped": {
+     "s": "TelluriumUTCStep"
+    }
+   },
+   "00248": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00251": {
+    "refused": {
+     "ps:subTasks:s": [
+      "L-1",
+      "W-10",
+      "W-6"
+     ]
+    }
+   },
+   "00270": {
+    "refused": {
+     "s": [
+      "W-6"
+     ]
+    }
+   },
+   "00273": {
+    "refused": {
+     "s": [
+      "L-1"
+     ]
+    }
+   },
+   "00274": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00275": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00276": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00277": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00278": {
+    "refused": {
+     "f": [
+      "W-11"
+     ]
+    }
+   },
+   "00279": {
+    "refused": {
+     "sc:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00280": {
+    "refused": {
+     "ps:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00281": {
+    "refused": {
+     "lp:subTasks:f": [
+      "W-11"
+     ]
+    }
+   },
+   "00282": {
+    "refused": {
+     "repeat:subTasks:fbasim": [
+      "W-11"
+     ],
+     "repeat:subTasks:odesim": [
+      "W-10",
+      "W-6"
+     ]
+    }
+   }
+  }
+ },
+ "description": "viva wrappers, --wrappers strict, over sed2-test-suite (tools/provider_gaps.py)",
+ "versions": {
+  "bigraph-schema": "1.7.0",
+  "copasi-basico": "0.87",
+  "libroadrunner": "2.10.0",
+  "process-bigraph": "1.8.5",
+  "viva-copasi": "0.1.2",
+  "viva-tellurium": "0.1.2"
+ }
+}

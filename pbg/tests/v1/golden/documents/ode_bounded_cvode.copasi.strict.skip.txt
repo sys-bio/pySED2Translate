@@ -1,0 +1,2 @@
+# The translator skips this document (exit status 11):
+backend 'copasi' cannot perform task 'bounded' (boundedODESimulation): KISAO:0000019 is not available: COPASI has no CVODE solver

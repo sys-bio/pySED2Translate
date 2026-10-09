@@ -3,7 +3,8 @@
   "backends": [
     "roadrunner",
     "copasi",
-    "opencor"
+    "opencor",
+    "cobra"
   ],
   "tasks": {
     "aggregationCalculation": {
@@ -21,6 +22,11 @@
         "supported": false,
         "deferred": true,
         "reason": "the document cannot say which aggregation function to compute (SED2/TODO.md: AggregationCalculation)"
+      },
+      "cobra": {
+        "supported": false,
+        "deferred": true,
+        "reason": "the document cannot say which aggregation function to compute (SED2/TODO.md: AggregationCalculation)"
       }
     },
     "boundedODESimulation": {
@@ -35,6 +41,10 @@
       "opencor": {
         "supported": false,
         "reason": "libopencor runs uniform time courses only; it cannot choose its own output points"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not integrate differential equations"
       }
     },
     "boundedStochasticSimulation": {
@@ -52,6 +62,11 @@
         "supported": false,
         "reason": "stochastic tasks are deferred to a later phase",
         "deferred": true
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
       }
     },
     "calculation": {
@@ -63,6 +78,9 @@
       },
       "opencor": {
         "supported": true
+      },
+      "cobra": {
+        "supported": true
       }
     },
     "createDataBlock": {
@@ -73,6 +91,9 @@
         "supported": true
       },
       "opencor": {
+        "supported": true
+      },
+      "cobra": {
         "supported": true
       }
     },
@@ -88,6 +109,10 @@
       "opencor": {
         "supported": true,
         "check": "csv_import"
+      },
+      "cobra": {
+        "supported": true,
+        "check": "csv_import"
       }
     },
     "dataImport": {
@@ -100,6 +125,10 @@
         "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
       },
       "opencor": {
+        "supported": false,
+        "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
+      },
+      "cobra": {
         "supported": false,
         "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
       }
@@ -119,6 +148,11 @@
         "supported": false,
         "reason": "stochastic tasks are deferred to a later phase",
         "deferred": true
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
       }
     },
     "explicitODESimulation": {
@@ -133,6 +167,10 @@
       "opencor": {
         "supported": true,
         "check": "ode_simulation"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not integrate differential equations"
       }
     },
     "explicitStochasticSimulation": {
@@ -150,23 +188,29 @@
         "supported": false,
         "reason": "stochastic tasks are deferred to a later phase",
         "deferred": true
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
       }
     },
     "fluxBalanceAnalysis": {
       "roadrunner": {
         "supported": false,
-        "reason": "flux balance analysis is deferred to a later phase",
-        "deferred": true
+        "reason": "roadrunner is a dynamic simulator; flux balance analysis needs a constraint-based tool (use the cobra backend)"
       },
       "copasi": {
         "supported": false,
-        "reason": "flux balance analysis is deferred to a later phase",
-        "deferred": true
+        "reason": "copasi is a dynamic simulator; flux balance analysis needs a constraint-based tool (use the cobra backend)"
       },
       "opencor": {
         "supported": false,
-        "reason": "flux balance analysis is deferred to a later phase",
-        "deferred": true
+        "reason": "opencor is a dynamic simulator; flux balance analysis needs a constraint-based tool (use the cobra backend)"
+      },
+      "cobra": {
+        "supported": true,
+        "check": "fba"
       }
     },
     "jacobianFull": {
@@ -182,6 +226,10 @@
       "opencor": {
         "supported": false,
         "reason": "libopencor does not expose a Jacobian"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not compute Jacobians"
       }
     },
     "jacobianReduced": {
@@ -197,6 +245,10 @@
       "opencor": {
         "supported": false,
         "reason": "libopencor does not expose a Jacobian"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not compute Jacobians"
       }
     },
     "loop": {
@@ -209,6 +261,10 @@
         "check": "repeat"
       },
       "opencor": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "cobra": {
         "supported": true,
         "check": "repeat"
       }
@@ -225,6 +281,10 @@
       "opencor": {
         "supported": true,
         "check": "model_change"
+      },
+      "cobra": {
+        "supported": true,
+        "check": "model_change"
       }
     },
     "modelElementList": {
@@ -235,6 +295,9 @@
         "supported": true
       },
       "opencor": {
+        "supported": true
+      },
+      "cobra": {
         "supported": true
       }
     },
@@ -248,6 +311,9 @@
       "opencor": {
         "supported": true,
         "note": "SBML is converted to CellML with sbml2cellml"
+      },
+      "cobra": {
+        "supported": true
       }
     },
     "numericRange": {
@@ -258,6 +324,9 @@
         "supported": true
       },
       "opencor": {
+        "supported": true
+      },
+      "cobra": {
         "supported": true
       }
     },
@@ -273,6 +342,10 @@
       "opencor": {
         "supported": true,
         "check": "ode_simulation"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not integrate differential equations"
       }
     },
     "oneStepStochasticSimulation": {
@@ -290,6 +363,11 @@
         "supported": false,
         "reason": "stochastic tasks are deferred to a later phase",
         "deferred": true
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "stochastic tasks are deferred to a later phase",
+        "deferred": true
       }
     },
     "parameterRange": {
@@ -300,6 +378,9 @@
         "supported": true
       },
       "opencor": {
+        "supported": true
+      },
+      "cobra": {
         "supported": true
       }
     },
@@ -315,6 +396,10 @@
       "opencor": {
         "supported": true,
         "check": "repeat"
+      },
+      "cobra": {
+        "supported": true,
+        "check": "repeat"
       }
     },
     "range": {
@@ -326,6 +411,9 @@
       },
       "opencor": {
         "supported": true
+      },
+      "cobra": {
+        "supported": true
       }
     },
     "relabelData": {
@@ -336,6 +424,9 @@
         "supported": true
       },
       "opencor": {
+        "supported": true
+      },
+      "cobra": {
         "supported": true
       }
     },
@@ -349,6 +440,10 @@
         "check": "repeat"
       },
       "opencor": {
+        "supported": true,
+        "check": "repeat"
+      },
+      "cobra": {
         "supported": true,
         "check": "repeat"
       }
@@ -365,6 +460,10 @@
       "opencor": {
         "supported": false,
         "reason": "libopencor does not support steady-state tasks from Python (SedSteadyState segfaults when run; see https://github.com/opencor/libopencor/issues/604)"
+      },
+      "cobra": {
+        "supported": false,
+        "reason": "cobra is a constraint-based modeling tool; it does not find steady states of differential equations"
       }
     },
     "stringFormation": {
@@ -376,7 +475,39 @@
       },
       "opencor": {
         "supported": true
+      },
+      "cobra": {
+        "supported": true
       }
     }
+  },
+  "kinds": {
+    "explicitODESimulation": "ode",
+    "boundedODESimulation": "ode",
+    "oneStepODESimulation": "ode",
+    "steadyState": "steady",
+    "jacobianFull": "jacobian",
+    "jacobianReduced": "jacobian",
+    "fluxBalanceAnalysis": "fba"
+  },
+  "serves": {
+    "ode": [
+      "roadrunner",
+      "copasi",
+      "opencor"
+    ],
+    "steady": [
+      "roadrunner",
+      "copasi",
+      "opencor"
+    ],
+    "jacobian": [
+      "roadrunner",
+      "copasi",
+      "opencor"
+    ],
+    "fba": [
+      "cobra"
+    ]
   }
 }

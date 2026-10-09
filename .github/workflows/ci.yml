@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  SED2SUITE: ${{ github.workspace }}/sed2-test-suite
+  SED2SUITE_TOOLS: ${{ github.workspace }}/sed2-test-suite/tools
+
+jobs:
+  tests:
+    name: Tests on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The tests that compare with the expected results, and the suite runner, need the test suite.
+      - name: Check out sed2-test-suite
+        uses: actions/checkout@v4
+        with:
+          repository: sys-bio/sed2-test-suite
+          path: sed2-test-suite
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install the simulators and libraries
+        run: pip install -r requirements.txt
+
+      # libsed2 is not on PyPI yet, so install the newest Python wheel attached to a release at
+      # https://github.com/sys-bio/SED2/releases/ (the same way sed2-test-suite does).
+      - name: Install libsed2 from the latest SED2 release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --repo sys-bio/SED2 --limit 1 --json tagName --jq '.[0].tagName')
+          echo "Installing libsed2 wheel from sys-bio/SED2 release $tag"
+          mkdir -p "$RUNNER_TEMP/libsed2"
+          gh release download "$tag" --repo sys-bio/SED2 --pattern 'libsed2-*.whl' --dir "$RUNNER_TEMP/libsed2"
+          pip install "$RUNNER_TEMP"/libsed2/libsed2-*.whl
+
+      - name: Install pysed2translate
+        run: pip install -e . --no-deps
+
+      - name: Smoke test
+        run: python scripts/smoke_test.py
+
+      - name: Golden scripts are up to date
+        run: python scripts/update_golden.py --check
+
+      - name: Tests
+        run: python -m pytest -ra
+
+  suite:
+    name: Test suite cases (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out sed2-test-suite
+        uses: actions/checkout@v4
+        with:
+          repository: sys-bio/sed2-test-suite
+          path: sed2-test-suite
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Install libsed2 from the latest SED2 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --repo sys-bio/SED2 --limit 1 --json tagName --jq '.[0].tagName')
+          mkdir -p "$RUNNER_TEMP/libsed2"
+          gh release download "$tag" --repo sys-bio/SED2 --pattern 'libsed2-*.whl' --dir "$RUNNER_TEMP/libsed2"
+          pip install "$RUNNER_TEMP"/libsed2/libsed2-*.whl
+
+      - run: pip install -e . --no-deps
+
+      # Every semantic case on every backend, compared with the expected results (docs/testing.md).
+      - name: Run the suite
+        run: python -m pysed2translate.suite_runner

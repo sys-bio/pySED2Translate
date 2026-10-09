@@ -3,8 +3,11 @@
 Status: **drafted, none filed.**  These are texts for the maintainers of the community wrappers and of process-bigraph,
 for you to review and report (or not).  Nothing here has been, or will be, filed by an assistant.
 
-Environment of every observation: Python 3.13, process-bigraph 1.8.5, bigraph-schema 1.7.0, numpy 2.2.6; Linux (x86_64). Observed 2026-10-09.  viva-tellurium 0.1.2 with tellurium 2.2.13.1 / libroadrunner 2.10.0;
+Environment of every observation: Python 3.13, process-bigraph 1.8.5, bigraph-schema 1.7.0, numpy 2.5.3; Linux (x86_64). Observed 2026-10-09.  viva-tellurium 0.1.2 with tellurium 2.2.13.1 / libroadrunner 2.10.0;
 viva-copasi 0.1.2 with copasi-basico 0.87.
+
+Re-run in this environment when the list was last revised (2026-10-09): W-1 to W-4, W-10, P-1, P-2 (the research scripts and the
+snippets in the drafts), and W-12 to W-14 (new).  P-3 is exercised by `tests/native` (C2) on every test run.
 
 "Confirmed by running" means the reproduction below was executed and printed the stated result.  "Read" means the
 statement comes from reading the source and has not been run.
@@ -21,6 +24,10 @@ statement comes from reading the source and has not been run.
 | W-8.md | both | Steady-state step has no solver settings; no Jacobian step | read |
 | W-9.md | vivarium-collective | Feature request: an OpenCOR / CellML wrapper | absence of evidence |
 | W-10.md | both | The UTC steps are not idempotent: a second firing continues from the first one's end state | confirmed by running |
+| W-11.md | vivarium-collective | Feature request: a flux balance analysis wrapper | absence of evidence |
+| W-12.md | viva-copasi | The COPASI steps use schema types that only register_copasi() registers | confirmed by running |
+| W-13.md | both | A COPASI step after a Tellurium step in one process crashes the interpreter | confirmed by running |
+| W-14.md | viva-copasi | A model without species cannot be loaded | confirmed by running |
 | P-1.md | process-bigraph | Unknown keys in a process or step config are accepted silently | confirmed by running |
 | P-2.md | process-bigraph | A cycle of steps is broken silently, although the specification says cycles are disallowed | confirmed by running (earlier session) |
 | P-3.md | process-bigraph | Question: do processes with different intervals read state at the event time or at the start of their interval? | confirmed by running; spec text is ambiguous |

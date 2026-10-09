@@ -1,0 +1,33 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "model.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "bounded": {
+      "_type": "boundedODESimulation",
+      "model": "#tasks:m.model",
+      "independentVariable": "time",
+      "outputVariables": [
+        "S1"
+      ],
+      "independentVariableSpan": {
+        "start": 4,
+        "end": 10
+      },
+      "workingAlgorithms": [
+        {
+          "algorithm": "KISAO:0000019"
+        }
+      ]
+    }
+  },
+  "outputs": {
+    "later": {
+      "_type": "report",
+      "data": "#tasks:bounded"
+    }
+  }
+}

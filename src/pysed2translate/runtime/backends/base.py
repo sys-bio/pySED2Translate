@@ -15,7 +15,12 @@ EXIT_CANNOT_RUN = 11   # same as errors.EXIT_UNSUPPORTED: a generated script exi
 
 class BackendCannotRun(Exception):
     """The backend cannot run this model correctly (a feature of the model that the simulator does not support, found
-    only when the model is read).  The generated script reports it as a skip (exit status 11), never as a result."""
+    only when the model is read).  The generated script reports it as a skip (exit status 11), never as a result.
+    `backend` names the backend that cannot (default: the script's BACKEND)."""
+
+    def __init__(self, message: str = "", backend: Optional[str] = None):
+        super().__init__(message)
+        self.backend = backend
 
 
 @dataclass
@@ -48,6 +53,15 @@ class SteadyState:
     """A request for a steady state, already evaluated (no references left).  `algorithm` is the KiSAO term of the
     working algorithm, if the document named one."""
     independent_variable: str
+    output_variables: list
+    algorithm: Optional[str] = None
+
+
+@dataclass
+class FbaRequest:
+    """A request for a flux balance analysis, already evaluated.  `output_variables` are the model ids whose values
+    the result holds (reactions give their fluxes).  `algorithm` is the KiSAO term of the working algorithm, if the
+    document named one."""
     output_variables: list
     algorithm: Optional[str] = None
 
@@ -86,6 +100,15 @@ class Backend:
 
     def _jacobian(self, model: SbmlModel, reduced: bool) -> JacobianResult:
         raise DataError(f"backend {self.name} cannot compute Jacobians")
+
+    def _fba(self, model: SbmlModel, request: FbaRequest) -> np.ndarray:
+        raise DataError(f"backend {self.name} cannot do flux balance analysis")
+
+    def fba(self, model: SbmlModel, request: FbaRequest):
+        """Returns (AnnotatedData of the output variables at the optimum, the model).  The FBA changes nothing in the
+        model, so the model handed on as `.model` is the one that went in (docs/capability-table.md)."""
+        values = np.asarray(self._fba(model, request), dtype=float)
+        return AnnotatedData(values, [list(request.output_variables)], [""]), model
 
     def steady_state(self, model: SbmlModel, request: SteadyState):
         """Returns (AnnotatedData of the output variables at the steady state, the model at the steady state)."""

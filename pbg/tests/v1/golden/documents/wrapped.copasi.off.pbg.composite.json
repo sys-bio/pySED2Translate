@@ -1,0 +1,223 @@
+{
+  "name": "wrapped",
+  "description": "Translated from wrapped.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "wrapped.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "wrapped",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "decay.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "task_s": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+      "config": {
+        "id": "s",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "mode": "points",
+          "model": "r0",
+          "independentVariable": "time",
+          "label": "urn:sedml:symbol:time",
+          "outputVariables": {
+            "value": [
+              "S"
+            ]
+          },
+          "algorithm": null,
+          "settings": {},
+          "init": null,
+          "range": {
+            "kind": "numeric",
+            "items": {
+              "start": {
+                "value": 0.0
+              },
+              "end": {
+                "value": 10.0
+              },
+              "number_of_steps": {
+                "value": 20.0
+              }
+            }
+          }
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "s",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "s",
+          "model"
+        ]
+      }
+    },
+    "task_u": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedSteadyState",
+      "config": {
+        "id": "u",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "model": "r0",
+          "independentVariable": "time",
+          "outputVariables": {
+            "value": [
+              "S"
+            ]
+          },
+          "algorithm": null
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "u",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "u",
+          "model"
+        ]
+      }
+    },
+    "output_r": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "r",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "s",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "r"
+        ],
+        "failures": [
+          "failures",
+          "r"
+        ]
+      }
+    },
+    "output_q": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "q",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "u",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "q"
+        ],
+        "failures": [
+          "failures",
+          "q"
+        ]
+      }
+    }
+  }
+}

@@ -8,12 +8,12 @@ import pytest
 
 from pysed2translate import capabilities as cap
 from pysed2translate import errors
-from pysed2translate.backends import BACKENDS
+from pysed2translate.backends import ALL_BACKENDS, BACKENDS
 
 SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src")
 
 DEFERRED = ["boundedStochasticSimulation", "explicitStochasticSimulation", "oneStepStochasticSimulation",
-            "drawFromDistribution", "fluxBalanceAnalysis"]
+            "drawFromDistribution"]
 
 
 def entry(**kw):
@@ -26,7 +26,7 @@ def table(tasks, backends=("a", "b")):
 
 def test_shipped_table_is_valid():
     t = cap.load_table()
-    assert t.backends == list(BACKENDS)
+    assert t.backends == list(ALL_BACKENDS)
 
 
 def libsed2_task_types():
@@ -44,7 +44,7 @@ def test_every_libsed2_task_class_has_an_entry_for_every_backend():
     t = cap.load_table()
     types = libsed2_task_types()
     assert len(types) >= 25  # sanity: the discovery found the task classes
-    missing = [(ty, b) for ty in types for b in BACKENDS if t.entry(b, ty) is None]
+    missing = [(ty, b) for ty in types for b in ALL_BACKENDS if t.entry(b, ty) is None]
     assert missing == []
 
 
@@ -54,7 +54,7 @@ def test_table_has_no_entries_for_unknown_task_types():
 
 
 @pytest.mark.parametrize("task", DEFERRED)
-@pytest.mark.parametrize("backend", BACKENDS)
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_deferred_tasks(task, backend):
     t = cap.load_table()
     e = t.entry(backend, task)
@@ -173,16 +173,74 @@ FBA_DOC = {
         "f": {"_type": "fluxBalanceAnalysis", "model": "#tasks:m.model", "outputVariables": ["r1"]},
     },
 }
+STOCHASTIC_DOC = {
+    "version": "v1.0.0",
+    "tasks": {
+        "m": {"_type": "modelImport", "location": "m.sbml", "language": "urn:sedml:language:sbml"},
+        "t": {"_type": "oneStepStochasticSimulation", "model": "#tasks:m.model", "independentVariable": "time",
+              "outputVariables": ["S1"], "independentStep": 1},
+    },
+}
 
 
 def test_cli_skips_unsupported_task_with_exit_11(tmp_path):
     pytest.importorskip("libsed2")
     p = tmp_path / "00009.sed2.json"
+    p.write_text(json.dumps(STOCHASTIC_DOC))
+    for b in ALL_BACKENDS:
+        r = run_cli(str(p), "-b", b)
+        assert r.returncode == errors.EXIT_UNSUPPORTED, r.stderr
+        assert b in r.stderr and "oneStepStochasticSimulation" in r.stderr and "deferred" in r.stderr
+
+
+def test_flux_balance_analysis_goes_to_cobra_whatever_the_default_backend_is(tmp_path):
+    pytest.importorskip("libsed2")
+    p = tmp_path / "00009.sed2.json"
     p.write_text(json.dumps(FBA_DOC))
     for b in BACKENDS:
         r = run_cli(str(p), "-b", b)
-        assert r.returncode == errors.EXIT_UNSUPPORTED, r.stderr
-        assert b in r.stderr and "fluxBalanceAnalysis" in r.stderr and "deferred" in r.stderr
+        assert r.returncode == 0, r.stderr
+        assert f"backend: {b}; fba: cobra" in r.stdout and "rt.backends.get('cobra').fba(" in r.stdout
+    r = run_cli(str(p), "-b", "cobra")
+    assert r.returncode == 0 and "rt.backends.get(BACKEND).fba(" in r.stdout and "fba:" not in r.stdout.splitlines()[1]
+
+
+def test_a_dynamic_task_on_cobra_is_a_skip_with_the_reason(tmp_path):
+    pytest.importorskip("libsed2")
+    doc = {"version": "v1.0.0", "tasks": {"m": _MODEL, "s": {"_type": "explicitODESimulation", **_SIM,
+           "independentVariableRange": {"_type": "numericRange", "start": 0, "end": 1, "numberOfSteps": 2}}}}
+    p = tmp_path / "00009.sed2.json"
+    p.write_text(json.dumps(doc))
+    r = run_cli(str(p), "-b", "cobra")
+    assert r.returncode == errors.EXIT_UNSUPPORTED and "does not integrate differential equations" in r.stderr
+
+
+def test_backend_options_for_one_kind(tmp_path):
+    pytest.importorskip("libsed2")
+    p = tmp_path / "00009.sed2.json"
+    p.write_text(json.dumps(FBA_DOC))
+    r = run_cli(str(p), "-b", "roadrunner", "-b", "fba=cobra:scipy")
+    assert r.returncode == 0 and "rt.backends.get('cobra:scipy').fba(" in r.stdout
+    r = run_cli(str(p), "-b", "cobra:glpk")
+    assert r.returncode == 0 and "BACKEND = 'cobra:glpk'" in r.stdout
+    for bad in (["-b", "cobra:nosuch"], ["-b", "fba=cobra"], ["-b", "roadrunner", "-b", "copasi"],
+                ["-b", "roadrunner", "-b", "nokind=cobra"], ["-b", "roadrunner", "-b", "fba=cobra", "-b", "fba=cobra:glpk"],
+                ["-b", "roadrunner:x"]):
+        r = run_cli(str(p), *bad)
+        assert r.returncode == errors.EXIT_USAGE or r.returncode == errors.EXIT_TRANSLATION, (bad, r.stderr)
+        assert r.stderr.startswith("error:"), (bad, r.stderr)
+
+
+def test_backend_for_resolution():
+    t = cap.load_table()
+    assert t.backend_for("calculation", "roadrunner") == "roadrunner"
+    assert t.backend_for("explicitODESimulation", "copasi") == "copasi"
+    assert t.backend_for("explicitODESimulation", "cobra") == "cobra"                  # refused later, with the reason
+    assert t.backend_for("fluxBalanceAnalysis", "opencor") == "cobra"                  # the only one that serves fba
+    assert t.backend_for("fluxBalanceAnalysis", "cobra:scipy") == "cobra:scipy"
+    assert t.backend_for("fluxBalanceAnalysis", "copasi", {"fba": "cobra:glpk"}) == "cobra:glpk"
+    assert t.backend_for("steadyState", "copasi", {"steady": "roadrunner"}) == "roadrunner"
+    assert t.backend_for("steadyState", "copasi", {"fba": "cobra"}) == "copasi"
 
 
 _MODEL = {"_type": "modelImport", "location": "m.sbml", "language": "urn:sedml:language:sbml"}
@@ -196,12 +254,11 @@ DEFERRED_TASKS = {
     "oneStepStochasticSimulation": {"_type": "oneStepStochasticSimulation", **_SIM, "independentStep": 1},
     "drawFromDistribution": {"_type": "drawFromDistribution", "distribution": "http://www.sbml.org/sbml/symbols/distrib/normal",
                              "arguments": [0, 1]},
-    "fluxBalanceAnalysis": {"_type": "fluxBalanceAnalysis", "model": "#tasks:m.model", "outputVariables": ["r1"]},
 }
 
 
 @pytest.mark.parametrize("task", sorted(DEFERRED_TASKS))
-@pytest.mark.parametrize("backend", BACKENDS)
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_cli_skips_every_deferred_task_type(tmp_path, task, backend):
     pytest.importorskip("libsed2")
     doc = {"version": "v1.0.0", "tasks": {"m": _MODEL, "t": DEFERRED_TASKS[task]}}
@@ -215,6 +272,6 @@ def test_cli_skips_every_deferred_task_type(tmp_path, task, backend):
 def test_every_task_type_is_either_supported_or_has_a_reason():
     t = cap.load_table()
     for ty in t.task_types:
-        for b in BACKENDS:
+        for b in ALL_BACKENDS:
             e = t.entry(b, ty)
             assert e["supported"] or e.get("reason"), (ty, b)

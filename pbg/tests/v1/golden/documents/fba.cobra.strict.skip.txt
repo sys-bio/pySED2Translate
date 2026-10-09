@@ -1,0 +1,2 @@
+# The translator skips this document (exit status 11):
+backend 'viva wrappers (--wrappers strict, for cobra)' cannot perform tasks 'base', 'sc:subTasks:f': task 'base': W-11 no flux balance analysis wrapper; task 'sc:subTasks:f': W-11 no flux balance analysis wrapper

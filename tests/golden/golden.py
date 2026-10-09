@@ -15,7 +15,7 @@ from __future__ import annotations
 import glob
 import os
 
-from pysed2translate.backends import BACKENDS
+from pysed2translate.backends import ALL_BACKENDS, BACKENDS
 from pysed2translate.errors import UnsupportedTaskError
 from pysed2translate.translate import translate_file
 
@@ -29,8 +29,13 @@ def document_names() -> list:
     return sorted(os.path.basename(p)[: -len(".sed2.json")] for p in glob.glob(os.path.join(DOCS, "*.sed2.json")))
 
 
+def backends_of(name: str) -> tuple:
+    """Every document is rendered for the dynamic simulators; the flux balance analysis documents for the cobra backend too."""
+    return ALL_BACKENDS if name.startswith("fba") else BACKENDS
+
+
 def all_cases() -> list:
-    return [(name, backend) for name in document_names() for backend in BACKENDS]
+    return [(name, backend) for name in document_names() for backend in backends_of(name)]
 
 
 def render(name: str, backend: str) -> tuple:

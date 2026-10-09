@@ -1,0 +1,291 @@
+{
+  "name": "constants_reports",
+  "description": "Translated from constants_reports.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "constants_reports.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "constants": {
+      "x": 3,
+      "vec": [
+        1,
+        2,
+        3
+      ],
+      "grid": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "names": [
+        "a",
+        "b"
+      ],
+      "labelled": {
+        "p": 1,
+        "q": 2
+      }
+    },
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "constants_reports",
+      "png": true
+    },
+    "output_scalar": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "scalar",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "x"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "scalar"
+        ],
+        "failures": [
+          "failures",
+          "scalar"
+        ]
+      }
+    },
+    "output_vector": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "vector",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "vec"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "vector"
+        ],
+        "failures": [
+          "failures",
+          "vector"
+        ]
+      }
+    },
+    "output_slice": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "slice",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": [
+              [
+                [
+                  "range",
+                  [
+                    1,
+                    null
+                  ]
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "vec"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "slice"
+        ],
+        "failures": [
+          "failures",
+          "slice"
+        ]
+      }
+    },
+    "output_cell": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "cell",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": [
+              [
+                [
+                  "int",
+                  1
+                ],
+                [
+                  "int",
+                  0
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "grid"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "cell"
+        ],
+        "failures": [
+          "failures",
+          "cell"
+        ]
+      }
+    },
+    "output_names": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "names",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "names"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "names"
+        ],
+        "failures": [
+          "failures",
+          "names"
+        ]
+      }
+    },
+    "output_keyed": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "keyed",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": [
+              [
+                [
+                  "label",
+                  "q"
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "labelled"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "keyed"
+        ],
+        "failures": [
+          "failures",
+          "keyed"
+        ]
+      }
+    }
+  }
+}

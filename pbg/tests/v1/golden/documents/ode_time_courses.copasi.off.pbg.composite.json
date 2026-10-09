@@ -1,0 +1,308 @@
+{
+  "name": "ode_time_courses",
+  "description": "Translated from ode_time_courses.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "ode_time_courses.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "constants": {
+      "tol": 1e-08
+    },
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "ode_time_courses",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "model.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "task_explicit": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+      "config": {
+        "id": "explicit",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          },
+          "r1": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "mode": "points",
+          "model": "r0",
+          "independentVariable": "time",
+          "label": "time",
+          "outputVariables": {
+            "value": [
+              "S1",
+              "S2"
+            ]
+          },
+          "algorithm": null,
+          "settings": {
+            "relativeTolerance": [
+              "float",
+              {
+                "ref": "r1"
+              }
+            ],
+            "maxNumberOfSteps": [
+              "int",
+              {
+                "value": 5000
+              }
+            ]
+          },
+          "init": null,
+          "range": {
+            "kind": "numeric",
+            "items": {
+              "start": {
+                "value": 0.0
+              },
+              "end": {
+                "value": 4.0
+              },
+              "number_of_steps": {
+                "value": 4.0
+              }
+            }
+          }
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ],
+        "r1": [
+          "constants",
+          "tol"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "explicit",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "explicit",
+          "model"
+        ]
+      }
+    },
+    "task_one": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+      "config": {
+        "id": "one",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "mode": "step",
+          "model": "r0",
+          "independentVariable": "time",
+          "label": "time",
+          "outputVariables": {
+            "value": [
+              "S1"
+            ]
+          },
+          "algorithm": null,
+          "settings": {},
+          "init": {
+            "value": 1.0
+          },
+          "step": {
+            "value": 2.0
+          }
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "explicit",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "one",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "one",
+          "model"
+        ]
+      }
+    },
+    "output_traj": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "traj",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "explicit",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "traj"
+        ],
+        "failures": [
+          "failures",
+          "traj"
+        ]
+      }
+    },
+    "output_step": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "step",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "one",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "step"
+        ],
+        "failures": [
+          "failures",
+          "step"
+        ]
+      }
+    },
+    "output_s1": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "s1",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": [
+              [
+                [
+                  "range",
+                  [
+                    0,
+                    5
+                  ]
+                ],
+                [
+                  "label",
+                  "S1"
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "explicit",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "s1"
+        ],
+        "failures": [
+          "failures",
+          "s1"
+        ]
+      }
+    }
+  }
+}

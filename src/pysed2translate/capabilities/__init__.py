@@ -3,6 +3,9 @@
     table = load_table()
     table.check_task("opencor", "j1", "jacobianFull", task_json)     # raises UnsupportedTaskError
     table.check_document("opencor", doc_json)                         # checks every task, nested ones too
+    table.check_document("roadrunner", doc_json, {"fba": "cobra:scipy"})   # a different backend for one kind of work
+
+A backend may carry a variant (`cobra:scipy`); the table is keyed by the backend's name alone.
 """
 from __future__ import annotations
 
@@ -10,6 +13,7 @@ import json
 import os
 from typing import Optional
 
+from ..backends import split_backend
 from ..errors import TranslationError, UnsupportedTaskError
 from .checks import CHECKS
 
@@ -39,6 +43,13 @@ def validate_table(data: dict) -> list:
     if problems:
         return problems
     backends = data["backends"]
+    for task, kind in data.get("kinds", {}).items():
+        if task not in data["tasks"]:
+            problems.append(f"kinds/{task}: not a listed task")
+        if kind not in data.get("serves", {}):
+            problems.append(f"kinds/{task}: kind {kind!r} has no entry in 'serves'")
+    for kind, names in data.get("serves", {}).items():
+        problems += [f"serves/{kind}: {b!r} is not a listed backend" for b in names if b not in backends]
     for task, entries in data["tasks"].items():
         for b in backends:
             if b not in entries:
@@ -64,11 +75,33 @@ class CapabilityTable:
     def task_types(self) -> list:
         return sorted(self._data["tasks"])
 
+    def kind_of(self, task_type: str) -> Optional[str]:
+        """The kind of work ('ode', 'steady', 'jacobian', 'fba') of a task type that a simulator performs, else None."""
+        return self._data.get("kinds", {}).get(task_type)
+
+    def serving(self, kind: str) -> list:
+        return list(self._data.get("serves", {}).get(kind, []))
+
+    def backend_for(self, task_type: str, default: str, overrides: Optional[dict] = None) -> str:
+        """The backend (name[:variant]) that performs a task: the one `overrides` names for the task's kind, else
+        `default` if it serves the kind, else the only backend that does (flux balance analysis: cobra), else `default`
+        (which the table then refuses with the reason)."""
+        kind = self.kind_of(task_type)
+        if kind is None:
+            return default
+        if overrides and kind in overrides:
+            return overrides[kind]
+        serving = self.serving(kind)
+        if split_backend(default)[0] in serving or len(serving) != 1:
+            return default
+        return serving[0]
+
     def entry(self, backend: str, task_type: str) -> Optional[dict]:
         return self._data["tasks"].get(task_type, {}).get(backend)
 
     def verdict(self, backend: str, task_type: str, task_json: Optional[dict] = None) -> Optional[str]:
         """None if the backend can perform the task, otherwise the reason it cannot."""
+        backend = split_backend(backend)[0]
         if backend not in self._data["backends"]:
             raise TranslationError(f"unknown backend {backend!r}")
         entry = self.entry(backend, task_type)
@@ -89,15 +122,16 @@ class CapabilityTable:
         if reason is not None:
             raise UnsupportedTaskError(backend, f"task '{task_id}' ({task_type})", reason)
 
-    def check_document(self, backend: str, doc_json: dict) -> None:
-        """Check every task in a document (given as its JSON), including nested subTasks."""
+    def check_document(self, backend: str, doc_json: dict, overrides: Optional[dict] = None) -> None:
+        """Check every task in a document (given as its JSON), including nested subTasks.  Each task is checked
+        against the backend that will perform it (`backend_for`)."""
         def walk(tasks: dict) -> None:
             for tid, t in tasks.items():
                 if not isinstance(t, dict):
                     continue
                 ttype = t.get("_type")
                 if isinstance(ttype, str):
-                    self.check_task(backend, tid, ttype, t)
+                    self.check_task(self.backend_for(ttype, backend, overrides), tid, ttype, t)
                 sub = t.get("subTasks")
                 if isinstance(sub, dict):
                     walk(sub)

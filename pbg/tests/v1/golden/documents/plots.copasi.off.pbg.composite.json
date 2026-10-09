@@ -1,0 +1,243 @@
+{
+  "name": "plots",
+  "description": "Translated from plots.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "plots.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "constants": {
+      "t": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "y": [
+        1,
+        4,
+        9,
+        16
+      ],
+      "gx": [
+        0,
+        1
+      ],
+      "gy": [
+        0,
+        1,
+        2
+      ],
+      "z": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "plots",
+      "png": true
+    },
+    "output_p": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedPlot2D",
+      "config": {
+        "id": "p",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          },
+          "r1": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "curves": [
+            {
+              "id": "c",
+              "position": 0,
+              "type": {
+                "value": "points"
+              },
+              "order": {
+                "value": 1
+              },
+              "yAxis": null,
+              "fields": {
+                "x": "r0",
+                "y": "r1"
+              }
+            }
+          ],
+          "options": {
+            "axes": {
+              "x": {
+                "scale": {
+                  "value": "linear"
+                }
+              },
+              "y": {
+                "scale": {
+                  "value": "log10"
+                }
+              }
+            },
+            "legend": {
+              "value": true
+            },
+            "width": null,
+            "height": null
+          }
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "t"
+        ],
+        "r1": [
+          "constants",
+          "y"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "p"
+        ],
+        "failures": [
+          "failures",
+          "p"
+        ]
+      }
+    },
+    "output_q": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedPlot3D",
+      "config": {
+        "id": "q",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          },
+          "r1": {
+            "const": true,
+            "index": null
+          },
+          "r2": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "surfaces": [
+            {
+              "id": "s",
+              "position": 0,
+              "type": {
+                "value": "heatMap"
+              },
+              "order": null,
+              "fields": {
+                "x": "r0",
+                "y": "r1",
+                "z": "r2"
+              }
+            }
+          ],
+          "options": {
+            "axes": {},
+            "legend": null,
+            "width": null,
+            "height": null
+          }
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "gx"
+        ],
+        "r1": [
+          "constants",
+          "gy"
+        ],
+        "r2": [
+          "constants",
+          "z"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "q"
+        ],
+        "failures": [
+          "failures",
+          "q"
+        ]
+      }
+    },
+    "output_r": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "r",
+        "refs": {
+          "r0": {
+            "const": true,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "constants",
+          "y"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "r"
+        ],
+        "failures": [
+          "failures",
+          "r"
+        ]
+      }
+    }
+  }
+}

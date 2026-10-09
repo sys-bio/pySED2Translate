@@ -1,0 +1,2 @@
+# The translator skips this document (exit status 11):
+backend 'viva wrappers (--wrappers strict, for roadrunner)' cannot perform task 'bounded': W-5 output times must be uniform (n_points); no explicit time vector, no solver-chosen points (boundedODESimulation lets the solver choose the output points)

@@ -1,0 +1,93 @@
+{
+  "state": {
+    "S": 10.0,
+    "B": 0.02,
+    "u": -4.166666666666667,
+    "mu": 0.41666666666666674,
+    "lb": -4.166666666666667,
+    "ode": {
+      "_type": "process",
+      "address": "local:!procs.OdeProc",
+      "interval": 1.0,
+      "config": {},
+      "inputs": {
+        "S": [
+          "S"
+        ],
+        "B": [
+          "B"
+        ],
+        "u": [
+          "u"
+        ],
+        "mu": [
+          "mu"
+        ]
+      },
+      "outputs": {
+        "S": [
+          "S"
+        ],
+        "B": [
+          "B"
+        ],
+        "lb": [
+          "lb"
+        ]
+      }
+    },
+    "fba": {
+      "_type": "process",
+      "address": "local:!procs.FbaProc",
+      "interval": 1.0,
+      "config": {},
+      "inputs": {
+        "lb": [
+          "lb"
+        ]
+      },
+      "outputs": {
+        "u": [
+          "u"
+        ],
+        "mu": [
+          "mu"
+        ]
+      }
+    },
+    "emitter": {
+      "_type": "step",
+      "address": "local:RAMEmitter",
+      "config": {
+        "emit": {
+          "t": "float",
+          "S": "float",
+          "B": "float",
+          "lb": "float",
+          "u": "float",
+          "mu": "float"
+        }
+      },
+      "inputs": {
+        "t": [
+          "global_time"
+        ],
+        "S": [
+          "S"
+        ],
+        "B": [
+          "B"
+        ],
+        "lb": [
+          "lb"
+        ],
+        "u": [
+          "u"
+        ],
+        "mu": [
+          "mu"
+        ]
+      }
+    }
+  }
+}

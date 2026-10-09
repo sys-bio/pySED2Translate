@@ -1,0 +1,54 @@
+{
+  "version": "v1.0.0",
+  "constants": {
+    "tol": 1e-08
+  },
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "model.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "explicit": {
+      "_type": "explicitODESimulation",
+      "model": "#tasks:m.model",
+      "independentVariable": "time",
+      "outputVariables": [
+        "S1",
+        "S2"
+      ],
+      "independentVariableRange": {
+        "_type": "numericRange",
+        "start": 0,
+        "numberOfSteps": 4,
+        "end": 4
+      },
+      "relativeTolerance": "#constants:tol",
+      "maxNumberOfSteps": 5000
+    },
+    "one": {
+      "_type": "oneStepODESimulation",
+      "model": "#tasks:explicit.model",
+      "independentVariable": "time",
+      "outputVariables": [
+        "S1"
+      ],
+      "independentStep": 2,
+      "independentVariableInit": 1
+    }
+  },
+  "outputs": {
+    "traj": {
+      "_type": "report",
+      "data": "#tasks:explicit"
+    },
+    "step": {
+      "_type": "report",
+      "data": "#tasks:one"
+    },
+    "s1": {
+      "_type": "report",
+      "data": "#tasks:explicit[0:5, 'S1']"
+    }
+  }
+}

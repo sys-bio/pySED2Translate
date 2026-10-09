@@ -63,6 +63,9 @@ def _independent_variable(tr: Translator, task_id: str, sim) -> str:
     return "time" if text in ("time", "urn:sedml:symbol:time") else text
 
 
+_ODE_TYPES = {"points": "explicitODESimulation", "span": "boundedODESimulation", "step": "oneStepODESimulation"}
+
+
 def _time_course(tr: Translator, task_id: str, sim, where: str) -> None:
     model = tr.ref(sim.get_model())
     init = orref(sim, "independentVariableInit")
@@ -81,7 +84,7 @@ def _time_course(tr: Translator, task_id: str, sim, where: str) -> None:
     args.append(f"settings={_settings(tr, sim)}")
     args.append(f"algorithm={_algorithm(tr, task_id, sim)}")
     data, end_model = tr.ident("task", task_id), tr.ident("task", task_id) + "_model"
-    tr.cb.line(f"{data}, {end_model} = rt.backends.get(BACKEND).time_course({model}, "
+    tr.cb.line(f"{data}, {end_model} = rt.backends.get({tr.backend_expr(_ODE_TYPES[where])}).time_course({model}, "
                f"rt.backends.TimeCourse({', '.join(args)}))")
     tr.register_task(task_id, TaskValues({None: data, "model": end_model}))
 
@@ -110,15 +113,26 @@ def steady_state(tr: Translator, task_id: str, task) -> None:
     data, end_model = tr.ident("task", task_id), tr.ident("task", task_id) + "_model"
     args = [f"independent_variable={iv!r}", f"output_variables={_output_variables(tr, task)}",
             f"algorithm={_algorithm(tr, task_id, task)}"]
-    tr.cb.line(f"{data}, {end_model} = rt.backends.get(BACKEND).steady_state({model}, "
+    tr.cb.line(f"{data}, {end_model} = rt.backends.get({tr.backend_expr('steadyState')}).steady_state({model}, "
                f"rt.backends.SteadyState({', '.join(args)}))")
+    tr.register_task(task_id, TaskValues({None: data, "model": end_model}))
+
+
+@task_handler("fluxBalanceAnalysis")
+def flux_balance_analysis(tr: Translator, task_id: str, task) -> None:
+    """The result is one value per output variable; `.model` is the model that went in (the analysis changes nothing)."""
+    model = tr.ref(task.get_model())
+    data, end_model = tr.ident("task", task_id), tr.ident("task", task_id) + "_model"
+    args = [f"output_variables={_output_variables(tr, task)}", f"algorithm={_algorithm(tr, task_id, task)}"]
+    tr.cb.line(f"{data}, {end_model} = rt.backends.get({tr.backend_expr('fluxBalanceAnalysis')}).fba({model}, "
+               f"rt.backends.FbaRequest({', '.join(args)}))")
     tr.register_task(task_id, TaskValues({None: data, "model": end_model}))
 
 
 def _jacobian(tr: Translator, task_id: str, task, reduced: bool) -> None:
     model = tr.ref(task.get_model())
     data = tr.ident("task", task_id)
-    tr.cb.line(f"{data} = rt.backends.get(BACKEND).jacobian({model}, reduced={reduced})")
+    tr.cb.line(f"{data} = rt.backends.get({tr.backend_expr('jacobianReduced' if reduced else 'jacobianFull')}).jacobian({model}, reduced={reduced})")
     tr.register_task(task_id, TaskValues({None: data}))
 
 

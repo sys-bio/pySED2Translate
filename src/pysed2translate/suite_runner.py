@@ -41,7 +41,7 @@ import tempfile
 import time
 from typing import Optional
 
-from .backends import BACKENDS
+from .backends import ALL_BACKENDS, BACKENDS, FBA_BACKENDS, backend_problem, parse_backend_args, split_backend
 from .errors import EXIT_UNSUPPORTED, InvalidDocumentError, TranslationError, UnsupportedTaskError
 from .translate import translate_file
 
@@ -151,15 +151,55 @@ def run_script(script: str, case_dir: str, out_dir: str, manifest: str, timeout:
     return r.returncode, r.stderr
 
 
+def backend_label(backend: str, kind_backends: Optional[dict] = None) -> str:
+    """'roadrunner' or 'cobra:scipy', or for a combination 'roadrunner+fba=cobra:scipy'."""
+    return backend + "".join(f"+{k}={v}" for k, v in sorted((kind_backends or {}).items()))
+
+
+def _file_label(label: str) -> str:
+    return label.replace(":", "-").replace("=", "-")
+
+
+def kinds_in(document_json: dict) -> set:
+    """The kinds of work ('ode', 'steady', 'jacobian', 'fba') the document's tasks need a simulator for."""
+    from .capabilities import load_table
+
+    table, found = load_table(), set()
+
+    def walk(tasks) -> None:
+        for t in (tasks or {}).values():
+            if isinstance(t, dict):
+                kind = table.kind_of(t.get("_type", ""))
+                if kind:
+                    found.add(kind)
+                walk(t.get("subTasks"))
+
+    walk(document_json.get("tasks"))
+    return found
+
+
+def default_backends(case_dir: str) -> list:
+    """The backends a case is run on when none are named: the dynamic simulators, or the flux balance analysers for a
+    case whose only simulation work is flux balance analysis."""
+    try:
+        with open(document_path(case_dir), "r", encoding="utf-8") as f:
+            kinds = kinds_in(json.load(f))
+    except (OSError, ValueError):
+        return list(BACKENDS)   # run_case reports the unreadable document
+    return list(FBA_BACKENDS) if kinds == {"fba"} else list(BACKENDS)
+
+
 def run_case(suite: Suite, case_dir: str, backend: str, work_dir: str, timeout: float = DEFAULT_TIMEOUT,
-             new_case: bool = False) -> RunResult:
-    """Translate and run one case on one backend, and compare with the expected results.
+             new_case: bool = False, kind_backends: Optional[dict] = None) -> RunResult:
+    """Translate and run one case on one backend (name[:variant]; `kind_backends` names other backends for single
+    kinds of work), and compare with the expected results.
 
     With `new_case`, a case that has no settings.json yet is run and not compared (status PASS, a reason saying
     so), which is what promoting its first results needs."""
     case = os.path.basename(case_dir)
     started = time.monotonic()
-    res = RunResult(case, backend, ERROR)
+    label = backend_label(backend, kind_backends)
+    res = RunResult(case, label, ERROR)
 
     def done(status, reason="") -> RunResult:
         res.status, res.reason, res.seconds = status, reason, time.monotonic() - started
@@ -173,13 +213,13 @@ def run_case(suite: Suite, case_dir: str, backend: str, work_dir: str, timeout: 
         settings = None
     except (OSError, ValueError) as e:
         return done(ERROR, f"no usable settings.json: {e}")
-    res.canonical = settings is not None and backend in settings.get("backends", [])
+    res.canonical = settings is not None and not kind_backends and split_backend(backend)[0] in settings.get("backends", [])
     doc_path = document_path(case_dir)
     if not os.path.exists(doc_path):
         return done(ERROR, f"{os.path.basename(doc_path)} does not exist")
 
     try:
-        text = translate_file(doc_path, backend, prefix=case, input_dir=case_dir)
+        text = translate_file(doc_path, backend, prefix=case, input_dir=case_dir, kind_backends=kind_backends)
     except UnsupportedTaskError as e:
         if res.canonical:
             return done(FAIL, f"unsupported, but {backend} is recorded as having produced canonical results: {e}")
@@ -189,11 +229,11 @@ def run_case(suite: Suite, case_dir: str, backend: str, work_dir: str, timeout: 
     except (TranslationError, ImportError) as e:
         return done(ERROR, f"translation failed: {e}")
 
-    out_dir = os.path.join(work_dir, case, backend)
+    out_dir = os.path.join(work_dir, case, _file_label(label))
     shutil.rmtree(out_dir, ignore_errors=True)
     os.makedirs(out_dir)
     res.out_dir = out_dir
-    script = os.path.join(out_dir, f"{case}.{backend}.py")
+    script = os.path.join(out_dir, f"{case}.{_file_label(label)}.py")
     with open(script, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
     manifest = os.path.join(out_dir, "manifest.json")
@@ -300,7 +340,7 @@ def draft_entries(suite: Suite, found: list) -> list:
 # --------------------------------------------------------------------------- promoting results
 
 def simulator_version(backend: str) -> str:
-    modules = {"roadrunner": "roadrunner", "copasi": "basico", "opencor": "libopencor"}
+    modules = {"roadrunner": "roadrunner", "copasi": "basico", "opencor": "libopencor", "cobra": "cobra"}
     try:
         import importlib
 
@@ -309,7 +349,8 @@ def simulator_version(backend: str) -> str:
         if version is None:
             import importlib.metadata as md
 
-            version = md.version({"roadrunner": "libroadrunner", "copasi": "copasi-basico", "opencor": "libopencor"}[backend])
+            version = md.version({"roadrunner": "libroadrunner", "copasi": "copasi-basico", "opencor": "libopencor",
+                                  "cobra": "cobra"}[backend])
         return str(version)
     except Exception:  # noqa: BLE001
         return "unknown"
@@ -340,7 +381,7 @@ def promote(suite: Suite, case_dir: str, result: RunResult, force: bool = False)
     sims = settings["provenance"].setdefault("simulators", [])
     sims[:] = [s for s in sims if s["name"] != result.backend]
     sims.append({"name": result.backend, "version": simulator_version(result.backend)})
-    settings["backends"] = sorted(set(settings.get("backends", [])) | {result.backend}, key=BACKENDS.index)
+    settings["backends"] = sorted(set(settings.get("backends", [])) | {result.backend}, key=ALL_BACKENDS.index)
     written = []
     for (section, rid), entry in sorted(entries.items()):
         shutil.copyfile(os.path.join(result.out_dir, entry["file"]), os.path.join(case_dir, entry["file"]))
@@ -379,7 +420,7 @@ def admit(suite: Suite, case_dir: str, results: list, today: Optional[str] = Non
     skipped = [r.backend for r in mine if r.status == SKIP]
     path = suite.settings.find_settings_file(case_dir)
     settings = suite.settings.load_settings(path)
-    settings["backends"] = sorted(passed, key=BACKENDS.index)
+    settings["backends"] = sorted(passed, key=ALL_BACKENDS.index)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(settings, f, indent=2)
         f.write("\n")
@@ -413,6 +454,13 @@ def format_matrix(results: list, backends: list) -> str:
     return "\n".join(lines)
 
 
+def columns(results: list) -> list:
+    """The backends that appear in the results, in the order of the table of backends (variants after their name)."""
+    names = {r.backend for r in results}
+    return sorted(names, key=lambda b: (ALL_BACKENDS.index(split_backend(b.split("+")[0])[0])
+                                        if split_backend(b.split("+")[0])[0] in ALL_BACKENDS else len(ALL_BACKENDS), b))
+
+
 def format_report(results: list, backends: list) -> str:
     lines = [format_matrix(results, backends), ""]
     for r in results:
@@ -429,13 +477,16 @@ def build_parser() -> argparse.ArgumentParser:
                                  formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__.split("\n\n", 1)[1])
     ap.add_argument("cases", nargs="*", help="case numbers, folders or .sed2.json files (default: every semantic case)")
     ap.add_argument("--suite", help="the sed2-test-suite folder")
-    ap.add_argument("-b", "--backend", action="append", choices=BACKENDS, help="backend to run (repeatable; default: all)")
+    ap.add_argument("-b", "--backend", action="append", metavar="[KIND=]NAME[:VARIANT]",
+                    help="backend to run (repeatable; default: every dynamic simulator, or cobra for a case that is only "
+                         "flux balance analysis).  Plain names run one after the other; with a KIND= form the options "
+                         "together make one combined backend, for example: -b roadrunner -b fba=cobra:scipy")
     ap.add_argument("--work-dir", help="keep the generated scripts and outputs here (default: a temporary folder)")
     ap.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT, help="seconds allowed per script run")
     ap.add_argument("--crosscheck", action="store_true", help="also compare the backends' outputs with one another")
     ap.add_argument("--log-draft", action="store_true",
                     help="print draft disagreement-log entries for the differences found (implies --crosscheck)")
-    ap.add_argument("--promote", metavar="BACKEND", choices=BACKENDS,
+    ap.add_argument("--promote", metavar="BACKEND", choices=ALL_BACKENDS,
                     help="record BACKEND's results as the expected results of the chosen cases and add it to settings.json")
     ap.add_argument("--force", action="store_true", help="with --promote: replace existing result files")
     ap.add_argument("--admit", action="store_true",
@@ -458,8 +509,23 @@ def main(argv=None) -> int:
     if args.admit and (args.promote or args.backend):
         print("error: --admit runs every backend; leave out -b and --promote", file=sys.stderr)
         return 2
-    backends = args.backend or ([args.promote] if args.promote else list(BACKENDS))
-    if args.promote and backends != [args.promote]:
+    runs = None            # None: each case's default backends; else a list of (backend, kind_backends)
+    if args.backend:
+        try:
+            if any("=" in b for b in args.backend):
+                default, kinds = parse_backend_args(args.backend)
+                runs = [(default, kinds)]
+            else:
+                bad = [p for p in map(backend_problem, args.backend) if p]
+                if bad:
+                    raise ValueError(bad[0])
+                runs = [(b, {}) for b in args.backend]
+        except ValueError as e:
+            print(f"error: --backend: {e}", file=sys.stderr)
+            return 2
+    elif args.promote:
+        runs = [(args.promote, {})]
+    if args.promote and runs != [(args.promote, {})]:
         print("error: --promote runs only the backend it names; leave out -b or use the same one", file=sys.stderr)
         return 2
     if not cases:
@@ -475,8 +541,8 @@ def main(argv=None) -> int:
     try:
         for case_dir in cases:
             case_results = []
-            for backend in backends:
-                r = run_case(suite, case_dir, backend, work, args.timeout, new_case=bool(args.promote))
+            for backend, kinds in (runs if runs is not None else [(b, {}) for b in default_backends(case_dir)]):
+                r = run_case(suite, case_dir, backend, work, args.timeout, new_case=bool(args.promote), kind_backends=kinds)
                 case_results.append(r)
                 if args.promote:
                     try:
@@ -501,7 +567,7 @@ def main(argv=None) -> int:
                                                  "message": d.message()} for d in found],
                               "draftEntries": drafts}, indent=2))
         else:
-            print(format_report(results, backends))
+            print(format_report(results, columns(results)))
             for line in admitted:
                 print(line)
             if found:

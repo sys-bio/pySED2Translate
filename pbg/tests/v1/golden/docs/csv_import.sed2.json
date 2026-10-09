@@ -1,0 +1,24 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "d": {
+      "_type": "csvImport",
+      "location": "data.csv",
+      "headers": true
+    },
+    "col": {
+      "_type": "calculation",
+      "math": "1 * #tasks:d[0:3, 1]"
+    }
+  },
+  "outputs": {
+    "table": {
+      "_type": "report",
+      "data": "#tasks:d"
+    },
+    "col": {
+      "_type": "report",
+      "data": "#tasks:col"
+    }
+  }
+}

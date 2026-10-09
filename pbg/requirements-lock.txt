@@ -1,0 +1,24 @@
+# The target's own pins (rule M8).  The host's requirements-lock.txt is not edited; install the host first, then this.
+#     pip install -r requirements.txt && pip install ./libsed2-*.whl && pip install -e . --no-deps      (host, from the repository root)
+#     pip install -r pbg/requirements-lock.txt && pip install -e pbg --no-deps
+# Observed together on Python 3.13 (Linux x86_64) on 2026-10-09; every line below was checked by running pbg/tests.
+process-bigraph==1.8.5
+bigraph-schema==1.7.0
+# community wrappers (--wrappers strict | prefer) and what they bring
+viva-tellurium==0.1.2
+viva-copasi==0.1.2
+viva-superpowers==0.23.0
+viva-emitters==0.4.3
+viva-workspace==0.1.0
+# the simulators and tools behind them: the same versions as the host's requirements-lock.txt
+libroadrunner==2.10.0
+tellurium==2.2.13.1
+python-copasi==4.48.309
+copasi-basico==0.87
+cobra==0.32.1
+# cobra 0.32.1 needs pandas < 3 (the host pins the same)
+pandas==2.3.3
+numpy==2.5.3
+h5py==3.16.0
+matplotlib==3.11.2
+pytest==9.1.1

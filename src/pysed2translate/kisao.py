@@ -48,6 +48,11 @@ STEADY_STATE_ALGORITHMS = {
     "opencor": {},
 }
 
+# flux balance analysis: term number -> solver name.  KISAO:0000437 is the flux balance analysis itself; the LP solver
+# (glpk, scipy) is the backend variant, not part of the algorithm.
+GENERIC_FBA = 437
+FBA_ALGORITHMS = {"cobra": {GENERIC_FBA: "optimize"}}
+
 # why some well-known terms are not available on a backend
 ALGORITHM_NOTES = {
     "roadrunner": {30: "roadrunner 2.10 has no Euler integrator", 261: "roadrunner 2.10 has no Euler integrator",
@@ -155,3 +160,15 @@ def steady_state_problem(backend: str, algorithm: Optional[str]) -> Optional[str
         return None
     return (f"KISAO:{n:07d} is not available for steady states in {backend} "
             f"(only the generic KISAO:{GENERIC_STEADY_STATE:07d} is mapped)")
+
+
+def fba_problem(backend: str, algorithm: Optional[str]) -> Optional[str]:
+    """Why a backend cannot use this `algorithm` text for a FluxBalanceAnalysis task, or None if it can."""
+    if algorithm is None:
+        return None
+    n = term_number(algorithm)
+    if n is None:
+        return f"algorithm {algorithm!r} is not a KiSAO term (KISAO:nnnnnnn)"
+    if n in FBA_ALGORITHMS.get(backend, {}):
+        return None
+    return f"KISAO:{n:07d} is not available for flux balance analysis in {backend} (only KISAO:{GENERIC_FBA:07d} is mapped)"

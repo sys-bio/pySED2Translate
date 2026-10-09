@@ -25,7 +25,7 @@ A `_type` of - means the class has no discriminator of its own (abstract base, m
 | tasks | DrawFromDistribution | drawFromDistribution | distribution, arguments | [id]:annotatedData | - | - | - | stochastic (later) | deferred |
 | tasks | ExplicitODESimulation | explicitODESimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | Y | Y | Y | P4.3 | active |
 | tasks | ExplicitStochasticSimulation | explicitStochasticSimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | ? | ? | ? | stochastic (later) | deferred |
-| tasks | FluxBalanceAnalysis | fluxBalanceAnalysis | model, outputVariables | [id]:annotatedData, [id].model:model | N | N | N | later phase | deferred |
+| tasks | FluxBalanceAnalysis | fluxBalanceAnalysis | model, outputVariables | [id]:annotatedData, [id].model:model | N (cobra) | N (cobra) | N (cobra) | fba (00274-00282) | active |
 | tasks | JacobianFull | jacobianFull | model | [id]:annotatedData | Y | Y (not at 0 values) | N | P4.4 | active |
 | tasks | JacobianReduced | jacobianReduced | model | [id]:annotatedData | Y | Y (not at 0 values) | N | P4.4 | active |
 | tasks | Loop | loop | subTasks, range, loopVariables | [id]:annotatedData, [id].aggregates:annotatedData, [id].range:annotatedData, [id].index:annotatedData | Y | Y | Y | P4.5 | active |

@@ -1,0 +1,2 @@
+# The translator skips this document (exit status 11):
+backend 'viva wrappers (--wrappers strict, for copasi)' cannot perform tasks 'explicit', 'one': task 'explicit': W-3 no way to choose the method or tolerances (settings maxNumberOfSteps, relativeTolerance); task 'one': W-6 no model input and no end-state model output (the model is not the plain result of a modelImport task); L-1 oneStepODESimulation is not mapped to a wrapper

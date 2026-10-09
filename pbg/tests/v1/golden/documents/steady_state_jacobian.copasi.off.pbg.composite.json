@@ -1,0 +1,339 @@
+{
+  "name": "steady_state_jacobian",
+  "description": "Translated from steady_state_jacobian.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "steady_state_jacobian.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "steady_state_jacobian",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "model.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "task_ss": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedSteadyState",
+      "config": {
+        "id": "ss",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "model": "r0",
+          "independentVariable": "time",
+          "outputVariables": {
+            "value": [
+              "S1",
+              "S2"
+            ]
+          },
+          "algorithm": null
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "ss",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "ss",
+          "model"
+        ]
+      }
+    },
+    "task_jf": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedJacobian",
+      "config": {
+        "id": "jf",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "model": "r0",
+          "reduced": false
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "ss",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "jf",
+          "data"
+        ]
+      }
+    },
+    "task_jr": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedJacobian",
+      "config": {
+        "id": "jr",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "model": "r0",
+          "reduced": true
+        },
+        "backend": "copasi"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "jr",
+          "data"
+        ]
+      }
+    },
+    "task_els": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelElementList",
+      "config": {
+        "id": "els",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "model": "r0",
+          "includeElements": null,
+          "includeTypes": {
+            "value": [
+              "species"
+            ]
+          },
+          "excludeElements": null,
+          "excludeTypes": null
+        }
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "strings": [
+          "tasks",
+          "els",
+          "strings"
+        ]
+      }
+    },
+    "output_ss": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "ss",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "ss",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "ss"
+        ],
+        "failures": [
+          "failures",
+          "ss"
+        ]
+      }
+    },
+    "output_jf": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "jf",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "jf",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "jf"
+        ],
+        "failures": [
+          "failures",
+          "jf"
+        ]
+      }
+    },
+    "output_jr": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "jr",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "jr",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "jr"
+        ],
+        "failures": [
+          "failures",
+          "jr"
+        ]
+      }
+    },
+    "output_els": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "els",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "els",
+          "strings"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "els"
+        ],
+        "failures": [
+          "failures",
+          "els"
+        ]
+      }
+    }
+  }
+}

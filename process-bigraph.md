@@ -1,6 +1,7 @@
 # Translating SED2 to Process Bigraph
 
-Status: a plan. Nothing in this file is implemented yet (the research prototypes in `pbg/research/` are not the product).
+Status: **implemented in `pbg/`** (2026-10-09; section 9 says what exists, what was decided on the way and what is open).  The rest of this file is the plan as it was
+written and is kept as the reasoning; where section 9 and an earlier section differ, section 9 is right.
 Updated 2026-10-09 with your second round of answers (section 8): FBA in the main group with per-kind backend switches (3.14),
 `--wrappers strict` as the default, nothing filed upstream by me, tier C built now by the scheduler exporter (section 7), real models tried (3.13).
 Researched 2026-10-08 against process-bigraph 1.8.5 (git e5325c1) with bigraph-schema 1.7.0, Python 3.13.
@@ -38,7 +39,7 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
    sed2-test-suite acceptance rule (|a-e| <= abs + rel*|e|) applies unchanged.
 4. **Use the community wrappers (viva-tellurium, viva-copasi) when possible**, and own steps over the host's `runtime` as
    the fallback (section 3.12).  Every wrapper gap that stops a SED2 setting from being passed (no tolerance, no start
-   time, no model input, no OpenCOR wrapper) is recorded in a ledger (W-1 to W-10) and **drafted** as an issue text for
+   time, no model input, no OpenCOR wrapper) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now) and **drafted** as an issue text for
    the wrapper maintainers (`pbg/upstream/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
    step accepts tolerances and a seed and ignores them (W-1); viva-copasi cannot start at a time other than 0 (W-2), cannot
    choose a method or tolerances (W-3), cannot take SBML text (W-4); both UTC steps continue from their previous end state when
@@ -1509,6 +1510,55 @@ Earlier answers: the separate `pbg/` package and the small M1 host test were app
    copied here.  If you prefer them stored in the repository, that needs the authors' permission first.
 4. **Infeasible FBA.**  SED2 does not say what a `FluxBalanceAnalysis` task returns for an infeasible problem (found with iAF1260).  A
    draft question for the SED2 author is in `pbg/findings/sed2-fba-infeasible.md`; I did not add anything to SED2/TODO.md.
+
+## 9. Status: what was built (2026-10-09)
+
+Almost everything is in `pbg/` (`pbg/README.md` has the layout and the kill list; `pbg/NOTES.md` the lessons).  Outside `pbg/`, this work
+changed the host for flux balance analysis only (the approved edits H-1 to H-5: the `cobra` backend, the capability table, the command
+line, the suite runner, tests and docs), added the FBA series to sed2-test-suite, and added a section at the end of `SED2/TODO.md`.
+Nothing is committed and nothing has been filed upstream (18 drafts wait in `pbg/upstream/`).
+
+**Built, with the tests that pin it.**
+
+| Part | State |
+|---|---|
+| Package `pysed2translate-pbg`, engine `v1` (one Step per task, stores `["tasks", id, output]`, Loop in the clock form, Scatter / ParameterScan by `SedRepeat`) | done; `--loop-form clock|nested` |
+| Modularity rules M1-M9 | done; `tests/contract/` (also: the host never imports the target, `tests/test_no_pbg_in_host.py` in the host) |
+| Suite: every case on every admitted backend through the engine, compared with the canonical data; `--script` compares the status with the Python-script target; `--matrix fba=cobra:glpk,cobra:scipy`; `--crosscheck` | done (`pysed2translate-pbg suite`) |
+| FBA (section 3.13, 3.14) | done in the host: the `cobra` backend (variants `glpk`, `scipy`), per-kind backend choice, `kinds` / `serves` in the capability table, the suite series 00274-00282 (analytic expected data, an ODE + FBA cosimulation on all three ODE backends); `--backend-list` |
+| Tier C (section 7) | done: C1-C5 in `pbg/tests/native/`, scripts translated by `pbg/tools/pbg2py.py` (never by hand); C3 and C5 need roadrunner and cobra |
+| Real CRM-FBA model (iAF1260, 2382 reactions) | run through a Scatter with the engine (`pbg/tests/advanced/test_real_crm_fba.py`, model fetched and checksummed, not stored in the repository); its Monod partner exists only as Python and is a to-do in `docs/deferred.md` |
+| Community wrappers (section 3.12) | done as the *provider* of engine v1: `--wrappers strict` (default) / `prefer` / `off`; time courses and steady states of the plain case run in `TelluriumUTCStep`, `TelluriumSteadyStateStep`, `CopasiUTCStep`, `CopasiSteadyStateStep`; everything else is refused with ledger ids in strict mode |
+| Golden documents | `pbg/tests/v1/golden/` (10 host documents plus `wrapped`, x backend x mode); each non-wrapper one is built as a Composite |
+| CI | `.github/workflows/pbg.yml` (Linux, Windows, macOS; x86_64 and arm64): written (suite from sys-bio/sed2-test-suite, libsed2 from the latest sys-bio/SED2 release); not yet run on a real runner; the host's own tests are in `.github/workflows/ci.yml` |
+
+**Decisions made on the way** (each can be reversed):
+
+1. `--wrappers strict` is the default, so a plain `translate --backend roadrunner` refuses most documents: of the 282 suite cases 30
+   (roadrunner) and 28 (copasi) run a wrapper, the rest are refused with the ids of what the wrappers lack.  Tests that are about the engine
+   pass `wrappers=off`.
+2. The wrapper's model is the file below the input directory the document was translated for (a wrapper's config is fixed when the document
+   is written, W-6); running with another input directory is refused.
+3. The adapter accepts a variable if the wrapper returns a column of that id (floating species concentrations, and variables that rules
+   drive); amounts, parameters that are constant and anything else are a skip with W-7 found while running.
+4. A document that would need both wrappers is refused (W-13: a COPASI step after a Tellurium step crashes the interpreter).
+5. The COPASI steps run only in a core prepared by `register_copasi` (W-12); the runner does that.
+6. An infeasible FBA problem fails the task; `FBA.model` is the model that went in (both in `SED2/TODO.md`).
+7. cobra needs pandas < 3, so the host pins pandas 2.3.3 (and the wrappers' stack agrees).
+
+**What the wrappers cost, measured** (`pbg/tests/providers/expected_gaps.json`, `pbg/tools/provider_gaps.py`): roadrunner 30 wrapped
+cases: 21 pass, 8 are skipped while running (W-7), 1 misses the canonical data (case 00119, because the step cannot set tolerances, W-1;
+`pbg/findings/viva-tellurium-default-tolerances.md`).  copasi 28 wrapped cases: 17 pass, 6 are skipped (W-7), 5 fail inside the wrapper on a
+model without species (W-14).  Every difference from this file fails the test.
+
+**Open.**
+
+* Phase 5 (the native-process form, section 3.9) is not started; it was optional.
+* The reverse direction (PBG to SED2) is set aside, as you said; tier C scripts come from the scheduler exporter.
+* The 18 drafts are for you to report; the order I would suggest is in `pbg/upstream/README.md` (W-1, W-10, W-14, P-1, W-12, W-13 first).
+* The Monod CRM-FBA model as SBML (docs/deferred.md), after which the real cosimulation template can run.
+* If a wrapper gains a missing feature, `tests/providers` will say so by failing; the ledger entry is then closed and the case moves from
+  refused to wrapped in `expected_gaps.json` (a reviewed change, not an automatic one).
 
 ## Sources
 

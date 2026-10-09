@@ -1,0 +1,177 @@
+{
+  "name": "csv_import",
+  "description": "Translated from csv_import.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "csv_import.sed2.json",
+    "backend": {
+      "*": "copasi"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "csv_import",
+      "png": true
+    },
+    "task_d": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedCsvImport",
+      "config": {
+        "id": "d",
+        "args": {
+          "location": {
+            "value": "data.csv"
+          },
+          "headers": {
+            "value": true
+          }
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "d",
+          "data"
+        ]
+      }
+    },
+    "task_col": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedCalculation",
+      "config": {
+        "id": "col",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": [
+              [
+                [
+                  "range",
+                  [
+                    0,
+                    3
+                  ]
+                ],
+                [
+                  "int",
+                  1
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "math": {
+            "op": "mul",
+            "args": [
+              {
+                "num": 1.0
+              },
+              {
+                "ref": "r0"
+              }
+            ]
+          }
+        }
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "d",
+          "data"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "col",
+          "data"
+        ]
+      }
+    },
+    "output_table": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "table",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "d",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "table"
+        ],
+        "failures": [
+          "failures",
+          "table"
+        ]
+      }
+    },
+    "output_col": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "col",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "col",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "col"
+        ],
+        "failures": [
+          "failures",
+          "col"
+        ]
+      }
+    }
+  }
+}

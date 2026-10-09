@@ -1,0 +1,135 @@
+{
+  "name": "ode_bounded_cvode",
+  "description": "Translated from ode_bounded_cvode.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "ode_bounded_cvode.sed2.json",
+    "backend": {
+      "*": "roadrunner"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "ode_bounded_cvode",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "model.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "task_bounded": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+      "config": {
+        "id": "bounded",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "mode": "span",
+          "model": "r0",
+          "independentVariable": "time",
+          "label": "time",
+          "outputVariables": {
+            "value": [
+              "S1"
+            ]
+          },
+          "algorithm": "KISAO:0000019",
+          "settings": {},
+          "init": null,
+          "spanStart": {
+            "value": 4.0
+          },
+          "spanEnd": {
+            "value": 10.0
+          }
+        },
+        "backend": "roadrunner"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "bounded",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "bounded",
+          "model"
+        ]
+      }
+    },
+    "output_later": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "later",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "bounded",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "later"
+        ],
+        "failures": [
+          "failures",
+          "later"
+        ]
+      }
+    }
+  }
+}

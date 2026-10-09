@@ -12,6 +12,16 @@
       "minItems": 1,
       "uniqueItems": true
     },
+    "kinds": {
+      "description": "Task _type -> kind of work (ode, steady, jacobian, fba) for tasks that a simulator performs; the command line can name a different backend for each kind.",
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+    },
+    "serves": {
+      "description": "Kind -> the backends that belong to it.  A backend that does not serve a task's kind is replaced by the only one that does, when there is exactly one (flux balance analysis: cobra).",
+      "type": "object",
+      "additionalProperties": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+    },
     "tasks": {
       "description": "Task _type -> backend -> entry. Every listed task has an entry for every backend.",
       "type": "object",

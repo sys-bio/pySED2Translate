@@ -1,0 +1,281 @@
+{
+  "name": "wrapped",
+  "description": "Translated from wrapped.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "wrapped.sed2.json",
+    "backend": {
+      "*": "roadrunner"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1",
+    "wrappers": {
+      "mode": "strict",
+      "family": "tellurium",
+      "tasks": {
+        "s": "viva_tellurium.processes.TelluriumUTCStep",
+        "u": "viva_tellurium.processes.TelluriumSteadyStateStep"
+      },
+      "modelFiles": [
+        {
+          "task": "s",
+          "modelTask": "m",
+          "location": "decay.xml",
+          "modelFile": "models/decay.xml"
+        },
+        {
+          "task": "u",
+          "modelTask": "m",
+          "location": "decay.xml",
+          "modelFile": "models/decay.xml"
+        }
+      ]
+    }
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "wrapped",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "decay.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "viva_s": {
+      "_type": "step",
+      "address": "local:!viva_tellurium.processes.TelluriumUTCStep",
+      "config": {
+        "start_time": 0.0,
+        "end_time": 10.0,
+        "n_points": 21,
+        "model_format": "sbml",
+        "model_file": "models/decay.xml"
+      },
+      "inputs": {},
+      "outputs": {
+        "time_series": [
+          "wrappers",
+          "s",
+          "time_series"
+        ],
+        "species_trajectories": [
+          "wrappers",
+          "s",
+          "species_trajectories"
+        ]
+      }
+    },
+    "task_s": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedVivaOde",
+      "config": {
+        "id": "s",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "family": "tellurium",
+          "model": "r0",
+          "outputVariables": {
+            "value": [
+              "S"
+            ]
+          },
+          "label": "urn:sedml:symbol:time"
+        },
+        "backend": "roadrunner",
+        "provider": "viva",
+        "raw": [
+          "time_series",
+          "species_trajectories"
+        ]
+      },
+      "inputs": {
+        "raw_time_series": [
+          "wrappers",
+          "s",
+          "time_series"
+        ],
+        "raw_species_trajectories": [
+          "wrappers",
+          "s",
+          "species_trajectories"
+        ],
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "s",
+          "data"
+        ]
+      }
+    },
+    "viva_u": {
+      "_type": "step",
+      "address": "local:!viva_tellurium.processes.TelluriumSteadyStateStep",
+      "config": {
+        "model_format": "sbml",
+        "model_file": "models/decay.xml"
+      },
+      "inputs": {},
+      "outputs": {
+        "steady_state_concentrations": [
+          "wrappers",
+          "u",
+          "steady_state_concentrations"
+        ]
+      }
+    },
+    "task_u": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedVivaSteady",
+      "config": {
+        "id": "u",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "family": "tellurium",
+          "model": "r0",
+          "outputVariables": {
+            "value": [
+              "S"
+            ]
+          },
+          "label": null
+        },
+        "backend": "roadrunner",
+        "provider": "viva",
+        "raw": [
+          "steady_state_concentrations"
+        ]
+      },
+      "inputs": {
+        "raw_steady_state_concentrations": [
+          "wrappers",
+          "u",
+          "steady_state_concentrations"
+        ],
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "u",
+          "data"
+        ]
+      }
+    },
+    "output_r": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "r",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "s",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "r"
+        ],
+        "failures": [
+          "failures",
+          "r"
+        ]
+      }
+    },
+    "output_q": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "q",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "u",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "q"
+        ],
+        "failures": [
+          "failures",
+          "q"
+        ]
+      }
+    }
+  }
+}

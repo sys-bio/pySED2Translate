@@ -1,0 +1,54 @@
+# CI for the process-bigraph target (rule M8): as many platforms as there are runners; adjust the runner list to the runners that
+# exist.  The host's own tests are in ci.yml.
+#
+# What it shows, on every platform:
+#   1. the host alone (no process-bigraph installed) passes its own tests              -> the target is removable (M4, M8)
+#   2. the target without the community wrappers installed (their tests skip; the rest uses the host runtime)
+#   3. the target with the community wrappers installed                               -> pbg/tests including tests/providers
+name: pbg
+on:
+  push:
+    paths: ["pbg/**", "src/**", ".github/workflows/pbg.yml"]
+  pull_request:
+    paths: ["pbg/**", "src/**", ".github/workflows/pbg.yml"]
+env:
+  SED2SUITE: ${{ github.workspace }}/sed2-test-suite
+  SED2SUITE_TOOLS: ${{ github.workspace }}/sed2-test-suite/tools
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: sys-bio/sed2-test-suite, path: sed2-test-suite }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - name: host
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pip install -r requirements.txt
+          tag=$(gh release list --repo sys-bio/SED2 --limit 1 --json tagName --jq '.[0].tagName')
+          mkdir -p "$RUNNER_TEMP/libsed2"
+          gh release download "$tag" --repo sys-bio/SED2 --pattern 'libsed2-*.whl' --dir "$RUNNER_TEMP/libsed2"
+          pip install "$RUNNER_TEMP"/libsed2/libsed2-*.whl
+          pip install -e . --no-deps
+      - name: host tests (without process-bigraph)
+        shell: bash
+        run: python -m pytest -q
+      - name: target, host runtime only
+        shell: bash
+        run: |
+          pip install process-bigraph==1.8.5 bigraph-schema==1.7.0
+          pip install -e pbg --no-deps
+          cd pbg && python -m pytest -q
+      - name: target, with the community wrappers
+        shell: bash
+        run: |
+          pip install -r pbg/requirements-lock.txt
+          cd pbg && python -m pytest -q

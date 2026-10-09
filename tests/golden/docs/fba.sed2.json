@@ -1,0 +1,37 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "toy_fba.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "base": {
+      "_type": "fluxBalanceAnalysis",
+      "model": "#tasks:m.model",
+      "outputVariables": ["R_BIOMASS", "R_RESP"],
+      "workingAlgorithms": [{"algorithm": "KISAO:0000437"}]
+    },
+    "sc": {
+      "_type": "scatter",
+      "range": {"_type": "range", "values": [-10, -5]},
+      "subTasks": {
+        "c": {
+          "_type": "modelChange",
+          "inputModel": "#tasks:m.model",
+          "setValues": {"R_EX_glc_lower_bound": "#tasks:sc.range"}
+        },
+        "f": {
+          "_type": "fluxBalanceAnalysis",
+          "model": "#tasks:sc:subTasks:c.model",
+          "outputVariables": ["R_BIOMASS"]
+        }
+      },
+      "outputVariableMap": {"G": "#tasks:sc:subTasks:f['R_BIOMASS']"}
+    }
+  },
+  "outputs": {
+    "r_base": {"_type": "report", "data": "#tasks:base"},
+    "r_scan": {"_type": "report", "data": "#tasks:sc"}
+  }
+}

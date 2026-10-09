@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version1/core" xmlns:fbc="http://www.sbml.org/sbml/level3/version1/fbc/version2" level="3" version="1" fbc:required="false">
+  <model id="growth_fba" fbc:strict="true">
+    <listOfCompartments>
+      <compartment id="e" constant="true"/>
+      <compartment id="c" constant="true"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="M_S_e" compartment="e" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="M_bm" compartment="c" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter id="R_EX_S_lower_bound" value="-4.0" constant="true"/>
+      <parameter id="R_EX_S_upper_bound" value="1000.0" constant="true"/>
+      <parameter id="R_GROW_lower_bound" value="0.0" constant="true"/>
+      <parameter id="R_GROW_upper_bound" value="1000.0" constant="true"/>
+      <parameter id="R_BIOMASS_lower_bound" value="0.0" constant="true"/>
+      <parameter id="R_BIOMASS_upper_bound" value="1000.0" constant="true"/>
+    </listOfParameters>
+    <listOfReactions>
+      <reaction id="R_EX_S" reversible="true" fast="false" fbc:lowerFluxBound="R_EX_S_lower_bound" fbc:upperFluxBound="R_EX_S_upper_bound">
+        <listOfReactants>
+          <speciesReference species="M_S_e" stoichiometry="1.0" constant="true"/>
+        </listOfReactants>
+      </reaction>
+      <reaction id="R_GROW" reversible="false" fast="false" fbc:lowerFluxBound="R_GROW_lower_bound" fbc:upperFluxBound="R_GROW_upper_bound">
+        <listOfReactants>
+          <speciesReference species="M_S_e" stoichiometry="1.0" constant="true"/>
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="M_bm" stoichiometry="0.1" constant="true"/>
+        </listOfProducts>
+      </reaction>
+      <reaction id="R_BIOMASS" reversible="false" fast="false" fbc:lowerFluxBound="R_BIOMASS_lower_bound" fbc:upperFluxBound="R_BIOMASS_upper_bound">
+        <listOfReactants>
+          <speciesReference species="M_bm" stoichiometry="1.0" constant="true"/>
+        </listOfReactants>
+      </reaction>
+    </listOfReactions>
+    <fbc:listOfObjectives fbc:activeObjective="obj">
+      <fbc:objective fbc:id="obj" fbc:type="maximize">
+        <fbc:listOfFluxObjectives>
+          <fbc:fluxObjective fbc:reaction="R_BIOMASS" fbc:coefficient="1.0"/>
+        </fbc:listOfFluxObjectives>
+      </fbc:objective>
+    </fbc:listOfObjectives>
+  </model>
+</sbml>

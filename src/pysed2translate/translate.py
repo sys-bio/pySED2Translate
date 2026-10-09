@@ -4,10 +4,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
-from .backends import BACKENDS
+from .backends import backend_problem
 from .capabilities import load_table
 from . import outputs, tasks, tasks_repeat, tasks_sim  # noqa: F401  (importing them registers the element handlers)
 from .core import Translator
@@ -18,11 +18,12 @@ log = logging.getLogger("pysed2translate")
 
 @dataclass
 class Options:
-    backend: str
+    backend: str                                        # name[:variant]; for the kinds not named in kind_backends
     prefix: str = ""
     source_name: str = ""
     input_dir: Optional[str] = None   # default for the script's --input-dir; None means the script's own directory
     output_dir: Optional[str] = None  # default for the script's --output-dir; None means the current directory
+    kind_backends: dict = field(default_factory=dict)   # kind of work ('ode', 'steady', 'jacobian', 'fba') -> backend
 
 
 def default_prefix(path: str) -> str:
@@ -62,10 +63,12 @@ def emit_script(doc, options: Options) -> str:
 
 
 def translate_file(path: str, backend: str, prefix: Optional[str] = None, input_dir: Optional[str] = None,
-                   output_dir: Optional[str] = None) -> str:
+                   output_dir: Optional[str] = None, kind_backends: Optional[dict] = None) -> str:
     doc = load_document(path)
-    if backend in BACKENDS:  # an unknown backend is reported by emit_script
-        load_table().check_document(backend, doc.to_json_value())
+    kind_backends = dict(kind_backends or {})
+    if all(backend_problem(b) is None for b in [backend] + list(kind_backends.values())):  # others: emit_script reports them
+        load_table().check_document(backend, doc.to_json_value(), kind_backends)
     options = Options(backend=backend, prefix=prefix if prefix is not None else default_prefix(path),
-                      source_name=os.path.basename(path), input_dir=input_dir, output_dir=output_dir)
+                      source_name=os.path.basename(path), input_dir=input_dir, output_dir=output_dir,
+                      kind_backends=kind_backends)
     return emit_script(doc, options)

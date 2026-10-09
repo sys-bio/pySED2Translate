@@ -1,4 +1,4 @@
-"""Command line: pysed2translate FILE --backend {roadrunner,copasi,opencor} [-o OUT.py]."""
+"""Command line: pysed2translate FILE --backend {roadrunner,copasi,opencor,cobra} [-o OUT.py]."""
 from __future__ import annotations
 
 import argparse
@@ -6,8 +6,8 @@ import logging
 import sys
 
 from . import __version__
-from .backends import BACKENDS
-from .errors import (EXIT_OK, EXIT_TRANSLATION, EXIT_UNSUPPORTED, InvalidDocumentError, PySED2TranslateError,
+from .backends import ALL_BACKENDS, KINDS, parse_backend_args
+from .errors import (EXIT_OK, EXIT_TRANSLATION, EXIT_UNSUPPORTED, EXIT_USAGE, InvalidDocumentError, PySED2TranslateError,
                      UnsupportedTaskError)
 from .translate import translate_file
 
@@ -27,7 +27,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="pysed2translate", description="Translate a SED2 document into a Python script.",
                                  epilog=EPILOG, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file", help="the SED2 document (NNNNN.sed2.json)")
-    ap.add_argument("--backend", "-b", required=True, choices=BACKENDS, help="simulator the script will use")
+    ap.add_argument("--backend", "-b", required=True, action="append", metavar="[KIND=]NAME[:VARIANT]",
+                    help=f"simulator the script will use: {', '.join(ALL_BACKENDS)}; a variant picks a solver "
+                         f"(cobra:glpk, cobra:scipy).  KIND= (one of {', '.join(KINDS)}) names the backend for one kind "
+                         "of work, for example: -b roadrunner -b fba=cobra:scipy")
     ap.add_argument("-o", "--output", metavar="OUT.py", help="write the script here (default: standard output)")
     ap.add_argument("--prefix", help="prefix of the result file names (default: the document's file name up to .sed2.json)")
     ap.add_argument("--input-dir", help="default --input-dir of the generated script (default: the script's own directory)")
@@ -50,8 +53,13 @@ def main(argv=None) -> int:
         level = logging.WARNING
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s", stream=sys.stderr)
     try:
-        text = translate_file(args.file, args.backend, prefix=args.prefix, input_dir=args.input_dir,
-                              output_dir=args.output_dir)
+        backend, kind_backends = parse_backend_args(args.backend)
+    except ValueError as e:
+        print(f"error: --backend: {e}", file=sys.stderr)
+        return EXIT_USAGE
+    try:
+        text = translate_file(args.file, backend, prefix=args.prefix, input_dir=args.input_dir,
+                              output_dir=args.output_dir, kind_backends=kind_backends)
     except InvalidDocumentError as e:
         print(f"error: {e.path} is not a valid SED2 document:", file=sys.stderr)
         for rule, loc, msg in e.problems:

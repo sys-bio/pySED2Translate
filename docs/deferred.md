@@ -10,8 +10,7 @@ pySED2Translate does not translate these; a document containing one is skipped w
 | `taskParameters` on any task | A definition of what their ids mean (SED2/TODO.md) | `ode_simulation`, `steady_state`, `jacobian`, `repeat`, `model_change`, `csv_import` checks |
 | `DataImport`; `CsvImport.organization` other than "columns" | The new CsvImport attributes and DataImport formats (SED2/TODO.md) | `dataImport` entry, `csv_import` check |
 
-Not format questions, but also deferred: stochastic simulations, DrawFromDistribution and flux balance analysis (a
-later phase).
+Not format questions, but also deferred: stochastic simulations and DrawFromDistribution (a later phase).
 
 Not supported because of a simulator, not the format: SteadyState on OpenCOR (libopencor issue 604,
 https://github.com/opencor/libopencor/issues/604).
@@ -36,6 +35,21 @@ translator and the matching sed2-test-suite cases agree with it (docs/COVERAGE.m
 | ModelElementList order and unknown ids | ModelElementList and the labels of repeats | Model order, grouped by kind; an unknown id is an error. |
 | Repeated range values as labels | ModelElementList and the labels of repeats | A label index takes the first match. |
 | References inside list and dictionary constants | References inside list and dictionary constants | Refused with a pointer to the section. |
+| FluxBalanceAnalysis: `[id].model` | Flux balance analysis | The model that went in, unchanged: the analysis changes nothing in it. |
+| FluxBalanceAnalysis: no feasible optimum | Flux balance analysis | The task fails (DataError "no optimum", solver status named); no values are reported. |
+| FluxBalanceAnalysis: output variables | Flux balance analysis | A reaction gives its flux; a parameter, compartment or species gives the model's value; anything else fails the task. |
+| FluxBalanceAnalysis: model without FBC | Flux balance analysis | Skipped (exit 11): without an objective and bounds there is nothing to optimize. |
 
 Simulator limits, as opposed to format questions, are recorded in sed2-test-suite/disagreements.json (D-001: the COPASI
 Jacobian of a species whose value is 0; D-002: OpenCOR running a model with SBML events) and in the capability table.
+
+## To do
+
+* **Translate the Monod consumer-resource model of CRM-FBA to SBML.**  The real CRM-FBA example couples iAF1260 (an SBML FBC
+  file, which the translator can already run: pbg/tests/advanced/test_real_crm_fba.py) to a Monod model that exists only as
+  Python code (`crm_dfba/crms/monod.py`).  Until that model is written as SBML (species, uptake rates as parameters that the
+  FBA bounds are set from, growth and exchange fluxes as parameters set from the FBA solution, as in
+  sed2-test-suite/cases/semantic/00282), the real cosimulation (templates/cosimulation.sed2.json) cannot be run.  The real
+  files are not stored in any repository here.
+* **cobra's `scipy` solver is much slower than `glpk` on genome-scale models**: three solves of iAF1260 took 4 minutes with
+  `cobra:scipy` and 21 seconds with `cobra:glpk` (both gave the same fluxes to 6 digits).  Recorded, not worked around.

@@ -1,0 +1,141 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "model.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "sc": {
+      "_type": "scatter",
+      "range": {
+        "_type": "numericRange",
+        "start": 0.25,
+        "numberOfSteps": 3,
+        "interval": 0.25
+      },
+      "subTasks": {
+        "c": {
+          "_type": "modelChange",
+          "inputModel": "#tasks:m.model",
+          "setValues": {
+            "k1": "#tasks:sc.range"
+          }
+        },
+        "s": {
+          "_type": "oneStepODESimulation",
+          "model": "#tasks:sc:subTasks:c.model",
+          "independentVariable": "time",
+          "outputVariables": [
+            "S1"
+          ],
+          "independentStep": 2
+        }
+      },
+      "outputVariableMap": {
+        "S1": "#tasks:sc:subTasks:s['S1']"
+      }
+    },
+    "lp": {
+      "_type": "loop",
+      "range": {
+        "_type": "numericRange",
+        "start": 1,
+        "numberOfSteps": 3,
+        "interval": 1
+      },
+      "loopVariables": {
+        "acc": {
+          "initialValue": 1.0,
+          "subsequentValues": "#tasks:lp:subTasks:d"
+        }
+      },
+      "subTasks": {
+        "d": {
+          "_type": "calculation",
+          "math": "1 * #tasks:lp:loopVariables:acc * 2"
+        }
+      },
+      "outputVariableMap": {
+        "D": "#tasks:lp:subTasks:d"
+      }
+    },
+    "ps": {
+      "_type": "parameterScan",
+      "model": "#tasks:m.model",
+      "parameterRanges": [
+        {
+          "_type": "parameterRange",
+          "modelElement": "k1",
+          "start": 0.25,
+          "numberOfSteps": 2,
+          "interval": 0.25
+        },
+        {
+          "_type": "parameterRange",
+          "modelElement": "S1",
+          "values": [
+            1,
+            2
+          ]
+        }
+      ],
+      "subTasks": {
+        "s": {
+          "_type": "oneStepODESimulation",
+          "model": "#tasks:ps.model",
+          "independentVariable": "time",
+          "outputVariables": [
+            "S1"
+          ],
+          "independentStep": 1
+        }
+      },
+      "outputVariableMap": {
+        "S1": "#tasks:ps:subTasks:s['S1']"
+      }
+    },
+    "sc2": {
+      "_type": "scatter",
+      "range": {
+        "_type": "range",
+        "values": [
+          10,
+          20,
+          30
+        ]
+      },
+      "subTasks": {
+        "x": {
+          "_type": "calculation",
+          "math": "1 * #tasks:sc2.range + 1"
+        }
+      },
+      "outputVariableMap": {
+        "X": "#tasks:sc2:subTasks:x"
+      }
+    }
+  },
+  "outputs": {
+    "scatter": {
+      "_type": "report",
+      "data": "#tasks:sc"
+    },
+    "loop": {
+      "_type": "report",
+      "data": "#tasks:lp"
+    },
+    "scan": {
+      "_type": "report",
+      "data": "#tasks:ps"
+    },
+    "one": {
+      "_type": "report",
+      "data": "#tasks:ps[1, 0]"
+    },
+    "values": {
+      "_type": "report",
+      "data": "#tasks:sc2"
+    }
+  }
+}

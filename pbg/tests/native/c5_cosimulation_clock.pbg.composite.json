@@ -1,0 +1,568 @@
+{
+  "name": "00282",
+  "description": "Translated from 00282.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "00282.sed2.json",
+    "backend": {
+      "*": "roadrunner"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "constants": {
+      "ode_interval": 1.0
+    },
+    "context": {
+      "inputDir": ".",
+      "outputDir": "results",
+      "prefix": "00282",
+      "png": true
+    },
+    "task_ODEmodel": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "ODEmodel",
+        "args": {
+          "location": "00282.ode.sbml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "ODEmodel",
+          "model"
+        ]
+      }
+    },
+    "task_FBAmodel": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "FBAmodel",
+        "args": {
+          "location": "00282.fba.sbml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "FBAmodel",
+          "model"
+        ]
+      }
+    },
+    "task_repeat": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.loop.SedLoop",
+      "config": {
+        "id": "repeat",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          },
+          "r1": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "range": {
+            "kind": "numeric",
+            "items": {
+              "start": {
+                "value": 1.0
+              },
+              "interval": {
+                "value": 1.0
+              },
+              "number_of_steps": {
+                "value": 7.0
+              }
+            }
+          },
+          "keys": [
+            "species_trace"
+          ],
+          "loopVars": [
+            {
+              "name": "ODE_model",
+              "initial": {
+                "ref": "r0"
+              }
+            },
+            {
+              "name": "FBA_model",
+              "initial": {
+                "ref": "r1"
+              }
+            }
+          ]
+        },
+        "document": {
+          "nodes": {
+            "task_repeat_subTasks_odesim": {
+              "_type": "step",
+              "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+              "config": {
+                "id": "repeat:subTasks:odesim",
+                "refs": {
+                  "r0": {
+                    "const": false,
+                    "index": null
+                  },
+                  "r1": {
+                    "const": true,
+                    "index": null
+                  }
+                },
+                "args": {
+                  "mode": "points",
+                  "model": "r0",
+                  "independentVariable": "time",
+                  "label": "urn:sedml:symbol:time",
+                  "outputVariables": {
+                    "value": [
+                      "S",
+                      "B",
+                      "R_EX_S_lower_bound"
+                    ]
+                  },
+                  "algorithm": "KISAO:0000694",
+                  "settings": {},
+                  "init": {
+                    "value": 0.0
+                  },
+                  "range": {
+                    "kind": "numeric",
+                    "items": {
+                      "start": {
+                        "value": 0.0
+                      },
+                      "end": {
+                        "ref": "r1"
+                      },
+                      "number_of_steps": {
+                        "value": 4.0
+                      },
+                      "scale": {
+                        "value": "linear"
+                      }
+                    }
+                  }
+                },
+                "guard": true,
+                "backend": "roadrunner"
+              },
+              "inputs": {
+                "guard": [
+                  "guard"
+                ],
+                "r0": [
+                  "tasks",
+                  "repeat:loopVariables:ODE_model",
+                  "data"
+                ],
+                "r1": [
+                  "constants",
+                  "ode_interval"
+                ]
+              },
+              "outputs": {
+                "data": [
+                  "tasks",
+                  "repeat:subTasks:odesim",
+                  "data"
+                ],
+                "model": [
+                  "tasks",
+                  "repeat:subTasks:odesim",
+                  "model"
+                ]
+              }
+            },
+            "task_repeat_subTasks_new_fba": {
+              "_type": "step",
+              "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelChange",
+              "config": {
+                "id": "repeat:subTasks:new_fba",
+                "refs": {
+                  "r0": {
+                    "const": false,
+                    "index": null
+                  },
+                  "r1": {
+                    "const": false,
+                    "index": [
+                      [
+                        [
+                          "int",
+                          -1
+                        ],
+                        [
+                          "label",
+                          "R_EX_S_lower_bound"
+                        ]
+                      ]
+                    ]
+                  }
+                },
+                "args": {
+                  "inputModel": "r0",
+                  "setValues": {
+                    "value": {
+                      "R_EX_S_lower_bound": {
+                        "t": {
+                          "ref": "r1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "guard": true
+              },
+              "inputs": {
+                "guard": [
+                  "guard"
+                ],
+                "r0": [
+                  "tasks",
+                  "repeat:loopVariables:FBA_model",
+                  "data"
+                ],
+                "r1": [
+                  "tasks",
+                  "repeat:subTasks:odesim",
+                  "data"
+                ]
+              },
+              "outputs": {
+                "model": [
+                  "tasks",
+                  "repeat:subTasks:new_fba",
+                  "model"
+                ]
+              }
+            },
+            "task_repeat_subTasks_fbasim": {
+              "_type": "step",
+              "address": "local:!pysed2translate_pbg.engines.v1.steps.SedFba",
+              "config": {
+                "id": "repeat:subTasks:fbasim",
+                "refs": {
+                  "r0": {
+                    "const": false,
+                    "index": null
+                  }
+                },
+                "args": {
+                  "model": "r0",
+                  "outputVariables": {
+                    "value": [
+                      "R_EX_S",
+                      "R_BIOMASS"
+                    ]
+                  },
+                  "algorithm": "KISAO:0000437"
+                },
+                "guard": true,
+                "backend": "cobra"
+              },
+              "inputs": {
+                "guard": [
+                  "guard"
+                ],
+                "r0": [
+                  "tasks",
+                  "repeat:subTasks:new_fba",
+                  "model"
+                ]
+              },
+              "outputs": {
+                "data": [
+                  "tasks",
+                  "repeat:subTasks:fbasim",
+                  "data"
+                ],
+                "model": [
+                  "tasks",
+                  "repeat:subTasks:fbasim",
+                  "model"
+                ]
+              }
+            },
+            "task_repeat_subTasks_new_ode": {
+              "_type": "step",
+              "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelChange",
+              "config": {
+                "id": "repeat:subTasks:new_ode",
+                "refs": {
+                  "r0": {
+                    "const": false,
+                    "index": null
+                  },
+                  "r1": {
+                    "const": false,
+                    "index": [
+                      [
+                        [
+                          "label",
+                          "R_EX_S"
+                        ]
+                      ]
+                    ]
+                  },
+                  "r2": {
+                    "const": false,
+                    "index": [
+                      [
+                        [
+                          "label",
+                          "R_BIOMASS"
+                        ]
+                      ]
+                    ]
+                  }
+                },
+                "args": {
+                  "inputModel": "r0",
+                  "setValues": {
+                    "value": {
+                      "R_EX_S": {
+                        "t": {
+                          "ref": "r1"
+                        }
+                      },
+                      "R_BIOMASS": {
+                        "t": {
+                          "ref": "r2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "guard": true
+              },
+              "inputs": {
+                "guard": [
+                  "guard"
+                ],
+                "r0": [
+                  "tasks",
+                  "repeat:subTasks:odesim",
+                  "model"
+                ],
+                "r1": [
+                  "tasks",
+                  "repeat:subTasks:fbasim",
+                  "data"
+                ],
+                "r2": [
+                  "tasks",
+                  "repeat:subTasks:fbasim",
+                  "data"
+                ]
+              },
+              "outputs": {
+                "model": [
+                  "tasks",
+                  "repeat:subTasks:new_ode",
+                  "model"
+                ]
+              }
+            },
+            "collect": {
+              "_type": "step",
+              "address": "local:!pysed2translate_pbg.engines.v1.loop.SedCollect",
+              "config": {
+                "id": "repeat:collect",
+                "refs": {
+                  "r0": {
+                    "const": false,
+                    "index": null
+                  }
+                },
+                "args": {
+                  "order": [
+                    "r0"
+                  ]
+                },
+                "guard": true
+              },
+              "inputs": {
+                "guard": [
+                  "guard"
+                ],
+                "r0": [
+                  "tasks",
+                  "repeat:subTasks:odesim",
+                  "data"
+                ]
+              },
+              "outputs": {}
+            },
+            "clock": {
+              "_type": "process",
+              "address": "local:!pysed2translate_pbg.engines.v1.loop.SedClock",
+              "interval": 1.0,
+              "config": {
+                "loopVars": [
+                  {
+                    "name": "ODE_model",
+                    "index": null
+                  },
+                  {
+                    "name": "FBA_model",
+                    "index": null
+                  }
+                ]
+              },
+              "inputs": {
+                "init_ODE_model": [
+                  "loopinit",
+                  "ODE_model"
+                ],
+                "subs_ODE_model": [
+                  "tasks",
+                  "repeat:subTasks:new_ode",
+                  "model"
+                ],
+                "init_FBA_model": [
+                  "loopinit",
+                  "FBA_model"
+                ],
+                "subs_FBA_model": [
+                  "tasks",
+                  "repeat:subTasks:fbasim",
+                  "model"
+                ]
+              },
+              "outputs": {
+                "range": [
+                  "tasks",
+                  "repeat",
+                  "range"
+                ],
+                "index": [
+                  "tasks",
+                  "repeat",
+                  "index"
+                ],
+                "guard": [
+                  "guard"
+                ],
+                "lv_ODE_model": [
+                  "tasks",
+                  "repeat:loopVariables:ODE_model",
+                  "data"
+                ],
+                "lv_FBA_model": [
+                  "tasks",
+                  "repeat:loopVariables:FBA_model",
+                  "data"
+                ]
+              }
+            }
+          },
+          "free": {
+            "f0": [
+              "constants",
+              "ode_interval"
+            ]
+          }
+        }
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "ODEmodel",
+          "model"
+        ],
+        "r1": [
+          "tasks",
+          "FBAmodel",
+          "model"
+        ],
+        "f0": [
+          "constants",
+          "ode_interval"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "repeat",
+          "data"
+        ]
+      }
+    },
+    "output_cosim_output": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "cosim_output",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": [
+              [
+                [
+                  "range",
+                  [
+                    null,
+                    null
+                  ]
+                ],
+                [
+                  "label",
+                  "species_trace"
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "repeat",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "cosim_output"
+        ],
+        "failures": [
+          "failures",
+          "cosim_output"
+        ]
+      }
+    }
+  }
+}

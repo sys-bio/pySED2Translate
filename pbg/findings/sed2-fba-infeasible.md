@@ -1,6 +1,6 @@
 # Draft question for the SED2 author: what does a FluxBalanceAnalysis task return when the problem is infeasible?
 
-Status: **draft, not added to SED2/TODO.md** (CLAUDE.md: propose only, in a new section at the end; your call).
+Status: **recorded in SED2/TODO.md** (section "Flux balance analysis and the cosimulation template: points the specification does not state", first item), with the decision made meanwhile: an infeasible problem fails the task (exit status 1), and the cosimulation cases are written so that it does not arise.  This file keeps the evidence.
 
 Found 2026-10-09 while looping the real E. coli model iAF1260 (vivarium-collective/CRM-FBA, `crm_dfba/models/iAF1260.xml`) with a Monod
 ODE: once glucose is exhausted (uptake bound 0), the FBA problem is infeasible, because the model's ATP maintenance reaction has a

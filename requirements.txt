@@ -11,6 +11,9 @@ copasi-basico==0.87
 # OpenCOR backend (libopencor is the Python route; sbml2cellml needs Python >= 3.13)
 libopencor==1.20261006.1
 sbml2cellml==0.4.2
+# Flux balance analysis backend.  cobra 0.32.1 needs pandas < 3, so pandas is pinned to 2.3.3 (COPASI's basico accepts it).
+cobra==0.32.1
+pandas==2.3.3
 # Shared
 antimony==3.2.0
 h5py==3.16.0

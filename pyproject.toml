@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pysed2translate"
 version = "0.1.0"
-description = "Translate SED2 simulation experiment documents into Python scripts (roadrunner, COPASI or OpenCOR)."
+description = "Translate SED2 simulation experiment documents into Python scripts (roadrunner, COPASI or OpenCOR; flux balance analysis with COBRApy)."
 readme = "README.md"
 requires-python = ">=3.13"
 license = { file = "LICENSE" }
@@ -19,9 +19,10 @@ dependencies = [
 roadrunner = ["tellurium>=2.2.13"]
 copasi = ["copasi-basico>=0.87"]
 opencor = ["libopencor", "sbml2cellml>=0.4.2"]
+cobra = ["cobra>=0.30"]   # flux balance analysis (the cobra backend)
 plots = ["matplotlib>=3.9"]
 hdf5 = ["h5py>=3.10"]
-all = ["pysed2translate[roadrunner,copasi,opencor,plots,hdf5]"]
+all = ["pysed2translate[roadrunner,copasi,opencor,cobra,plots,hdf5]"]
 dev = ["pytest>=8", "pytest-cov>=5"]
 
 [project.scripts]

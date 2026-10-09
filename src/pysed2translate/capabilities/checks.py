@@ -59,6 +59,25 @@ def _jacobian(task_json: dict, backend: str) -> Optional[str]:
     return None
 
 
+def _fba(task_json: dict, backend: str) -> Optional[str]:
+    """FluxBalanceAnalysis: the algorithm, if named, must be one the backend maps; taskParameters are not supported."""
+    from .. import kisao
+
+    algorithms = task_json.get("workingAlgorithms") or []
+    for wa in algorithms:
+        alg = wa.get("algorithm") if isinstance(wa, dict) else None
+        if not isinstance(alg, str) or alg.startswith("#"):
+            return "a working algorithm given by reference (or missing) cannot be resolved while translating"
+        reason = kisao.fba_problem(backend, alg)
+        if reason:
+            return reason
+    if len(algorithms) > 1:
+        return "more than one working algorithm is not supported"
+    if task_json.get("taskParameters"):
+        return "taskParameters are not supported yet"
+    return None
+
+
 def _model_change(task_json: dict, backend: str) -> Optional[str]:
     """ModelChange: setValues and removeElements only (they are done on the SBML text, the same for every backend)."""
     for name in ("addElements", "replaceElements"):
@@ -93,5 +112,6 @@ CHECKS["ode_simulation"] = _ode_simulation
 CHECKS["csv_import"] = _csv_import
 CHECKS["repeat"] = _repeat
 CHECKS["model_change"] = _model_change
+CHECKS["fba"] = _fba
 CHECKS["steady_state"] = _steady_state
 CHECKS["jacobian"] = _jacobian

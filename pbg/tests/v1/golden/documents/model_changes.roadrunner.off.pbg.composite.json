@@ -1,0 +1,225 @@
+{
+  "name": "model_changes",
+  "description": "Translated from model_changes.sed2.json by pysed2translate-pbg",
+  "sed2": {
+    "version": "v1.0.0",
+    "source": "model_changes.sed2.json",
+    "backend": {
+      "*": "roadrunner"
+    },
+    "engine": "v1",
+    "engineVersion": "0.1"
+  },
+  "state": {
+    "context": {
+      "inputDir": "models",
+      "outputDir": "results",
+      "prefix": "model_changes",
+      "png": true
+    },
+    "task_m": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelImport",
+      "config": {
+        "id": "m",
+        "args": {
+          "location": "model.xml",
+          "language": "urn:sedml:language:sbml"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      }
+    },
+    "task_c1": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelChange",
+      "config": {
+        "id": "c1",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          },
+          "r1": {
+            "const": false,
+            "index": [
+              [
+                [
+                  "label",
+                  "S1"
+                ]
+              ]
+            ]
+          }
+        },
+        "args": {
+          "inputModel": "r0",
+          "setValues": {
+            "value": {
+              "k1": {
+                "num": 0.25
+              },
+              "S1": {
+                "t": {
+                  "ref": "r1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "m",
+          "model"
+        ],
+        "r1": [
+          "tasks",
+          "m",
+          "model"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "c1",
+          "model"
+        ]
+      }
+    },
+    "task_c2": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedModelChange",
+      "config": {
+        "id": "c2",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "inputModel": "r0",
+          "removeElements": {
+            "value": [
+              "J1"
+            ]
+          }
+        }
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "c1",
+          "model"
+        ]
+      },
+      "outputs": {
+        "model": [
+          "tasks",
+          "c2",
+          "model"
+        ]
+      }
+    },
+    "task_s": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation",
+      "config": {
+        "id": "s",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "mode": "step",
+          "model": "r0",
+          "independentVariable": "time",
+          "label": "time",
+          "outputVariables": {
+            "value": [
+              "S1"
+            ]
+          },
+          "algorithm": null,
+          "settings": {},
+          "init": null,
+          "step": {
+            "value": 1.0
+          }
+        },
+        "backend": "roadrunner"
+      },
+      "inputs": {
+        "r0": [
+          "tasks",
+          "c2",
+          "model"
+        ]
+      },
+      "outputs": {
+        "data": [
+          "tasks",
+          "s",
+          "data"
+        ],
+        "model": [
+          "tasks",
+          "s",
+          "model"
+        ]
+      }
+    },
+    "output_r": {
+      "_type": "step",
+      "address": "local:!pysed2translate_pbg.engines.v1.steps.SedReport",
+      "config": {
+        "id": "r",
+        "refs": {
+          "r0": {
+            "const": false,
+            "index": null
+          }
+        },
+        "args": {
+          "data": "r0"
+        },
+        "context": true
+      },
+      "inputs": {
+        "context": [
+          "context"
+        ],
+        "r0": [
+          "tasks",
+          "s",
+          "data"
+        ]
+      },
+      "outputs": {
+        "manifest": [
+          "manifest",
+          "r"
+        ],
+        "failures": [
+          "failures",
+          "r"
+        ]
+      }
+    }
+  }
+}

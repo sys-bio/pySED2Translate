@@ -4,7 +4,7 @@
     "y": 0.0,
     "p1": {
       "_type": "process",
-      "address": "local:!loopsteps2.P1",
+      "address": "local:!procs.P1",
       "interval": 1.0,
       "inputs": {
         "x": [
@@ -22,7 +22,7 @@
     },
     "p2": {
       "_type": "process",
-      "address": "local:!loopsteps2.P2",
+      "address": "local:!procs.P2",
       "interval": 1.0,
       "inputs": {
         "x": [
