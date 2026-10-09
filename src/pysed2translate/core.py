@@ -192,6 +192,7 @@ class Translator:
             cb.line("ap.add_argument('--output-dir', default=DEFAULT_OUTPUT_DIR or '.',")
             cb.line("                help='directory the result files are written to')")
             cb.line("ap.add_argument('--no-png', action='store_true', help='do not draw pictures of the plots')")
+            cb.line("ap.add_argument('--manifest', metavar='FILE', help='also write a JSON description of the files written')")
             cb.line("args = ap.parse_args(argv)")
             cb.line("ctx = rt.Context(args.input_dir, args.output_dir, PREFIX, png=not args.no_png)")
             with cb.block("try:"):
@@ -199,6 +200,9 @@ class Translator:
             with cb.block("except Exception:  # a failed task stops the experiment"):
                 cb.line("traceback.print_exc()")
                 cb.line("return 1")
+            with cb.block("finally:"):
+                cb.line("if args.manifest:")
+                cb.line("    ctx.write_manifest(args.manifest)")
             cb.line("return ctx.exit_status()")
         cb.line()
         cb.line()

@@ -120,9 +120,8 @@ for n in node.walk(): n.node_type, n.name, n.text, n.children
   `#tasks:loop:loopVariables:name` (parse_reference gives `path=['loop','loopVariables','name']`), and the dotted
   per-iteration outputs `#tasks:rep.range`, `.index`, `.ranges['k']`, `.indexes['k']`, and a ParameterScan's `.model`
   (`#tasks:scan.model`; the colon form `#tasks:scan:model` does not validate); the dotted form of a sub-task (`#tasks:rep.subTasks.x`) is rejected by design.
-* A `math` string is always an expression (Calculation description), but libsed2's getters report one that begins
-  with `#` as a reference: `is_math_ref()` is true and `get_math_value()` raises, so the translator reads the text with
-  `get_math_ref()` (GAPS.md G-005).
+* A `math` string is always an expression (Calculation description): `get_math_value()` returns the text, also when it
+  begins with `#`; there is no reference form of the getter.
 * Attribute getters with several words are snake case: `get_set_values_value()`, `is_set_set_values()`,
   `get_x_error_lower()`, `get_right_y_axis()`.  Plot types are `plot2D` and `plot3D`; `plot.get_curves()` /
   `get_surfaces()` list ids in document order; Axis attributes are OrRef (`get_scale_value()`, `get_min_value()`, ...).

@@ -1,0 +1,51 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "model.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "ss": {
+      "_type": "steadyState",
+      "model": "#tasks:m.model",
+      "outputVariables": [
+        "S1",
+        "S2"
+      ]
+    },
+    "jf": {
+      "_type": "jacobianFull",
+      "model": "#tasks:ss.model"
+    },
+    "jr": {
+      "_type": "jacobianReduced",
+      "model": "#tasks:m.model"
+    },
+    "els": {
+      "_type": "modelElementList",
+      "model": "#tasks:m.model",
+      "includeTypes": [
+        "species"
+      ]
+    }
+  },
+  "outputs": {
+    "ss": {
+      "_type": "report",
+      "data": "#tasks:ss"
+    },
+    "jf": {
+      "_type": "report",
+      "data": "#tasks:jf"
+    },
+    "jr": {
+      "_type": "report",
+      "data": "#tasks:jr"
+    },
+    "els": {
+      "_type": "report",
+      "data": "#tasks:els.strings"
+    }
+  }
+}

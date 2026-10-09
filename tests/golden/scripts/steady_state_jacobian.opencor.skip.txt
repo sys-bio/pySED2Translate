@@ -1,0 +1,2 @@
+# The translator skips this document for this backend (exit status 11):
+backend 'opencor' cannot perform task 'ss' (steadyState): libopencor does not support steady-state tasks from Python (SedSteadyState segfaults when run; see https://github.com/opencor/libopencor/issues/604)

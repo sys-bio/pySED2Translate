@@ -1,0 +1,2 @@
+# The translator skips this document for this backend (exit status 11):
+backend 'opencor' cannot perform task 'bounded' (boundedODESimulation): libopencor runs uniform time courses only; it cannot choose its own output points

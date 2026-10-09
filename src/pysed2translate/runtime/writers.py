@@ -103,4 +103,9 @@ def write_report(ctx, report_id: str, data: AnnotatedData) -> str:
     else:
         path = ctx.output_path(f"{report_id}.h5")
         write_h5(path, data)
+    entry = {"file": os.path.basename(path), "format": os.path.splitext(path)[1][1:], "ndim": data.ndim,
+             "dtype": "string" if data.is_string else "number",
+             "labels": {"rows": data.ndim >= 1 and data.labels[0] is not None,
+                        "columns": data.ndim == 2 and data.labels[1] is not None}}
+    getattr(ctx, "manifest", {"reports": {}})["reports"][report_id] = entry
     return path

@@ -12,6 +12,8 @@ surfaceType and index (the surface's position in the document).
 """
 from __future__ import annotations
 
+import os
+
 import csv
 import io
 import sys
@@ -86,13 +88,16 @@ def write_plot3d_h5(path: str, surfaces: list) -> None:
 def plot2d(ctx, plot_id: str, curves: list, options: dict) -> None:
     columns = curve_columns(curves)
     path = ctx.output_path(f"{plot_id}_as_data.csv")
+    ctx.manifest["plots"][plot_id] = {"file": os.path.basename(path), "format": "csv", "type": "plot2D"}
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(plot2d_csv_text(columns))
     _picture(ctx, plot_id, lambda: _draw2d(ctx.output_path(f"{plot_id}.png"), curves, options))
 
 
 def plot3d(ctx, plot_id: str, surfaces: list, options: dict) -> None:
-    write_plot3d_h5(ctx.output_path(f"{plot_id}_as_data.h5"), surfaces)
+    path = ctx.output_path(f"{plot_id}_as_data.h5")
+    ctx.manifest["plots"][plot_id] = {"file": os.path.basename(path), "format": "h5", "type": "plot3D"}
+    write_plot3d_h5(path, surfaces)
     _picture(ctx, plot_id, lambda: _draw3d(ctx.output_path(f"{plot_id}.png"), surfaces, options))
 
 

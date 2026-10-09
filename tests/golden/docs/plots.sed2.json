@@ -1,0 +1,74 @@
+{
+  "version": "v1.0.0",
+  "constants": {
+    "t": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "y": [
+      1,
+      4,
+      9,
+      16
+    ],
+    "gx": [
+      0,
+      1
+    ],
+    "gy": [
+      0,
+      1,
+      2
+    ],
+    "z": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        4,
+        5,
+        6
+      ]
+    ]
+  },
+  "outputs": {
+    "p": {
+      "_type": "plot2D",
+      "legend": true,
+      "xAxis": {
+        "scale": "linear"
+      },
+      "yAxis": {
+        "scale": "log10"
+      },
+      "curves": {
+        "c": {
+          "x": "#constants:t",
+          "y": "#constants:y",
+          "curveType": "points",
+          "order": 1,
+          "_type": "curve"
+        }
+      }
+    },
+    "q": {
+      "_type": "plot3D",
+      "surfaces": {
+        "s": {
+          "surfaceType": "heatMap",
+          "x": "#constants:gx",
+          "y": "#constants:gy",
+          "z": "#constants:z"
+        }
+      }
+    },
+    "r": {
+      "_type": "report",
+      "data": "#constants:y"
+    }
+  }
+}

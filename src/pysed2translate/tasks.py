@@ -95,6 +95,15 @@ def range_expr(tr: Translator, rng) -> str:
     return f"rt.ops.numeric_range({', '.join(args)})"
 
 
+def range_data_expr(tr: Translator, rng) -> str:
+    """Python expression for the AnnotatedData of any Range: a NumericRange or ParameterRange is computed, a plain
+    Range (which has only `values`) is its list or reference."""
+    if hasattr(rng, "is_set_start"):
+        return range_expr(tr, rng)
+    kind, v = orref(rng, "values")
+    return tr.ref(v) if kind == "ref" else data_expr(tr, v)
+
+
 def assign(tr: Translator, task_id: str, expr: str, suffixes=(None,)) -> str:
     var = tr.ident("task", task_id)
     tr.cb.line(f"{var} = {expr}")
@@ -107,9 +116,8 @@ def assign(tr: Translator, task_id: str, expr: str, suffixes=(None,)) -> str:
 @task_handler("calculation")
 def calculation(tr: Translator, task_id: str, task) -> None:
     # A math string is always an expression, never a reference to a string (Calculation description): `#c:v` alone
-    # is the expression consisting of that one reference, and `#c:v * 2` an expression that starts with one.  libsed2
-    # reports such a string as a "reference" in its getters, but the text is the expression either way.
-    _, text = orref(task, "math")
+    # is the expression consisting of that one reference, and `#c:v * 2` an expression that starts with one.
+    text = task.get_math_value()
     assign(tr, task_id, f"rt.m.to_data({tr.math(text)})")
 
 
@@ -161,8 +169,7 @@ def parameter_range(tr: Translator, task_id: str, task) -> None:
 
 @task_handler("range")
 def plain_range(tr: Translator, task_id: str, task) -> None:
-    kind, v = orref(task, "values")
-    assign(tr, task_id, tr.ref(v) if kind == "ref" else data_expr(tr, v))
+    assign(tr, task_id, range_data_expr(tr, task))
 
 
 # --------------------------------------------------------------------------- models

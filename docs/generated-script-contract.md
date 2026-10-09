@@ -36,6 +36,9 @@ Warnings from libsed2 validation are logged but do not stop translation.
 
   The prefix is the document's file name up to `.sed2.json` (`00001.sed2.json` gives `00001`), or `--prefix`.
   The formats are those of sed2-test-suite's `docs/FORMATS.md`.
+* **Manifest.** `--manifest FILE` also writes a JSON file `{"reports": {id: {file, format, ndim, dtype, labels}},
+  "plots": {id: {file, format, type}}}` describing what the script wrote, in the shape of a case's `settings.json`
+  entries.  The suite runner uses it to record first results (`--promote`).
 * **Determinism.** The script text depends only on the document, the backend and the options.  It contains no
   timestamps, no translator version and no absolute paths unless `--input-dir`/`--output-dir` were given.
   Two runs of the translator on the same input give identical text.  Random draws use a fixed seed unless the

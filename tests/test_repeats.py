@@ -88,14 +88,34 @@ def one_step(model, step):
 def test_scatter_with_per_iteration_range_and_index(tmp_path, sbml):
     doc = {"version": "v1.0.0",
            "tasks": {"sc": {"_type": "scatter", "range": numeric(0, 3, 1),
-                            "subTasks": {"x": {"_type": "calculation", "math": "1 * #tasks:sc.range * 2 + #tasks:sc.index * 10"},
-                                         "y": {"_type": "calculation", "math": "1 * #tasks:sc:subTasks:x + 1"}},
+                            "subTasks": {"x": {"_type": "calculation", "math": "#tasks:sc.range * 2 + #tasks:sc.index * 10"},
+                                         "y": {"_type": "calculation", "math": "#tasks:sc:subTasks:x + 1"}},
                             "outputVariableMap": {"X": "#tasks:sc:subTasks:x", "Y": "#tasks:sc:subTasks:y"}}},
            "outputs": {"r": {"_type": "report", "data": "#tasks:sc"}}}
     got = run(tmp_path, sbml, "roadrunner", doc)("r", ndim=2)
     np.testing.assert_allclose(got.values, [[0, 1], [12, 13], [24, 25], [36, 37]])
     assert got.labels[0] == ["0", "1", "2", "3"]      # the range values label the iterations
     assert got.labels[1] == ["X", "Y"]                 # the outputVariableMap keys label the entries
+
+
+def test_a_plain_range_can_drive_a_repeat(tmp_path, sbml):
+    """A Range (not a NumericRange) has only `values`; found by the golden documents."""
+    doc = {"version": "v1.0.0",
+           "constants": {"vals": [4, 5]},
+           "tasks": {"sc": {"_type": "scatter", "range": {"_type": "range", "values": [10, 20, 30]},
+                            "subTasks": {"x": {"_type": "calculation", "math": "#tasks:sc.range + 1"}},
+                            "outputVariableMap": {"X": "#tasks:sc:subTasks:x"}},
+                     "lp": {"_type": "loop", "range": {"_type": "range", "values": "#constants:vals"},
+                            "loopVariables": {"a": {"initialValue": 0.0, "subsequentValues": "#tasks:lp:subTasks:d"}},
+                            "subTasks": {"d": {"_type": "calculation", "math": "#tasks:lp:loopVariables:a + #tasks:lp.range"}},
+                            "outputVariableMap": {"D": "#tasks:lp:subTasks:d"}}},
+           "outputs": {"r": {"_type": "report", "data": "#tasks:sc"}, "l": {"_type": "report", "data": "#tasks:lp"}}}
+    run_doc = run(tmp_path, sbml, "roadrunner", doc)
+    got = run_doc("r", ndim=2)
+    np.testing.assert_allclose(got.values, [[11], [21], [31]])
+    assert got.labels[0] == ["10", "20", "30"]
+    got = run_doc("l", ndim=2)
+    np.testing.assert_allclose(got.values, [[4], [9]])
 
 
 def test_scatter_without_outputs_has_no_entries(tmp_path, sbml):
@@ -132,7 +152,7 @@ def test_loop_carries_a_number(tmp_path, sbml):
     doc = {"version": "v1.0.0",
            "tasks": {"lp": {"_type": "loop", "range": numeric(1, 3, 1),
                             "loopVariables": {"acc": {"initialValue": 1.0, "subsequentValues": "#tasks:lp:subTasks:d"}},
-                            "subTasks": {"d": {"_type": "calculation", "math": "1 * #tasks:lp:loopVariables:acc * 2"}},
+                            "subTasks": {"d": {"_type": "calculation", "math": "#tasks:lp:loopVariables:acc * 2"}},
                             "outputVariableMap": {"D": "#tasks:lp:subTasks:d"}}},
            "outputs": {"r": {"_type": "report", "data": "#tasks:lp"}}}
     got = run(tmp_path, sbml, "roadrunner", doc)("r", ndim=2)
@@ -162,9 +182,9 @@ def test_loop_with_two_variables_updates_them_together(tmp_path, sbml):
            "tasks": {"lp": {"_type": "loop", "range": numeric(0, 5, 1),
                             "loopVariables": {"a": {"initialValue": 0, "subsequentValues": "#tasks:lp:subTasks:nb"},
                                               "b": {"initialValue": 1, "subsequentValues": "#tasks:lp:subTasks:nsum"}},
-                            "subTasks": {"nb": {"_type": "calculation", "math": "1 * #tasks:lp:loopVariables:b"},
+                            "subTasks": {"nb": {"_type": "calculation", "math": "#tasks:lp:loopVariables:b"},
                                          "nsum": {"_type": "calculation",
-                                                  "math": "1 * #tasks:lp:loopVariables:a + #tasks:lp:loopVariables:b"}},
+                                                  "math": "#tasks:lp:loopVariables:a + #tasks:lp:loopVariables:b"}},
                             "outputVariableMap": {"A": "#tasks:lp:subTasks:nb"}}},
            "outputs": {"r": {"_type": "report", "data": "#tasks:lp"}}}
     got = run(tmp_path, sbml, "roadrunner", doc)("r", ndim=2).values
@@ -176,9 +196,9 @@ def test_nested_repeats(tmp_path, sbml):
            "tasks": {"outer": {"_type": "scatter", "range": numeric(1, 2, 1),
                                "subTasks": {"inner": {"_type": "scatter", "range": numeric(10, 1, 10),
                                                       "subTasks": {"p": {"_type": "calculation",
-                                                                         "math": "1 * #tasks:outer.range * #tasks:outer:subTasks:inner.range"}},
+                                                                         "math": "#tasks:outer.range * #tasks:outer:subTasks:inner.range"}},
                                                       "outputVariableMap": {"P": "#tasks:outer:subTasks:inner:subTasks:p"}},
-                                            "last": {"_type": "calculation", "math": "1 * #tasks:outer:subTasks:inner[1]['P']"}},
+                                            "last": {"_type": "calculation", "math": "#tasks:outer:subTasks:inner[1]['P']"}},
                                "outputVariableMap": {"L": "#tasks:outer:subTasks:last"}}},
            "outputs": {"r": {"_type": "report", "data": "#tasks:outer"}}}
     got = run(tmp_path, sbml, "roadrunner", doc)("r", ndim=2).values
@@ -193,7 +213,7 @@ def scan_doc(model_ref, scan_model_ref=None):
     sub = {"c": {"_type": "modelChange", "inputModel": model_ref,
                  "setValues": {} if scan_model_ref else {"k1": "#tasks:ps.ranges['k1']", "S1": "#tasks:ps.ranges['S1']"}},
            "s": one_step("#tasks:ps:subTasks:c.model", 2),
-           "idx": {"_type": "calculation", "math": "1 * #tasks:ps.indexes['k1'] * 10 + #tasks:ps.indexes['S1']"}}
+           "idx": {"_type": "calculation", "math": "#tasks:ps.indexes['k1'] * 10 + #tasks:ps.indexes['S1']"}}
     return {"version": "v1.0.0",
             "tasks": {"m1": IMPORT,
                       "ps": {"_type": "parameterScan", "model": "#tasks:m1.model",
@@ -261,7 +281,7 @@ def test_the_inside_of_a_repeat_is_not_visible_outside(tmp_path, sbml):
     doc = {"version": "v1.0.0",
            "tasks": {"sc": {"_type": "scatter", "range": numeric(0, 1, 1),
                             "subTasks": {"x": {"_type": "calculation", "math": "1"}}, "outputVariableMap": {"X": "#tasks:sc:subTasks:x"}},
-                     "after": {"_type": "calculation", "math": "1 * #tasks:sc:subTasks:x"}},
+                     "after": {"_type": "calculation", "math": "#tasks:sc:subTasks:x"}},
            "outputs": {}}
     path = write(tmp_path, sbml, doc)
     with pytest.raises((TranslationError, InvalidDocumentError)):

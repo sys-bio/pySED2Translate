@@ -1,0 +1,40 @@
+{
+  "version": "v1.0.0",
+  "tasks": {
+    "m": {
+      "_type": "modelImport",
+      "location": "model.xml",
+      "language": "urn:sedml:language:sbml"
+    },
+    "c1": {
+      "_type": "modelChange",
+      "inputModel": "#tasks:m.model",
+      "setValues": {
+        "k1": 0.25,
+        "S1": "#tasks:m.model['S1']"
+      }
+    },
+    "c2": {
+      "_type": "modelChange",
+      "inputModel": "#tasks:c1.model",
+      "removeElements": [
+        "J1"
+      ]
+    },
+    "s": {
+      "_type": "oneStepODESimulation",
+      "model": "#tasks:c2.model",
+      "independentVariable": "time",
+      "outputVariables": [
+        "S1"
+      ],
+      "independentStep": 1
+    }
+  },
+  "outputs": {
+    "r": {
+      "_type": "report",
+      "data": "#tasks:s"
+    }
+  }
+}

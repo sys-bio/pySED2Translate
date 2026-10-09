@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from .core import Translator, TaskValues, task_handler
 from .errors import TranslationError
-from .tasks import _text, data_expr, orref, range_expr, static_value
+from .tasks import _text, data_expr, orref, range_data_expr, range_expr, static_value
 
 
 def _output_map(tr: Translator, task_id: str, task) -> dict:
@@ -66,7 +66,7 @@ def _range_repeat(tr: Translator, task_id: str, task, with_loop_variables: bool)
     i, value = tr.ident("rep_i", task_id), tr.ident("rep_value", task_id)
     cur_range, cur_index = tr.ident("rep_range", task_id), tr.ident("rep_index", task_id)
     out_map = _output_map(tr, task_id, task)
-    cb.line(f"{points} = rt.ops.numbers_from({range_expr(tr, task.get_range())})")
+    cb.line(f"{points} = rt.ops.numbers_from({range_data_expr(tr, task.get_range())})")
     cb.line(f"{rows} = []")
     loop_vars = _loop_variables(tr, task_id, task, cb) if with_loop_variables else []
     tr.register_task(task_id, TaskValues({"range": cur_range, "index": cur_index}))
