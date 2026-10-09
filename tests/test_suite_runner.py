@@ -151,6 +151,17 @@ def test_unsupported_on_a_canonical_backend_is_a_failure(suite, tmp_path, monkey
     assert run(suite, case, "opencor").status == sr.SKIP
 
 
+def test_a_script_that_cannot_run_the_model_is_a_skip_unless_the_backend_is_canonical(suite, tmp_path, monkeypatch):
+    """A script exits 11 when the simulator finds, reading the model, that it cannot run it (see BackendCannotRun)."""
+    case = make_case(tmp_path / "suite", backends=("roadrunner", "copasi"))
+    script = "import sys\nprint('skip: opencor cannot run the model: it has events', file=sys.stderr)\nsys.exit(11)\n"
+    monkeypatch.setattr(sr, "translate_file", lambda *a, **k: script)
+    r = run(suite, case, "opencor")
+    assert r.status == sr.SKIP and "has events" in r.reason
+    r = run(suite, case, "copasi")
+    assert r.status == sr.FAIL and "canonical" in r.reason and "has events" in r.reason
+
+
 def test_error_when_translation_fails(suite, tmp_path, monkeypatch):
     case = make_case(tmp_path / "suite")
     monkeypatch.setattr(sr, "translate_file", lambda *a, **k: (_ for _ in ()).throw(TranslationError("boom")))
@@ -369,3 +380,44 @@ def test_main_work_dir_is_kept(suite, tmp_path):
     work = tmp_path / "keep"
     assert run_main(suite, "-b", "roadrunner", "--work-dir", str(work)) == 0
     assert (work / "00001" / "roadrunner" / "00001.roadrunner.py").exists()
+
+
+# --------------------------------------------------------------------------- admitting
+
+def with_sign_off(case):
+    desc = os.path.join(case, "00001.description.md")
+    open(desc, "w").write("# Test 00001\n\n## Sign-off\n\n- Backends: not yet admitted (x).\n\n<!-- tags:begin -->\n")
+    return desc
+
+
+def test_admit_records_backends_and_the_sign_off(suite, tmp_path):
+    case = make_case(tmp_path / "suite", backends=())
+    desc = with_sign_off(case)
+    results = [run(suite, case, b) for b in ("roadrunner", "copasi")] + [sr.RunResult("00001", "opencor", sr.SKIP, "no")]
+    msg = sr.admit(suite, case, results, today="2026-10-09")
+    assert msg == "00001 admitted: roadrunner, copasi (skipped: opencor)"
+    assert st.load_settings(os.path.join(case, "00001.settings.json"))["backends"] == ["roadrunner", "copasi"]
+    text = open(desc).read()
+    assert "- Backends: roadrunner, copasi (agree within the tolerances; admitted 2026-10-09 by the suite runner; " \
+           "not supported by the translator: opencor)." in text
+    assert text.count("- Backends:") == 1 and "<!-- tags:begin -->" in text
+
+
+def test_admit_refuses_failures_and_empty_runs(suite, tmp_path):
+    case = make_case(tmp_path / "suite", expected=(9.0, 9.0, 9.0), backends=("roadrunner",))
+    results = [run(suite, case, "roadrunner")]
+    with pytest.raises(ValueError, match="roadrunner FAIL"):
+        sr.admit(suite, case, results)
+    assert st.load_settings(os.path.join(case, "00001.settings.json"))["backends"] == ["roadrunner"]
+    with pytest.raises(ValueError, match="no backend ran it"):
+        sr.admit(suite, case, [sr.RunResult("00001", "copasi", sr.SKIP, "no")])
+
+
+def test_main_admit(suite, tmp_path, capsys):
+    root = tmp_path / "suite"
+    shutil.copytree(os.path.join(os.path.dirname(compare.__file__), ".."), root / "tools", ignore=shutil.ignore_patterns("__pycache__"))
+    case = make_case(root, "00001", backends=())
+    assert run_main(suite, "00001", "--admit") == 0
+    assert "00001 admitted: roadrunner, copasi, opencor" in capsys.readouterr().out
+    assert st.load_settings(os.path.join(case, "00001.settings.json"))["backends"] == ["roadrunner", "copasi", "opencor"]
+    assert run_main(suite, "00001", "--admit", "-b", "copasi") == 2

@@ -197,7 +197,8 @@ def test_unsupported_setting_is_an_error_not_ignored(backend, model):
 # --------------------------------------------------------------------------- translated documents
 
 @pytest.mark.parametrize("name", BACKENDS)
-def test_translated_document_runs_end_to_end(tmp_path, sbml, name):
+@pytest.mark.parametrize("spelling", ["time", "urn:sedml:symbol:time"])
+def test_translated_document_runs_end_to_end(tmp_path, sbml, name, spelling):
     results_io = pytest.importorskip("sed2suite.results_io")
     pytest.importorskip("libsed2")
     try:
@@ -209,7 +210,7 @@ def test_translated_document_runs_end_to_end(tmp_path, sbml, name):
     (tmp_path / "m.xml").write_text(sbml)
     doc = {"version": "v1.0.0",
            "tasks": {"m1": {"_type": "modelImport", "location": "m.xml", "language": "urn:sedml:language:sbml"},
-                     "s": {"_type": "explicitODESimulation", "model": "#tasks:m1.model", "independentVariable": "time",
+                     "s": {"_type": "explicitODESimulation", "model": "#tasks:m1.model", "independentVariable": spelling,
                            "outputVariables": ["S1", "A"],
                            "independentVariableRange": {"_type": "numericRange", "start": 0, "end": 4, "numberOfSteps": 4}}},
            "outputs": {"r": {"_type": "report", "data": "#tasks:s"},
@@ -223,7 +224,9 @@ def test_translated_document_runs_end_to_end(tmp_path, sbml, name):
     assert r.returncode == 0, r.stderr
     t = [0, 1, 2, 3, 4]
     got = results_io.read_csv(str(tmp_path / "out" / "doc.r.csv"), ndim=2, column_labels=True)
-    assert got.labels[1] == ["time", "S1", "A"]
+    # the first column is labelled with the independentVariable attribute as written (outputs.json: labels are
+    # `[independentVariable] + outputVariables`)
+    assert got.labels[1] == [spelling, "S1", "A"]
     close(got.values[:, 1], s1(t))
     close(got.values[:, 2], a(t))
     col = results_io.read_csv(str(tmp_path / "out" / "doc.col.csv"), ndim=1)
@@ -318,3 +321,81 @@ def test_opencor_cvode_settings(model):
     data = _alg_course(model, "opencor", None, [0.0, 1.0, 2.0], useStiffSolver=False, maxNumberOfSteps=100000,
                        maxInternalStepSize=0.1, relativeTolerance=1e-9, absoluteTolerance=1e-12)
     np.testing.assert_allclose(data.values[:, 1], s1([0.0, 1.0, 2.0]), rtol=1e-5, atol=1e-8)
+
+
+# --------------------------------------------------------------------------- models a simulator cannot run
+
+EVENT_MODEL = """<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version2/core" level="3" version="2">
+  <model id="ev">
+    <listOfParameters><parameter id="x" value="1" constant="false"/></listOfParameters>
+    <listOfRules>
+      <rateRule variable="x"><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><minus/><ci>x</ci></apply></math></rateRule>
+    </listOfRules>
+    <listOfEvents>
+      <event id="e" useValuesFromTriggerTime="true">
+        <trigger initialValue="false" persistent="true"><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><gt/><csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">t</csymbol><cn>1</cn></apply></math></trigger>
+        <listOfEventAssignments><eventAssignment variable="x"><math xmlns="http://www.w3.org/1998/Math/MathML"><cn>5</cn></math></eventAssignment></listOfEventAssignments>
+      </event>
+    </listOfEvents>
+  </model>
+</sbml>
+"""
+
+
+def test_opencor_refuses_a_model_with_events_instead_of_leaving_them_out(tmp_path):
+    """sbml2cellml converts events away without a warning; the backend must say so, not return a wrong time course."""
+    pytest.importorskip("libopencor")
+    pytest.importorskip("sbml2cellml")
+    from pysed2translate.runtime import BackendCannotRun
+
+    (tmp_path / "ev.xml").write_text(EVENT_MODEL)
+    model = SbmlModel.load(str(tmp_path / "ev.xml"), "urn:sedml:language:sbml")
+    assert model.has_events()
+    with pytest.raises(BackendCannotRun, match="events"):
+        backends.get("opencor").time_course(model, TimeCourse(independent_variable="time", output_variables=["x"],
+                                                              points=[0.0, 1.0, 2.0]))
+
+
+@pytest.mark.parametrize("name", ["roadrunner", "copasi"])
+def test_other_backends_run_a_model_with_events(tmp_path, name):
+    try:
+        backend = backends.get(name)
+    except DataError as e:
+        pytest.skip(str(e))
+    (tmp_path / "ev.xml").write_text(EVENT_MODEL)
+    model = SbmlModel.load(str(tmp_path / "ev.xml"), "urn:sedml:language:sbml")
+    data, _ = backend.time_course(model, TimeCourse(independent_variable="time", output_variables=["x"],
+                                                    points=[0.0, 0.5, 1.5, 2.5]))
+    # x' = -x from 1; at t = 1 the event sets x = 5, so x(1.5) = 5 exp(-0.5) and x(2.5) = 5 exp(-1.5)
+    assert data.values[1, 1] == pytest.approx(math.exp(-0.5), rel=1e-5)
+    assert data.values[2, 1] == pytest.approx(5 * math.exp(-0.5), rel=1e-5)
+    assert data.values[3, 1] == pytest.approx(5 * math.exp(-1.5), rel=1e-5)
+
+
+def test_a_script_exits_with_the_skip_status_when_the_backend_cannot_run_the_model(tmp_path):
+    pytest.importorskip("libsed2")
+    pytest.importorskip("libopencor")
+    pytest.importorskip("sbml2cellml")
+    from pysed2translate.errors import EXIT_UNSUPPORTED
+    from pysed2translate.runtime import EXIT_CANNOT_RUN
+    from pysed2translate.translate import translate_file
+
+    assert EXIT_CANNOT_RUN == EXIT_UNSUPPORTED
+    (tmp_path / "ev.xml").write_text(EVENT_MODEL)
+    doc = {"version": "v1.0.0",
+           "tasks": {"m": {"_type": "modelImport", "location": "ev.xml", "language": "urn:sedml:language:sbml"},
+                     "s": {"_type": "explicitODESimulation", "model": "#tasks:m.model", "independentVariable": "time",
+                           "outputVariables": ["x"],
+                           "independentVariableRange": {"_type": "numericRange", "start": 0, "end": 2, "numberOfSteps": 2}}},
+           "outputs": {"r": {"_type": "report", "data": "#tasks:s"}}}
+    path = tmp_path / "doc.sed2.json"
+    path.write_text(json.dumps(doc))
+    script = tmp_path / "run.py"
+    script.write_text(translate_file(str(path), "opencor"))
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [SRC, os.environ.get("PYTHONPATH", "")])))
+    r = subprocess.run([sys.executable, str(script), "--output-dir", str(tmp_path / "out")], capture_output=True, text=True,
+                       env=env)
+    assert r.returncode == EXIT_UNSUPPORTED, r.stderr
+    assert "skip: opencor cannot run the model" in r.stderr and "events" in r.stderr
+    assert not (tmp_path / "out").exists() or not list((tmp_path / "out").glob("*.csv"))

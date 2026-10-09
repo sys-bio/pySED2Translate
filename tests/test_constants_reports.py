@@ -217,3 +217,24 @@ def test_a_failing_step_is_reported_and_does_not_stop_the_others(tmp_path, capsy
     assert [f[0] for f in ctx.failures] == ["bad"]
     assert "error in bad" in capsys.readouterr().err
     assert rt.Context(str(tmp_path), str(tmp_path), "p").exit_status() == 0
+
+
+@pytest.mark.parametrize("constants", [
+    {"a": 5, "b": ["#constants:a", 6]},
+    {"a": 5, "b": {"k": "#constants:a"}},
+    {"a": 5, "b": [[1, 2], ["#constants:a", 3]]},
+])
+def test_reference_inside_a_list_or_dictionary_constant_is_refused(tmp_path, constants):
+    """The specification does not say whether such an entry is replaced by the value it refers to (SED2/TODO.md), so
+    the translator refuses instead of reporting the text of the reference as a string."""
+    from pysed2translate import errors
+
+    p = make(tmp_path, {"r": "#constants:a"}, constants=constants)
+    with pytest.raises(errors.TranslationError, match="inside a list or dictionary.*SED2/TODO.md"):
+        translate_file(p, "roadrunner")
+
+
+def test_a_literal_string_that_only_looks_like_text_is_not_refused(tmp_path):
+    p = make(tmp_path, {"r": "#constants:b"}, constants={"b": ["a#b", "c"]})
+    r, out = run_script(tmp_path, p, "roadrunner")
+    assert r.returncode == 0, r.stderr

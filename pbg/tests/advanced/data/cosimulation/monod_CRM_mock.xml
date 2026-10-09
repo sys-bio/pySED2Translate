@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version2/core" level="3" version="2">
+  <model metaid="monod_CRM_mock" id="monod_CRM_mock">
+    <listOfCompartments>
+      <compartment sboTerm="SBO:0000410" id="default_compartment" spatialDimensions="3" size="1" constant="true"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="glucose" compartment="default_compartment" initialConcentration="11.1" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="acetate" compartment="default_compartment" initialConcentration="0" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="biomass" compartment="default_compartment" initialConcentration="0.01" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter id="Vmax_glc" value="10" constant="true"/>
+      <parameter id="Km_glc" value="0.5" constant="true"/>
+      <parameter id="Vmax_ac" value="2" constant="true"/>
+      <parameter id="Km_ac" value="0.5" constant="true"/>
+      <parameter id="u_glc" constant="false"/>
+      <parameter id="u_ac" constant="false"/>
+      <parameter id="mu" value="0" constant="true"/>
+      <parameter id="v_glc" value="0" constant="true"/>
+      <parameter id="v_ac" value="0" constant="true"/>
+    </listOfParameters>
+    <listOfRules>
+      <assignmentRule variable="u_glc">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <divide/>
+            <apply>
+              <times/>
+              <ci> Vmax_glc </ci>
+              <ci> glucose </ci>
+            </apply>
+            <apply>
+              <plus/>
+              <ci> Km_glc </ci>
+              <ci> glucose </ci>
+              <cn type="e-notation"> 1 <sep/> -12 </cn>
+            </apply>
+          </apply>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="u_ac">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <divide/>
+            <apply>
+              <times/>
+              <ci> Vmax_ac </ci>
+              <ci> acetate </ci>
+            </apply>
+            <apply>
+              <plus/>
+              <ci> Km_ac </ci>
+              <ci> acetate </ci>
+              <cn type="e-notation"> 1 <sep/> -12 </cn>
+            </apply>
+          </apply>
+        </math>
+      </assignmentRule>
+    </listOfRules>
+    <listOfReactions>
+      <reaction id="gr" reversible="false">
+        <listOfProducts>
+          <speciesReference species="biomass" stoichiometry="1" constant="true"/>
+        </listOfProducts>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times/>
+              <ci> mu </ci>
+              <ci> biomass </ci>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+      <reaction id="eg" reversible="false">
+        <listOfReactants>
+          <speciesReference species="glucose" stoichiometry="1" constant="true"/>
+        </listOfReactants>
+        <listOfModifiers>
+          <modifierSpeciesReference species="biomass"/>
+        </listOfModifiers>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <divide/>
+              <apply>
+                <times/>
+                <apply>
+                  <minus/>
+                  <ci> v_glc </ci>
+                </apply>
+                <ci> biomass </ci>
+                <ci> glucose </ci>
+              </apply>
+              <apply>
+                <plus/>
+                <ci> glucose </ci>
+                <cn type="e-notation"> 1 <sep/> -9 </cn>
+              </apply>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+      <reaction id="ea" reversible="false">
+        <listOfReactants>
+          <speciesReference species="acetate" stoichiometry="1" constant="true"/>
+        </listOfReactants>
+        <listOfModifiers>
+          <modifierSpeciesReference species="biomass"/>
+        </listOfModifiers>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+              <times/>
+              <apply>
+                <minus/>
+                <ci> v_ac </ci>
+              </apply>
+              <ci> biomass </ci>
+              <piecewise>
+                <piece>
+                  <cn type="integer"> 1 </cn>
+                  <apply>
+                    <gt/>
+                    <ci> v_ac </ci>
+                    <cn type="integer"> 0 </cn>
+                  </apply>
+                </piece>
+                <otherwise>
+                  <apply>
+                    <divide/>
+                    <ci> acetate </ci>
+                    <apply>
+                      <plus/>
+                      <ci> acetate </ci>
+                      <cn type="e-notation"> 1 <sep/> -9 </cn>
+                    </apply>
+                  </apply>
+                </otherwise>
+              </piecewise>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+    </listOfReactions>
+  </model>
+</sbml>

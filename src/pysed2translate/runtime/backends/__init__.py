@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 
 from ..annotated import DataError
-from .base import Backend, JacobianResult, SteadyState, SteadyStateResult, TimeCourse, TimeCourseResult
+from .base import EXIT_CANNOT_RUN, Backend, BackendCannotRun, JacobianResult, SteadyState, SteadyStateResult, TimeCourse, TimeCourseResult
 
 _MODULES = {"roadrunner": ".roadrunner_backend", "copasi": ".copasi_backend", "opencor": ".opencor_backend"}
 _cache: dict = {}

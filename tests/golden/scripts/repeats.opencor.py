@@ -24,7 +24,7 @@ def run(ctx):
         rep_range_sc = rt.AnnotatedData(rep_value_sc)
         rep_index_sc = rt.AnnotatedData(float(rep_i_sc))
         task_sc_subTasks_c = task_m.with_values({'k1': rt.ops.scalar(rep_range_sc)})
-        task_sc_subTasks_s, task_sc_subTasks_s_model = rt.backends.get(BACKEND).time_course(task_sc_subTasks_c, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], step=2.0, settings={}, algorithm=None))
+        task_sc_subTasks_s, task_sc_subTasks_s_model = rt.backends.get(BACKEND).time_course(task_sc_subTasks_c, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], label='time', step=2.0, settings={}, algorithm=None))
         rep_rows_sc.append([task_sc_subTasks_s.index([[('label', 'S1')]])])
     task_sc = rt.ops.repeat_table(rep_points_sc, rep_rows_sc, ['S1'])
     rep_points_lp = rt.ops.numbers_from(rt.ops.numeric_range(start=1.0, interval=1.0, number_of_steps=3.0))
@@ -45,7 +45,7 @@ def run(ctx):
         rep_model_ps = task_m.with_values(dict(zip(rep_names_ps, rep_vals_ps)))
         rep_ranges_now_ps = rt.ops.labeled_vector(rep_names_ps, rep_vals_ps)
         rep_indexes_now_ps = rt.ops.labeled_vector(rep_names_ps, [float(k) for k in rep_ix_ps])
-        task_ps_subTasks_s, task_ps_subTasks_s_model = rt.backends.get(BACKEND).time_course(rep_model_ps, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], step=1.0, settings={}, algorithm=None))
+        task_ps_subTasks_s, task_ps_subTasks_s_model = rt.backends.get(BACKEND).time_course(rep_model_ps, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], label='time', step=1.0, settings={}, algorithm=None))
         rep_rows_ps.append([task_ps_subTasks_s.index([[('label', 'S1')]])])
     task_ps = rt.ops.scan_table(rep_rows_ps, rep_ranges_ps, rep_names_ps, ['S1'])
     rep_points_sc2 = rt.ops.numbers_from(rt.AnnotatedData.from_constant([10, 20, 30]))
@@ -80,6 +80,9 @@ def main(argv=None):
     ctx = rt.Context(args.input_dir, args.output_dir, PREFIX, png=not args.no_png)
     try:
         run(ctx)
+    except rt.BackendCannotRun as e:  # the simulator cannot run this model: a skip, not a result
+        print(f'skip: {BACKEND} cannot run the model: {e}', file=sys.stderr)
+        return rt.EXIT_CANNOT_RUN
     except Exception:  # a failed task stops the experiment
         traceback.print_exc()
         return 1

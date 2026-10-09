@@ -15,7 +15,7 @@ python -m pytest --cov --cov-report=term-missing  # with a coverage report
   the runtime code they execute as well, so the figures cover `runtime/` properly.  Coverage writes one data file per
   process and combines them at the end, which deletes files; on a folder where deleting is not allowed, point
   `COVERAGE_FILE` at another directory.  Splitting the run into several `--cov-append` runs works the same way.
-* Figures at the time of writing: 584 tests, 95% line and branch coverage (`tasks_sim.py` 97%, `core.py` 92%,
+* Figures at the time of writing: 599 tests (the coverage figures below were measured at 584 tests and not repeated), 95% line and branch coverage (`tasks_sim.py` 97%, `core.py` 92%,
   `runtime/ops.py` 91%).  What is not covered is mostly defensive error branches.
 
 ## Golden scripts

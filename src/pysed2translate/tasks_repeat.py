@@ -10,7 +10,7 @@ range (ParameterScan), labeled by the range values; then the outputVariableMap e
 the dimensions of the entries themselves.
 
 Not translated (the capability check skips such documents): `aggregateOutputVariables` (AggregationCalculation has no
-function, GAPS.md S-006) and `taskParameters` (their meaning is not defined, S-011).
+function, SED2/TODO.md: AggregationCalculation) and `taskParameters` (their meaning is not defined, SED2/TODO.md: TaskParameter).
 """
 from __future__ import annotations
 

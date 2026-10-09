@@ -20,8 +20,8 @@ CONSTANTS = {
 
 def run(ctx):
     task_m = rt.SbmlModel.load(ctx.input_path('model.xml'), 'urn:sedml:language:sbml')
-    task_explicit, task_explicit_model = rt.backends.get(BACKEND).time_course(task_m, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1', 'S2'], points=rt.ops.numbers_from(rt.ops.numeric_range(start=0.0, end=4.0, number_of_steps=4.0)), settings={'relativeTolerance': rt.ops.scalar(rt.AnnotatedData.from_constant(CONSTANTS['tol'])), 'maxNumberOfSteps': 5000}, algorithm=None))
-    task_one, task_one_model = rt.backends.get(BACKEND).time_course(task_explicit_model, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], start=1.0, step=2.0, settings={}, algorithm=None))
+    task_explicit, task_explicit_model = rt.backends.get(BACKEND).time_course(task_m, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1', 'S2'], label='time', points=rt.ops.numbers_from(rt.ops.numeric_range(start=0.0, end=4.0, number_of_steps=4.0)), settings={'relativeTolerance': rt.ops.scalar(rt.AnnotatedData.from_constant(CONSTANTS['tol'])), 'maxNumberOfSteps': 5000}, algorithm=None))
+    task_one, task_one_model = rt.backends.get(BACKEND).time_course(task_explicit_model, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], label='time', start=1.0, step=2.0, settings={}, algorithm=None))
     with ctx.step('traj'):
         rt.write_report(ctx, 'traj', task_explicit)
     with ctx.step('step'):
@@ -42,6 +42,9 @@ def main(argv=None):
     ctx = rt.Context(args.input_dir, args.output_dir, PREFIX, png=not args.no_png)
     try:
         run(ctx)
+    except rt.BackendCannotRun as e:  # the simulator cannot run this model: a skip, not a result
+        print(f'skip: {BACKEND} cannot run the model: {e}', file=sys.stderr)
+        return rt.EXIT_CANNOT_RUN
     except Exception:  # a failed task stops the experiment
         traceback.print_exc()
         return 1

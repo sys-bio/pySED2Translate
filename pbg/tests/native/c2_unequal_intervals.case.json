@@ -1,0 +1,10 @@
+{
+  "end": 4.0,
+  "watch": [
+    "x",
+    "y"
+  ],
+  "modules": [
+    "loopsteps2"
+  ]
+}

@@ -136,6 +136,9 @@ class SbmlModel:
                 out.append(p.getId())
         return out
 
+    def has_events(self) -> bool:
+        return self._document().getModel().getNumEvents() > 0
+
     def floating_species(self) -> list:
         """Ids of the species that are not boundary species, in the model's order (the Jacobian's row order)."""
         model = self._document().getModel()

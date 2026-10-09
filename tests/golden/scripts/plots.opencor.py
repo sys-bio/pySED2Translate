@@ -43,6 +43,9 @@ def main(argv=None):
     ctx = rt.Context(args.input_dir, args.output_dir, PREFIX, png=not args.no_png)
     try:
         run(ctx)
+    except rt.BackendCannotRun as e:  # the simulator cannot run this model: a skip, not a result
+        print(f'skip: {BACKEND} cannot run the model: {e}', file=sys.stderr)
+        return rt.EXIT_CANNOT_RUN
     except Exception:  # a failed task stops the experiment
         traceback.print_exc()
         return 1

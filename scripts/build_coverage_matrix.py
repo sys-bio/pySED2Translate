@@ -8,7 +8,7 @@ Usage:  python scripts/build_coverage_matrix.py [SPECSHEETS_DIR] [OUT_MD]
 Defaults: ../SED2/specsheets  and  docs/task-coverage-matrix.md
 
 The hand-maintained columns live in the MANUAL dict below.  Backend entries are EXPECTATIONS to be
-checked against the implemented backends (P2); where a cell names a limit, see GAPS.md and docs/environment-notes.md.
+checked against the implemented backends (P2); where a cell names a limit, see SED2/TODO.md and docs/environment-notes.md.
 """
 import json
 import os
@@ -37,12 +37,12 @@ MANUAL = {
     "NumericRange": ("-", "-", "-", "P4.5", "active"),
     "ParameterRange": ("-", "-", "-", "P4.5", "active"),
     "Calculation": ("-", "-", "-", "P4.2", "active"),
-    "AggregationCalculation": ("N", "N", "N (no function selector, S-006)", "P4.2", "active"),
+    "AggregationCalculation": ("N", "N", "N (no function selector, see SED2/TODO.md)", "P4.2", "active"),
     "RelabelData": ("-", "-", "-", "P4.2", "active"),
     "StringFormation": ("-", "-", "-", "P4.2", "active"),
     "CreateDataBlock": ("-", "-", "-", "P4.2", "active"),
     "ModelElementList": ("-", "-", "-", "P4.2", "active"),
-    "DataImport": ("N", "N", "N (no formats defined, S-012)", "P4.6", "active"),
+    "DataImport": ("N", "N", "N (no formats defined, see SED2/TODO.md)", "P4.6", "active"),
     "CsvImport": ("-", "-", "-", "P4.6", "active"),
     "Report": ("-", "-", "-", "P4.1", "active"),
     "Plot2D": ("-", "-", "-", "P4.6", "active"),

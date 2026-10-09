@@ -15,15 +15,16 @@ right because a problem was covered up defeats that goal.
   refusal is always better than a plausible wrong answer.  The COPASI Jacobian at a zero-valued species is the
   example: COPASI returns 0 for it, so the backend refuses (disagreement D-001 in sed2-test-suite).
 * Record every problem where it can be found and acted on:
-  * a libsed2 or specification gap or question: `GAPS.md` (the SED2 author maintains libsed2 and the specification;
-    report there, do not patch around it, and propose specification changes rather than make them);
+  * a libsed2 or specification gap or question: `SED2/TODO.md` in the SED2 repository (the SED2 author maintains
+    libsed2 and the specification; add a section at the end of that file and change nothing else there; do not
+    patch around the gap, and propose specification changes rather than make them);
   * a simulator bug or a disagreement between backends: `disagreements.json` in sed2-test-suite, with the size of
     the difference, the diagnosis (solver setting, translator bug, simulator bug, spec ambiguity) and the
     resolution; and, when it is a bug in someone else's software, say so plainly and, if asked, draft an upstream
     report with a minimal reproduction;
   * a translator bug: fix it, with a test that fails without the fix.
 * A test case is not changed to avoid a problem unless the change leaves what the test is about intact, and the log
-  entry says that it was changed and why (case 00005 starts with B = 0.5 for this reason, and keeps the
+  entry says that it was changed and why (case 00161 starts with B = 0.5 for this reason, and keeps the
   zero-valued variant documented as unsupported).  Keep the evidence: do not delete failing cases or expected
   results to make a run green.
 * If it is unclear whether something is a bug in a simulator, a bug in the translator, or an ambiguity in the
@@ -34,9 +35,10 @@ right because a problem was covered up defeats that goal.
 
 * **Do not commit or push** anything, in any repository, unless asked to.  Leave changes in the working tree.
 * **libsed2 and the SED2 specification belong to someone else.**  They are maintained in the SED2 repository (see
-  its `Claude.md`) by the SED2 author.  Report gaps in `GAPS.md` and stop there: never patch libsed2, never work
-  around a gap in the translator.  Specification changes are made by the user; propose them, do not make them.
-  `GAPS.md` keeps only unresolved items (resolved ones are removed, their ids stay unused).
+  its `Claude.md`) by the SED2 author.  Report gaps in `SED2/TODO.md` (a new section at the end; change nothing else in
+  that repository) and stop there: never patch libsed2, never work around a gap in the translator.  Specification
+  changes are made by the user; propose them, do not make them.  What the translator skips because of an open item
+  is listed in `docs/deferred.md`.
 * **ASCII only** in files (source, documentation, data, JSON, tests).  Write non-ASCII characters in tests as escapes.
 * **Ask only when blocked.**  Make the call and say what was decided, unless a gap or a real question about intent
   stops the work.  Decisions that are made but not yet in the specification are tracked in `SED2/TODO.md`.

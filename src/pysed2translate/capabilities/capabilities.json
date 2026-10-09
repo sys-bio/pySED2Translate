@@ -10,17 +10,17 @@
       "roadrunner": {
         "supported": false,
         "deferred": true,
-        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+        "reason": "the document cannot say which aggregation function to compute (SED2/TODO.md: AggregationCalculation)"
       },
       "copasi": {
         "supported": false,
         "deferred": true,
-        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+        "reason": "the document cannot say which aggregation function to compute (SED2/TODO.md: AggregationCalculation)"
       },
       "opencor": {
         "supported": false,
         "deferred": true,
-        "reason": "the document cannot say which aggregation function to compute (GAPS.md S-006)"
+        "reason": "the document cannot say which aggregation function to compute (SED2/TODO.md: AggregationCalculation)"
       }
     },
     "boundedODESimulation": {
@@ -93,15 +93,15 @@
     "dataImport": {
       "roadrunner": {
         "supported": false,
-        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+        "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
       },
       "copasi": {
         "supported": false,
-        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+        "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
       },
       "opencor": {
         "supported": false,
-        "reason": "the specification defines no data formats for DataImport (GAPS.md S-012)"
+        "reason": "the specification defines no data formats for DataImport (SED2/TODO.md: CsvImport)"
       }
     },
     "drawFromDistribution": {

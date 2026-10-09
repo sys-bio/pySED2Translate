@@ -14,7 +14,7 @@ import numpy as np
 from ... import kisao
 from ..annotated import DataError
 from ..model import SbmlModel
-from .base import Backend, TimeCourse, TimeCourseResult
+from .base import Backend, BackendCannotRun, TimeCourse, TimeCourseResult
 
 _CVODE_SETTINGS = {"relativeTolerance": "relative_tolerance", "absoluteTolerance": "absolute_tolerance",
                    "maxNumberOfSteps": "maximum_number_of_steps", "maxInternalStepSize": "maximum_step"}
@@ -104,6 +104,10 @@ class OpenCorBackend(Backend):
     def _time_course(self, model: SbmlModel, tc: TimeCourse) -> TimeCourseResult:
         import sbml2cellml
 
+        if model.has_events():
+            # sbml2cellml converts such a model without a word and leaves the events out, so the run would be wrong
+            raise BackendCannotRun("the model has SBML events, which OpenCOR's SBML-to-CellML conversion (sbml2cellml) "
+                                   "silently leaves out; results would be wrong (sed2-test-suite disagreements.json D-002)")
         if tc.span is not None:
             raise DataError("libopencor runs uniform time courses only, so it cannot choose its own output points")
         try:

@@ -66,8 +66,9 @@ def _independent_variable(tr: Translator, task_id: str, sim) -> str:
 def _time_course(tr: Translator, task_id: str, sim, where: str) -> None:
     model = tr.ref(sim.get_model())
     init = orref(sim, "independentVariableInit")
+    written = _text(tr, sim, "independentVariable", f"task {task_id!r} independentVariable")
     args = [f"independent_variable={_independent_variable(tr, task_id, sim)!r}",
-            f"output_variables={_output_variables(tr, sim)}"]
+            f"output_variables={_output_variables(tr, sim)}", f"label={written!r}"]
     if init is not None:
         args.append(f"start={number_expr(tr, init)}")
     if where == "points":

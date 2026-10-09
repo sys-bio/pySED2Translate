@@ -68,7 +68,8 @@ def plot2d_csv_text(columns: dict) -> str:
 def write_plot3d_h5(path: str, surfaces: list) -> None:
     import h5py
 
-    with h5py.File(path, "w") as f:
+    # creation order is tracked, so that readers list the surfaces in the order written (ascending `order`)
+    with h5py.File(path, "w", track_order=True) as f:
         for s in _ordered(surfaces):
             g = f.create_group(s["id"])
             for name in ("x", "y", "z"):

@@ -266,8 +266,8 @@ def test_aggregates_and_task_parameters_are_skipped():
     for b in table.backends:
         for t in ("loop", "scatter", "parameterScan"):
             assert table.verdict(b, t, {"_type": t, "outputVariableMap": {"a": "#tasks:x"}}) is None
-            assert "S-006" in table.verdict(b, t, {"aggregateOutputVariables": {"a": {}}})
-            assert "S-011" in table.verdict(b, t, {"taskParameters": [{"id": "p"}]})
+            assert "TODO.md: AggregationCalculation" in table.verdict(b, t, {"aggregateOutputVariables": {"a": {}}})
+            assert "TODO.md: TaskParameter" in table.verdict(b, t, {"taskParameters": [{"id": "p"}]})
 
 
 def test_subtasks_are_checked_by_the_capability_table():

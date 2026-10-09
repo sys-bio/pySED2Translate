@@ -15,13 +15,13 @@ A `_type` of - means the class has no discriminator of its own (abstract base, m
 | tasks | AbstractSimulation | - | - | - | - | - | - | P4.3 | base |
 | tasks | AbstractStochasticSimulation | - | - | - | - | - | - | stochastic (later) | base |
 | tasks | AbstractTask | - | - | - | - | - | - | all | base |
-| tasks | AggregationCalculation | aggregationCalculation | input | [id]:annotatedData | N | N | N (no function selector, S-006) | P4.2 | active |
+| tasks | AggregationCalculation | aggregationCalculation | input | [id]:annotatedData | N | N | N (no function selector, see SED2/TODO.md) | P4.2 | active |
 | tasks | BoundedODESimulation | boundedODESimulation | model, independentVariable, outputVariables, independentVariableSpan | [id]:annotatedData, [id].model:model | Y | Y | N (uniform time courses only) | P4.3 | active |
 | tasks | BoundedStochasticSimulation | boundedStochasticSimulation | model, independentVariable, outputVariables, independentVariableSpan | [id]:annotatedData, [id].model:model | ? | ? | ? | stochastic (later) | deferred |
 | tasks | Calculation | calculation | math | [id]:annotatedData | - | - | - | P4.2 | active |
 | tasks | CreateDataBlock | createDataBlock | data | [id]:annotatedData | - | - | - | P4.2 | active |
 | tasks | CsvImport | csvImport | location | [id]:annotatedData | - | - | - | P4.6 | active |
-| tasks | DataImport | dataImport | location, format | [id]:annotatedData | N | N | N (no formats defined, S-012) | P4.6 | active |
+| tasks | DataImport | dataImport | location, format | [id]:annotatedData | N | N | N (no formats defined, see SED2/TODO.md) | P4.6 | active |
 | tasks | DrawFromDistribution | drawFromDistribution | distribution, arguments | [id]:annotatedData | - | - | - | stochastic (later) | deferred |
 | tasks | ExplicitODESimulation | explicitODESimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | Y | Y | Y | P4.3 | active |
 | tasks | ExplicitStochasticSimulation | explicitStochasticSimulation | model, independentVariable, outputVariables, independentVariableRange | [id]:annotatedData, [id].model:model | ? | ? | ? | stochastic (later) | deferred |

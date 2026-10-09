@@ -143,6 +143,6 @@ def test_capabilities():
     for b in table.backends:
         assert table.verdict(b, "csvImport", {"_type": "csvImport", "location": "x.csv"}) is None
         assert table.verdict(b, "csvImport", {"organization": "columns"}) is None
-        assert "S-012" in table.verdict(b, "csvImport", {"organization": "rows"})
-        assert "S-011" in table.verdict(b, "csvImport", {"taskParameters": [{"id": "p"}]})
-        assert "S-012" in table.verdict(b, "dataImport", {"_type": "dataImport", "location": "x", "format": "y"})
+        assert "TODO.md: CsvImport" in table.verdict(b, "csvImport", {"organization": "rows"})
+        assert "TODO.md: TaskParameter" in table.verdict(b, "csvImport", {"taskParameters": [{"id": "p"}]})
+        assert "TODO.md: CsvImport" in table.verdict(b, "dataImport", {"_type": "dataImport", "location": "x", "format": "y"})

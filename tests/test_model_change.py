@@ -129,8 +129,8 @@ def test_add_and_replace_elements_are_skipped():
     for b in table.backends:
         assert table.verdict(b, "modelChange", {"_type": "modelChange", "setValues": {"k": 1}}) is None
         assert table.verdict(b, "modelChange", {"removeElements": ["J1"]}) is None
-        assert "S-010" in table.verdict(b, "modelChange", {"addElements": ["x"]})
-        assert "S-010" in table.verdict(b, "modelChange", {"replaceElements": {"a": "b"}})
+        assert "TODO.md: ModelChange" in table.verdict(b, "modelChange", {"addElements": ["x"]})
+        assert "TODO.md: ModelChange" in table.verdict(b, "modelChange", {"replaceElements": {"a": "b"}})
         with pytest.raises(UnsupportedTaskError):
             table.check_task(b, "c", "modelChange", {"addElements": ["x"]})
 

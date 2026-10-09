@@ -155,3 +155,44 @@ Because nothing exists at the moment, all of the tests and expected test output 
 Templates for the tests can be found in the C:\Users\Lucian\Desktop\sed\ directory, particularly the C:\Users\Lucian\Desktop\sed\tests\unit test files\ directory.  However, they are out of date, and will need to be updated to match the current version of the SED2 specification.  The tests must be valid SED2, and pass validation from libsed2.
 
 As gaps are discovered in libsed2, we will edit the libsed2 generator to include the missing functions, and re-create the binaries.  We will not try to find workarounds; finding gaps is one of the principal goals of this project.  Gaps may be collected if desired, but whatever needed the missing function will need to be skipped until the gap is filled.
+
+**Status and decisions (written during the build; the text above is the original plan)**
+
+*State.*  sed2-test-suite has 273 semantic cases (00001-00273), all with hand-derived expected results
+(`provenance.source` is `analytical` throughout) and all admitted: each lists in `settings.json` the backends that
+reproduce its results.  pySED2Translate translates and runs them on roadrunner, COPASI and OpenCOR.  Series, in the order
+the numbers were handed out: constants, calculations and data manipulation, ODE time courses, steady states and
+Jacobians, ranges and repeats, ModelChange and the labels of `.model`, CsvImport and the data behind plots,
+ModelElementList and the SEDBase fields.  `docs/COVERAGE.md` in the suite shows every SED2 element with its case count,
+and the elements deliberately without cases (stochastic simulation, flux balance analysis, DataImport,
+AggregationCalculation, task and output parameters, styles).  Not done by design: syntactic and stochastic cases.
+
+*Decisions that go beyond the plan.*
+* Case numbers are assigned in order of addition and never reused; the topic of a case lives in its tags.  Cases are
+  written by scripts in `sed2-test-suite/authoring/`, which compute the expected tables from formulas; a rebuild keeps a
+  case (and its admission) untouched when nothing about it changed.
+* "Canonical" means: derived by hand first, then reproduced by every backend that can run the case.  The sign-off in each
+  description (how the results were obtained, the tolerances, the admitted backends and date) is checked by the
+  validator, and the checklist is `sed2-test-suite/docs/PROMOTION.md`.
+* Plot-as-data files are compared as well as reports (the plan said reports only "for now"); the comparison needed
+  nothing beyond the formats already described.  Pictures are never compared.
+* A backend that cannot run a case is a skip with a reason (translator exit status 11, or, when the simulator only finds
+  out at run time, the script exits 11 too).  A skip for a backend that the case lists as canonical is a failure.
+* Problems are never hidden: simulator bugs and disagreements go to `sed2-test-suite/disagreements.json` (D-001: COPASI's
+  Jacobian is wrong for a species whose value is 0, so the translator refuses it; D-002: sbml2cellml drops SBML events
+  without a warning, so the OpenCOR backend refuses models with events); gaps and open questions in libsed2 or the
+  specification go to the end of `SED2/TODO.md` and are never worked around.  `docs/deferred.md` lists what the translator
+  skips and the choices it made where the specification is silent.
+* Time courses are 2-D tables whose first column label is the `independentVariable` attribute exactly as written.
+* Simulator limits found: COPASI has no CVODE and no bounded Euler or Runge-Kutta, and cannot honor `useStiffSolver`,
+  `initialStepSize` or `maxInternalStepSize`; OpenCOR has neither a steady-state solver (libopencor issue 604) nor a
+  Jacobian, cannot give non-uniform (bounded) output, and ignores `initialStepSize` for CVODE.  Species with no initial
+  value are undefined in SBML and the simulators disagree (roadrunner 0, COPASI and OpenCOR 1), so every case sets every
+  value.
+
+*Open items for the SED2 author* (all in `SED2/TODO.md`): ModelChange `addElements`/`replaceElements` and the order of
+changes; AggregationCalculation as one class per function; the CsvImport attributes and DataImport formats; TaskParameter;
+references inside list and dictionary constants; RelabelData with the new labels; reporting a dictionary constant or a
+model; results of math the text does not state; time-course, steady-state and Jacobian details; the SBML rules for
+`setValues` and `removeElements`; ModelElementList order and type vocabulary; plot details (`order` default, shape of
+`z`).

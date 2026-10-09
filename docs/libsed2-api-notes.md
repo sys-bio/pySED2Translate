@@ -3,7 +3,7 @@
 Surveyed against `libsed2-0.1.1-py3-none-any.whl` (Python 3.13); re-checked against the wheel of 2026-10-08 (same
 version number, newer build: ParameterScan `.model`, chained and comma bracket indexing, indexed aliases).  Everything below was
 exercised against real documents unless marked "not yet checked".  The library is
-generated; do not edit it.  Anything the translator needs that is missing is a gap: do not work around it, skip what needs it, and record it in a new `GAPS.md` (see build.md).
+generated; do not edit it.  Anything the translator needs that is missing is a gap: do not work around it, skip what needs it, and record it in `SED2/TODO.md`.
 
 ## Loading, writing, validating
 

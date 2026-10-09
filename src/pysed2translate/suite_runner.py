@@ -5,6 +5,7 @@
     python -m pysed2translate.suite_runner --crosscheck          # also compare the backends with one another
     python -m pysed2translate.suite_runner --log-draft           # print draft disagreement-log entries
     python -m pysed2translate.suite_runner 00100 --promote roadrunner   # record a backend's results as the case's
+    python -m pysed2translate.suite_runner 00007 --admit         # record which backends agree in settings.json
 
 For each case and backend the runner translates the case's SED2 document (prefix = case number), runs the script
 in a separate Python process with `--input-dir <case>`, `--output-dir <work>/<case>/<backend>`, `--no-png` and
@@ -29,8 +30,10 @@ from __future__ import annotations
 import argparse
 import contextlib
 import dataclasses
+import datetime
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -39,7 +42,7 @@ import time
 from typing import Optional
 
 from .backends import BACKENDS
-from .errors import InvalidDocumentError, TranslationError, UnsupportedTaskError
+from .errors import EXIT_UNSUPPORTED, InvalidDocumentError, TranslationError, UnsupportedTaskError
 from .translate import translate_file
 
 PASS, FAIL, SKIP, ERROR = "PASS", "FAIL", "SKIP", "ERROR"
@@ -201,6 +204,10 @@ def run_case(suite: Suite, case_dir: str, backend: str, work_dir: str, timeout: 
                 res.manifest = json.load(f)
     if code is None:
         return done(ERROR, f"the script did not finish within {timeout:g} s")
+    if code == EXIT_UNSUPPORTED:   # the script found, reading the model, that the backend cannot run it
+        if res.canonical:
+            return done(FAIL, f"unsupported, but {backend} is recorded as having produced canonical results: {_tail(err)}")
+        return done(SKIP, _tail(err))
     if code != 0:
         return done(ERROR, f"the script failed (exit {code}): {_tail(err)}")
 
@@ -350,6 +357,45 @@ def promote(suite: Suite, case_dir: str, result: RunResult, force: bool = False)
     return written + [os.path.basename(path)]
 
 
+# --------------------------------------------------------------------------- admitting cases
+
+_BACKENDS_LINE_RE = re.compile(r"^- Backends:.*$", re.M)
+
+
+def admit(suite: Suite, case_dir: str, results: list, today: Optional[str] = None) -> str:
+    """Record in settings.json (and the description's sign-off) which backends agree with the expected results.
+
+    A case is admitted when it ran on at least one backend, every backend that did not SKIP passed, and so none
+    failed or errored.  Returns a one-line message; raises ValueError when the case cannot be admitted (the settings
+    are then left alone)."""
+    case = os.path.basename(case_dir)
+    mine = [r for r in results if r.case == case]
+    bad = [r for r in mine if r.status in (FAIL, ERROR)]
+    if bad:
+        raise ValueError(f"{case} not admitted: " + "; ".join(f"{r.backend} {r.status}" for r in bad))
+    passed = [r.backend for r in mine if r.status == PASS]
+    if not passed:
+        raise ValueError(f"{case} not admitted: no backend ran it")
+    skipped = [r.backend for r in mine if r.status == SKIP]
+    path = suite.settings.find_settings_file(case_dir)
+    settings = suite.settings.load_settings(path)
+    settings["backends"] = sorted(passed, key=BACKENDS.index)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    desc = os.path.join(case_dir, f"{case}.description.md")
+    if os.path.exists(desc):
+        with open(desc, "r", encoding="utf-8", newline="") as f:
+            text = f.read()
+        line = f"- Backends: {', '.join(settings['backends'])} (agree within the tolerances; admitted {today or datetime.date.today().isoformat()} by the suite runner"
+        line += f"; not supported by the translator: {', '.join(skipped)})." if skipped else ")."
+        if _BACKENDS_LINE_RE.search(text):
+            text = _BACKENDS_LINE_RE.sub(lambda _m: line, text, count=1)
+            with open(desc, "w", encoding="utf-8", newline="") as f:
+                f.write(text)
+    return f"{case} admitted: {', '.join(settings['backends'])}" + (f" (skipped: {', '.join(skipped)})" if skipped else "")
+
+
 # --------------------------------------------------------------------------- output
 
 def format_matrix(results: list, backends: list) -> str:
@@ -392,6 +438,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--promote", metavar="BACKEND", choices=BACKENDS,
                     help="record BACKEND's results as the expected results of the chosen cases and add it to settings.json")
     ap.add_argument("--force", action="store_true", help="with --promote: replace existing result files")
+    ap.add_argument("--admit", action="store_true",
+                    help="record the backends that agree in each case's settings.json (every backend must pass or skip)")
     ap.add_argument("--json", action="store_true", help="write the results as JSON")
     return ap
 
@@ -407,6 +455,9 @@ def main(argv=None) -> int:
     if args.promote and not args.cases:
         print("error: --promote needs the cases to promote to be named", file=sys.stderr)
         return 2
+    if args.admit and (args.promote or args.backend):
+        print("error: --admit runs every backend; leave out -b and --promote", file=sys.stderr)
+        return 2
     backends = args.backend or ([args.promote] if args.promote else list(BACKENDS))
     if args.promote and backends != [args.promote]:
         print("error: --promote runs only the backend it names; leave out -b or use the same one", file=sys.stderr)
@@ -420,6 +471,7 @@ def main(argv=None) -> int:
     os.makedirs(work, exist_ok=True)
     results: list = []
     found: list = []
+    admitted: list = []
     try:
         for case_dir in cases:
             case_results = []
@@ -433,17 +485,25 @@ def main(argv=None) -> int:
                     except ValueError as e:
                         r.status, r.reason = ERROR, str(e)
             results += case_results
+            if args.admit:
+                try:
+                    admitted.append(admit(suite, case_dir, case_results))
+                except ValueError as e:
+                    admitted.append(str(e))
             found += disagreements_with_expected(suite, case_dir, case_results)
             if args.crosscheck or args.log_draft:
                 found += crosscheck(suite, case_dir, case_results)
         drafts = draft_entries(suite, found) if args.log_draft else []
         if args.json:
             print(json.dumps({"results": [r.to_json() for r in results],
+                              "admitted": admitted,
                               "disagreements": [{"case": d.case, "backends": list(d.backends), "report": d.report,
                                                  "message": d.message()} for d in found],
                               "draftEntries": drafts}, indent=2))
         else:
             print(format_report(results, backends))
+            for line in admitted:
+                print(line)
             if found:
                 print("\ndifferences found:")
                 for d in found:

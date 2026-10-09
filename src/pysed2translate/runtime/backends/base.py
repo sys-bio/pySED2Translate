@@ -10,6 +10,14 @@ from ..annotated import AnnotatedData, DataError
 from ..model import SbmlModel
 
 
+EXIT_CANNOT_RUN = 11   # same as errors.EXIT_UNSUPPORTED: a generated script exits with it when the backend cannot run the model
+
+
+class BackendCannotRun(Exception):
+    """The backend cannot run this model correctly (a feature of the model that the simulator does not support, found
+    only when the model is read).  The generated script reports it as a skip (exit status 11), never as a result."""
+
+
 @dataclass
 class TimeCourse:
     """A request for a time course, already evaluated (no references left).
@@ -21,6 +29,8 @@ class TimeCourse:
     `start` is where the independent variable begins (independentVariableInit, else the first point / span start).
     `settings` holds the solver settings the document gave, by SED2 attribute name (relativeTolerance, ...).
     `algorithm` is the KiSAO term of the working algorithm, if the document named one.
+    `independent_variable` is what the backend integrates over ("time"); `label` is the independentVariable attribute as
+    the document wrote it (`urn:sedml:symbol:time`), which the specification makes the label of the first column.
     """
     independent_variable: str
     output_variables: list
@@ -30,6 +40,7 @@ class TimeCourse:
     step: Optional[float] = None
     settings: dict = field(default_factory=dict)
     algorithm: Optional[str] = None
+    label: Optional[str] = None   # the label of the independent variable's column: the attribute as written
 
 
 @dataclass
@@ -114,5 +125,5 @@ class Backend:
             data = AnnotatedData(result.values[-1], [list(tc.output_variables)], [""])
         else:
             table = np.column_stack([result.times, result.values]) if result.values.size else result.times[:, None]
-            data = AnnotatedData(table, [None, [tc.independent_variable] + list(tc.output_variables)], ["", ""])
+            data = AnnotatedData(table, [None, [tc.label or tc.independent_variable] + list(tc.output_variables)], ["", ""])
         return data, end_model

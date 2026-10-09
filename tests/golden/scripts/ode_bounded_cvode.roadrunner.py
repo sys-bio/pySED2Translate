@@ -18,7 +18,7 @@ CONSTANTS = {}
 
 def run(ctx):
     task_m = rt.SbmlModel.load(ctx.input_path('model.xml'), 'urn:sedml:language:sbml')
-    task_bounded, task_bounded_model = rt.backends.get(BACKEND).time_course(task_m, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], span=(4.0, 10.0), settings={}, algorithm='KISAO:0000019'))
+    task_bounded, task_bounded_model = rt.backends.get(BACKEND).time_course(task_m, rt.backends.TimeCourse(independent_variable='time', output_variables=['S1'], label='time', span=(4.0, 10.0), settings={}, algorithm='KISAO:0000019'))
     with ctx.step('later'):
         rt.write_report(ctx, 'later', task_bounded)
 
@@ -35,6 +35,9 @@ def main(argv=None):
     ctx = rt.Context(args.input_dir, args.output_dir, PREFIX, png=not args.no_png)
     try:
         run(ctx)
+    except rt.BackendCannotRun as e:  # the simulator cannot run this model: a skip, not a result
+        print(f'skip: {BACKEND} cannot run the model: {e}', file=sys.stderr)
+        return rt.EXIT_CANNOT_RUN
     except Exception:  # a failed task stops the experiment
         traceback.print_exc()
         return 1

@@ -43,4 +43,14 @@ Warnings from libsed2 validation are logged but do not stop translation.
   timestamps, no translator version and no absolute paths unless `--input-dir`/`--output-dir` were given.
   Two runs of the translator on the same input give identical text.  Random draws use a fixed seed unless the
   document says otherwise.
-* **Exit status of the script.** 0 on success; non-zero if a simulation or an output failed.
+* **Exit status of the script.** 0 on success; 1 if a simulation or an output failed; 11 if the simulator found, when it
+  read the model, that it cannot run it (for example OpenCOR and a model with SBML events: sbml2cellml leaves the events
+  out without a warning, so the script refuses).  The script prints `skip: <backend> cannot run the model: <reason>` and
+  writes no results; a test runner reports it as a skip, the same as the translator's own exit status 11.
+* **Shape and labels of results.**  A time course is a 2-D table with no row labels; its columns are labelled
+  `[independentVariable] + outputVariables`, the first label being the `independentVariable` attribute exactly as the
+  document wrote it (`urn:sedml:symbol:time` stays that, `time` stays `time`).  A one-step simulation or a steady
+  state is a 1-D vector labelled by the output variables.  A Scatter or Loop is a table with one row per iteration,
+  labelled by the range values, and one column per `outputVariableMap` key; a ParameterScan has one dimension per
+  parameter range, named by its model element and labelled by its values, then the entries; an entry that is not a
+  single number adds its own dimensions after those.  Results with three or more dimensions are written as HDF5.

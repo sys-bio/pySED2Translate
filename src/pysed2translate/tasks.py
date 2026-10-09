@@ -258,7 +258,7 @@ def _csv_arg(tr: Translator, task, attr: str, kind: str) -> str:
 @task_handler("csvImport")
 def csv_import(tr: Translator, task_id: str, task) -> None:
     """Reads the file with rt.ops.csv_import; `units` is accepted and ignored; `organization` other than
-    'columns' and taskParameters are skipped by the capability table (GAPS.md S-012)."""
+    'columns' and taskParameters are skipped by the capability table (SED2/TODO.md: CsvImport)."""
     args = [("separator", "separator", "string"), ("headers", "headers", "bool"), ("column_names", "columnNames", "list"),
             ("ncols", "ncols", "int"), ("nrows", "nrows", "int")]
     rest = ", ".join(f"{name}={_csv_arg(tr, task, attr, kind)}" for name, attr, kind in args)

@@ -90,7 +90,7 @@ def test_plot3d_data(tmp_path):
     np.testing.assert_allclose(s.z, [[1, 2, 3], [4, 5, 6]])
     assert plot.surfaces["b"].index == 0 and plot.surfaces["c"].index == 2
     with h5py.File(out / "doc.q_as_data.h5") as f:
-        assert list(f) == ["a", "c", "b"] or sorted(f) == ["a", "b", "c"]
+        assert list(f) == ["a", "c", "b"]            # ascending `order`, ties by position; not alphabetical, not by index
 
 
 @pytest.mark.parametrize("kind", ["points", "bar", "barStacked", "horizontalBar", "horizontalBarStacked", "shadedArea"])

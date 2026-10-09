@@ -1,0 +1,64 @@
+{
+  "state": {
+    "x": 1.0,
+    "y": 0.0,
+    "p1": {
+      "_type": "process",
+      "address": "local:!loopsteps2.P1",
+      "interval": 1.0,
+      "inputs": {
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      },
+      "outputs": {
+        "x": [
+          "x"
+        ]
+      }
+    },
+    "p2": {
+      "_type": "process",
+      "address": "local:!loopsteps2.P2",
+      "interval": 2.0,
+      "inputs": {
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      },
+      "outputs": {
+        "y": [
+          "y"
+        ]
+      }
+    },
+    "emitter": {
+      "_type": "step",
+      "address": "local:RAMEmitter",
+      "config": {
+        "emit": {
+          "t": "float",
+          "x": "float",
+          "y": "float"
+        }
+      },
+      "inputs": {
+        "t": [
+          "global_time"
+        ],
+        "x": [
+          "x"
+        ],
+        "y": [
+          "y"
+        ]
+      }
+    }
+  }
+}

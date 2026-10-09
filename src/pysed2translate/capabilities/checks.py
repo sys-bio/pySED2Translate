@@ -63,7 +63,7 @@ def _model_change(task_json: dict, backend: str) -> Optional[str]:
     """ModelChange: setValues and removeElements only (they are done on the SBML text, the same for every backend)."""
     for name in ("addElements", "replaceElements"):
         if task_json.get(name):
-            return f"{name} is not supported: the specification does not define the form of its entries (GAPS.md S-010)"
+            return f"{name} is not supported: the specification does not define the form of its entries (SED2/TODO.md: ModelChange)"
     if task_json.get("taskParameters"):
         return "taskParameters are not supported yet"
     return None
@@ -73,9 +73,9 @@ def _repeat(task_json: dict, backend: str) -> Optional[str]:
     """Loop, Scatter and ParameterScan: no aggregates and no taskParameters (the sub-tasks are checked on their own)."""
     if task_json.get("aggregateOutputVariables"):
         return ("aggregateOutputVariables are not supported: AggregationCalculation has no way to name its function "
-                "(GAPS.md S-006)")
+                "(SED2/TODO.md: AggregationCalculation)")
     if task_json.get("taskParameters"):
-        return "taskParameters are not supported (their meaning is not defined, GAPS.md S-011)"
+        return "taskParameters are not supported (their meaning is not defined, SED2/TODO.md: TaskParameter)"
     return None
 
 
@@ -83,9 +83,9 @@ def _csv_import(task_json: dict, backend: str) -> Optional[str]:
     """CsvImport: data in columns only (`organization` absent or "columns"); taskParameters are not supported."""
     organization = task_json.get("organization")
     if organization is not None and organization != "columns":
-        return f"organization {organization!r} is not supported: the specification does not define it (GAPS.md S-012)"
+        return f"organization {organization!r} is not supported: the specification does not define it (SED2/TODO.md: CsvImport)"
     if task_json.get("taskParameters"):
-        return "taskParameters are not supported (their meaning is not defined, GAPS.md S-011)"
+        return "taskParameters are not supported (their meaning is not defined, SED2/TODO.md: TaskParameter)"
     return None
 
 
