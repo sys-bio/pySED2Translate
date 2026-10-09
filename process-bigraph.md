@@ -1530,7 +1530,7 @@ Nothing is committed and nothing has been filed upstream (18 drafts wait in `pbg
 | Real CRM-FBA model (iAF1260, 2382 reactions) | run through a Scatter with the engine (`pbg/tests/advanced/test_real_crm_fba.py`, model fetched and checksummed, not stored in the repository); its Monod partner exists only as Python and is a to-do in `docs/deferred.md` |
 | Community wrappers (section 3.12) | done as the *provider* of engine v1: `--wrappers strict` (default) / `prefer` / `off`; time courses and steady states of the plain case run in `TelluriumUTCStep`, `TelluriumSteadyStateStep`, `CopasiUTCStep`, `CopasiSteadyStateStep`; everything else is refused with ledger ids in strict mode |
 | Golden documents | `pbg/tests/v1/golden/` (10 host documents plus `wrapped`, x backend x mode); each non-wrapper one is built as a Composite |
-| CI | `.github/workflows/pbg.yml` (Linux, Windows, macOS; x86_64 and arm64): written (suite from sys-bio/sed2-test-suite, libsed2 from the latest sys-bio/SED2 release); not yet run on a real runner; the host's own tests are in `.github/workflows/ci.yml` |
+| CI | `.github/workflows/pbg.yml` (Linux and Windows x86_64, macOS arm64 and x86_64; no Linux or Windows arm64: libroadrunner has no wheel for them): written (suite from sys-bio/sed2-test-suite, libsed2 from the latest sys-bio/SED2 release); not yet run on a real runner; the host's own tests are in `.github/workflows/ci.yml` |
 
 **Decisions made on the way** (each can be reversed):
 

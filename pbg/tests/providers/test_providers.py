@@ -207,9 +207,10 @@ def read_csv(path):
     return np.loadtxt(path, delimiter=",", skiprows=1)
 
 
-@pytest.mark.parametrize("backend,module", [("roadrunner", "tellurium"), ("copasi", "basico")])
-def test_a_wrapped_time_course_matches_the_host_runtime(tmp_path, backend, module):
+@pytest.mark.parametrize("backend,module,wrapper", [("roadrunner", "tellurium", "viva_tellurium"), ("copasi", "basico", "viva_copasi")])
+def test_a_wrapped_time_course_matches_the_host_runtime(tmp_path, backend, module, wrapper):
     pytest.importorskip(module)
+    pytest.importorskip(wrapper)       # the translated document runs in the community wrapper
     results = {}
     for mode in ("off", "strict"):
         pbg, _ = translate(tmp_path, document({"s": ode()}), wrappers=mode, backend={"*": backend})
@@ -228,6 +229,7 @@ def test_a_wrapped_time_course_matches_the_host_runtime(tmp_path, backend, modul
 
 def test_a_variable_the_wrapper_does_not_return_is_a_skip_with_w7(tmp_path):
     pytest.importorskip("tellurium")
+    pytest.importorskip("viva_tellurium")
     pbg, _ = translate(tmp_path, document({"s": ode(outputVariables=["S", "k"])}))
     p = tmp_path / "t.pbg.composite.json"
     p.write_text(json.dumps(pbg))
@@ -239,6 +241,7 @@ def test_a_variable_the_wrapper_does_not_return_is_a_skip_with_w7(tmp_path):
 
 def test_a_run_with_another_input_directory_is_refused(tmp_path):
     pytest.importorskip("tellurium")
+    pytest.importorskip("viva_tellurium")
     pbg, _ = translate(tmp_path, document({"s": ode()}))
     p = tmp_path / "t.pbg.composite.json"
     p.write_text(json.dumps(pbg))

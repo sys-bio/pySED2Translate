@@ -53,10 +53,13 @@ jobs:
       - name: Smoke test
         run: python scripts/smoke_test.py
 
+      # These two run even when the smoke test failed, so that one failing backend does not hide the other results.
       - name: Golden scripts are up to date
+        if: ${{ !cancelled() }}
         run: python scripts/update_golden.py --check
 
       - name: Tests
+        if: ${{ !cancelled() }}
         run: python -m pytest -ra
 
   suite:

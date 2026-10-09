@@ -1,5 +1,9 @@
-# CI for the process-bigraph target (rule M8): as many platforms as there are runners; adjust the runner list to the runners that
-# exist.  The host's own tests are in ci.yml.
+# CI for the process-bigraph target (rule M8): every platform the host's requirements.txt can be installed on.  The host's own
+# tests are in ci.yml.
+#
+# Not here: Linux arm64 (ubuntu-24.04-arm) and Windows arm64 (windows-11-arm).  libroadrunner 2.10.0 (requirements.txt) has
+# no wheel for them, so `pip install -r requirements.txt` fails there ("No matching distribution found"); see
+# docs/environment-notes.md.  Add them when libroadrunner publishes those wheels.
 #
 # What it shows, on every platform:
 #   1. the host alone (no process-bigraph installed) passes its own tests              -> the target is removable (M4, M8)
@@ -19,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-13]
+        os: [ubuntu-latest, windows-latest, macos-14, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

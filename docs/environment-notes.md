@@ -32,3 +32,11 @@
   zero-length run returns zeros), so it cannot answer for a model that was never simulated.  Species are read as
   `[id]` (concentration) unless they have `hasOnlySubstanceUnits`, and every other element (compartment, parameter,
   reaction, stoichiometry) by its plain id.  A pending event or a delay in the model is not carried in the state.
+* libcellml 0.7.1 (needed by `sbml2cellml`, so by the OpenCOR route): its win_amd64 wheel on PyPI contains ARM64 binaries, so
+  `import libcellml` fails on x86-64 Windows ("DLL load failed while importing _analyser: %1 is not a valid Win32 application").
+  The OpenCOR smoke test and OpenCOR tests fail on Windows until it is fixed; sbml2cellml requires `libcellml>=0.7.1`, so the
+  older, correct 0.6.3 cannot be pinned.  Draft report (not filed): `docs/upstream/libcellml-win-amd64-wheel/`.
+* libroadrunner 2.10.0 has wheels for Linux x86-64 (manylinux_2_28), Windows x86-64, macOS arm64 (14.0 and later) and macOS
+  x86-64 (15.0 and later) only: nothing for Linux aarch64 or Windows arm64, so `requirements.txt` cannot be installed on those
+  (found when the CI jobs on ubuntu-24.04-arm and windows-11-arm failed).  The CI workflows do not run there.
+
