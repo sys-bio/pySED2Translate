@@ -13,8 +13,8 @@ from .base import Backend, JacobianResult, SteadyState, SteadyStateResult, TimeC
 _SETTING_NAMES = {"relativeTolerance": "r_tol", "absoluteTolerance": "a_tol", "maxNumberOfSteps": "max_steps"}
 
 
-COPASI_STEADY_STATE_RESOLUTION = 1e-12   # COPASI's default is 1e-9
-COPASI_JACOBIAN_FACTOR = 1e-6            # relative step for differences; basico's 1e-12 loses ~5e-5 to rounding
+COPASI_STEADY_STATE_RESOLUTION = 1e-12   # COPASI's default is 1e-9 (COMP-4, docs/compensations.md)
+COPASI_JACOBIAN_FACTOR = 1e-6            # relative step for differences; basico's 1e-12 loses ~5e-5 to rounding (COMP-1)
 
 
 def _without_names(text: str) -> str:
@@ -143,7 +143,7 @@ class CopasiBackend(Backend):
             logging.getLogger("basico").setLevel(before)
         if frame is None or len(frame) == 0:
             raise DataError("COPASI could not run the time course")
-        if times is not None and len(times) == 1:  # a lone point at the start: COPASI also writes a second row
+        if times is not None and len(times) == 1:  # COMP-3: a lone point at the start: COPASI also writes a second row
             frame = frame.iloc[:1]
         if times is not None and len(frame) != len(times):
             raise DataError(f"COPASI returned {len(frame)} rows for {len(times)} output points")
@@ -180,6 +180,7 @@ class CopasiBackend(Backend):
         logging.getLogger("basico").setLevel(logging.CRITICAL)
         dm = basico.load_model_from_string(_without_names(model.text))
         try:
+            # COMP-4: the resolution and the acceptance of negative concentrations are not the document's, nor COPASI's defaults
             settings = {"method": {"Resolution": COPASI_STEADY_STATE_RESOLUTION, "Accept Negative Concentrations": True}}
             status = basico.run_steadystate(model=dm, settings=settings)
             if status not in (1, 2):
@@ -202,8 +203,8 @@ class CopasiBackend(Backend):
             cmodel = dm.getModel()
             cmodel.applyInitialValues()
             template = cmodel.getStateTemplate()
-            # the matrix is in COPASI's state order (independent variables, then dependent ones), which is not the
-            # model's species order: name its rows and columns from the state template
+            # COMP-2: basico.get_jacobian_matrix is not used.  The matrix is in COPASI's state order (independent variables,
+            # then dependent ones), which is not the model's species order: name its rows and columns from the state template
             names = [template.getIndependent(i).getObjectName() for i in range(template.getNumIndependent())]
             if not reduced:
                 names += [template.getDependent(i).getObjectName() for i in range(template.getNumDependent())]

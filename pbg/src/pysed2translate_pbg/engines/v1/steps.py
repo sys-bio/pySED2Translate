@@ -310,7 +310,7 @@ class SedJacobian(SedStep):
 class SedViva(SedStep):
     """Adapter for a viva wrapper step: the wrapper wrote its own result to the stores `raw_*`; this step turns it into the
     task's `data`, with the labels and layout the host runtime gives.  What a wrapper does not return is refused with the
-    ledger id (pbg/upstream), never reconstructed."""
+    ledger id, never reconstructed."""
     OUT = ("data",)
     WHO = {"tellurium": "viva-tellurium (TelluriumUTCStep / TelluriumSteadyStateStep)", "copasi": "viva-copasi (CopasiUTCStep / CopasiSteadyStateStep)"}
 

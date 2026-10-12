@@ -9,7 +9,7 @@ from the viva-* family (viva-tellurium: libroadrunner; viva-copasi: COPASI).  `-
     off      the host runtime only.
 
 Every reason a wrapper cannot do something is a ledger entry (`LEDGER`): `W-n` entries are gaps in the wrappers, with a draft
-report in `pbg/upstream/W-n.md` (never filed by an assistant); `L-n` entries are limits of this provider that could be lifted.
+report with the same id among the drafts (`work/others/`, git-ignored; never filed by an assistant); `L-n` entries are limits of this provider that could be lifted.
 The translator never works around a gap: it states the entry and stops (CLAUDE.md, "never hide a problem").
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ from pysed2translate_pbg import host
 MODES = ("strict", "prefer", "off")
 DEFAULT_MODE = "strict"            # the one default, in one place (rule M9)
 
-# id -> (where, title).  W: a gap in a community package (drafts in pbg/upstream); L: a limit of this provider.
+# id -> (where, title).  W: a gap in a community package (a git-ignored draft for each); L: a limit of this provider.
 LEDGER = {
     "W-1": ("viva-tellurium", "the UTC and steady-state steps ignore tolerances and seed (and have no other solver settings)"),
     "W-2": ("viva-copasi", "a time course cannot start at a time other than 0"),
@@ -35,9 +35,7 @@ LEDGER = {
     "W-6": ("both", "no model input and no end-state model output"),
     "W-7": ("both", "output variables cannot be selected (floating species concentrations only)"),
     "W-8": ("both", "the steady-state steps have no solver settings; no Jacobian step"),
-    "W-9": ("vivarium-collective", "no OpenCOR / CellML wrapper"),
     "W-10": ("both", "the UTC steps are not idempotent and take no guard (a repeat cannot hold them)"),
-    "W-11": ("vivarium-collective", "no flux balance analysis wrapper"),
     "W-12": ("viva-copasi", "the COPASI steps use schema types that only register_copasi() registers"),
     "W-13": ("viva-copasi / viva-tellurium", "a COPASI step after a Tellurium step in one process crashes the interpreter"),
     "W-14": ("viva-copasi", "a model without species cannot be loaded (get_species returns None)"),
@@ -46,6 +44,8 @@ LEDGER = {
     "L-3": ("provider", "the model language is not SBML"),
     "L-4": ("provider", "independentVariableInit differs from the first output point"),
     "L-5": ("provider", "an algorithm other than the default CVODE is not mapped to the Tellurium wrapper"),
+    "L-6": ("provider", "no mapping to a wrapper for this backend yet (for OpenCOR, viva-opencor exists but runs CellML files, and the provider does not convert the SBML model for it)"),
+    "L-7": ("provider", "no wrapper step for a single flux balance analysis solve (vivarium-cobra is a Vivarium 1.0 process; the process-bigraph dynamic FBA processes are time-stepped, take uptake kinetics and return only substrate and biomass changes)"),
 }
 # entries the translation rules never raise: observations about using the wrappers, or found only while running (W-7 by the
 # adapter steps; W-14 is an error inside the wrapper)
@@ -144,13 +144,13 @@ def gaps_for(req: Request, used_family: Optional[str] = None, input_dir: str = "
     base = req.backend.split(":")[0]
     if fam is None:
         if base == "opencor":
-            return None, [gap("W-9")]
+            return None, [gap("L-6")]
         if base == "cobra":
-            return None, [gap("W-11")]
-        return None, [gap("W-9", f"no wrapper for {base}")]
+            return None, [gap("L-7")]
+        return None, [gap("L-6", f"no wrapper mapped for {base}")]
     gaps: list = []
     if req.kind == "fba":
-        return None, [gap("W-11")]
+        return None, [gap("L-7")]
     if req.kind == "jacobian":
         return None, [gap("W-8", "no Jacobian step")]
     if req.guarded:
@@ -207,7 +207,7 @@ def _ode_gaps(req: Request, fam: str, gaps: list) -> None:
 
 def provider_for(kind: str, backend: str) -> str:
     """Who runs tasks of a kind on a backend under --wrappers strict or prefer: the wrapper's package, or 'runtime' (the host's
-    runtime) when there is no wrapper for it (W-8: no Jacobian step; W-9: no OpenCOR; W-11: no FBA)."""
+    runtime) when the provider has no wrapper for it (W-8: no Jacobian step; L-6: OpenCOR is not mapped to viva-opencor yet; L-7: no FBA step)."""
     fam = family_of(backend)
     if fam is None or kind not in ("ode", "steady"):
         return "runtime"

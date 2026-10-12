@@ -1,7 +1,7 @@
 """The recorded gaps of the viva wrappers over the whole suite (tools/provider_gaps.py; tests/providers/expected_gaps.json).
 
 A difference in either direction is news: a case that is now translated or refused differently, or that now runs differently, is
-read, explained (a ledger entry in pbg/upstream, or a change of ours) and recorded in the file.  Nothing is absorbed.
+read, explained (a ledger entry, or a change of ours) and recorded in the file.  Nothing is absorbed.
 The translation check takes seconds; the run check (all wrapper-backed cases, minutes) runs with PBG_RUN_VIVA=1."""
 import json
 import os

@@ -57,6 +57,7 @@ FBA_ALGORITHMS = {"cobra": {GENERIC_FBA: "optimize"}}
 ALGORITHM_NOTES = {
     "roadrunner": {30: "roadrunner 2.10 has no Euler integrator", 261: "roadrunner 2.10 has no Euler integrator",
                    88: "roadrunner has no LSODA solver",
+                   # rk45: a roadrunner problem, report drafted locally (R-2, git-ignored)
                    **{n: "roadrunner 2.10's rk45 integrator returns wrong values at fixed output points"
                       for n in (86, 87, 321, 434, 435)}},
     "copasi": {19: "COPASI has no CVODE solver", 32: "COPASI has no fixed-step Runge-Kutta solver",

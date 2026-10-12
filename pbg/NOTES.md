@@ -13,7 +13,7 @@
   either, and its tests build every golden document.
 * Processes with different intervals: the framework reads the state at the start of the interval (`start`); the specification text
   reads like `event` (P-3).  Tier C pins the framework's behaviour.
-* The paper's wording and the code differ in places (P-4: `MathExpressionStep`); the code is the authority.
+* The paper's wording and the code differ in places (P-4: `MathExpressionStep` is in pbg-basic-processes, not in process-bigraph); the code is the authority.
 
 **The wrappers (viva-tellurium 0.1.2, viva-copasi 0.1.2)**
 

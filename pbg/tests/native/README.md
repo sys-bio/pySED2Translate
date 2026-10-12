@@ -11,7 +11,7 @@ that the committed scripts are what the exporter writes now.
 | Case | What it pins down | Result |
 |---|---|---|
 | `c1_equal_intervals` | Jacobi coupling: both processes read the start-of-interval state | framework = `start` = `event` |
-| `c2_unequal_intervals` | stale read of the slower process | framework = `start`; `event` differs (see `upstream/P-3.md`) |
+| `c2_unequal_intervals` | stale read of the slower process | framework = `start`; `event` differs (see P-3) |
 | `c3_ode_fba_processes` | an ODE process and an FBA process, equal intervals (the Spatio-Flux pattern) | framework = `start`; compared with the sequential Loop, which differs in the stated way |
 | `c4_step_reads_process` | a Step reading a process output | framework = `start` |
 | `c5_cosimulation_clock` | the clock-form document the engine writes for suite case 00282, exported with its Steps only | report files of the engine and of the exported script agree |

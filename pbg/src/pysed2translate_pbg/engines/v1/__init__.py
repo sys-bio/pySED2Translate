@@ -19,7 +19,7 @@ def add_arguments(parser) -> None:
     parser.add_argument("--wrappers", choices=providers.MODES, default=providers.DEFAULT_MODE,
                         help="v1: who runs the simulation tasks: 'strict' (default) the community wrappers (viva-tellurium for "
                              "roadrunner, viva-copasi for copasi) and nothing else - a task a wrapper cannot do is refused, with "
-                             "the ledger ids of pbg/upstream; 'prefer' the wrappers where they can, else the host runtime, with "
+                             "the ledger ids (W-n, L-n); 'prefer' the wrappers where they can, else the host runtime, with "
                              "a note for each fallback; 'off' the host runtime only")
     parser.add_argument("--loop-form", choices=("clock", "nested"), default="clock",
                         help="v1: how a Loop is written: 'clock' (a clock process in an inner composite; default) or 'nested' "

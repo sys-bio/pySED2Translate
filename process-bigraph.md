@@ -39,8 +39,8 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
    sed2-test-suite acceptance rule (|a-e| <= abs + rel*|e|) applies unchanged.
 4. **Use the community wrappers (viva-tellurium, viva-copasi) when possible**, and own steps over the host's `runtime` as
    the fallback (section 3.12).  Every wrapper gap that stops a SED2 setting from being passed (no tolerance, no start
-   time, no model input, no OpenCOR wrapper) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now) and **drafted** as an issue text for
-   the wrapper maintainers (`pbg/upstream/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
+   time, no model input) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now; W-9, "no OpenCOR wrapper", was wrong and is withdrawn) and **drafted** as an issue text for
+   the wrapper maintainers (`work/others/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
    step accepts tolerances and a seed and ignores them (W-1); viva-copasi cannot start at a time other than 0 (W-2), cannot
    choose a method or tolerances (W-3), cannot take SBML text (W-4); both UTC steps continue from their previous end state when
    fired twice (W-10).  Mode `--wrappers strict|prefer|off`, **default `strict`** (your answer).
@@ -50,7 +50,7 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
    (section 3.8).  This is the form in which SED2's loop index *is* process-bigraph's clock, and it is the form of the
    cosimulation test case (section 5.1).  Scatter and ParameterScan keep the **nested-repeat** form (one Step that runs
    a copy of the inner document per iteration, as `SimulationStep` does).  Both tested.  What SED2 cannot say about the
-   clock is collected in `process-bigraph-clock.md`.
+   clock is collected in `pbg2sed2/process-bigraph-clock.md`.
 6. **FBA is a backend of the host** (your answer), with **per-kind backend selection** because two FBA tools and combinations
    such as COPASI with COBRApy are wanted: `--backend roadrunner --backend fba=cobra`, `suite --matrix ode=roadrunner,copasi
    --matrix fba=cobra:glpk,cobra:scipy` (section 3.14).
@@ -64,7 +64,7 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
 Sections: 2 what process-bigraph is, 3 the design (3.14: backends per task kind), 4 element-by-element mapping, 5 a worked example and the
 cosimulation test case, 6 risks and gaps, 7 implementation plan, 8 questions for you.  Section 3.11 (modularity) governs
 the rest.  Companion file:
-`process-bigraph-clock.md` (where SED2 cannot express process-bigraph's clock, and proposed extensions).
+`pbg2sed2/process-bigraph-clock.md` (where SED2 cannot express process-bigraph's clock, and proposed extensions).
 
 ## 2. Research: the Process Bigraph format
 
@@ -160,7 +160,7 @@ at construction (tested, section 2.5).  I did not test what a misspelt address o
   `interval`), `TelluriumUTCStep` (one-shot time course), `TelluriumSteadyStateStep`.
 * **viva-copasi** (formerly pbg-copasi): `CopasiUTCStep`, `CopasiUTCProcess`, `CopasiSteadyStateStep`,
   `ParameterEstimationStep`, built on basico.
-* I found **no OpenCOR / CellML wrapper** and **no existing SED-ML or SED2 to process-bigraph translator**.
+* **viva-opencor** (CellML, on libOpenCOR; found later, after I had wrongly reported that no OpenCOR wrapper exists): `OpenCORUTCStep`, `OpenCORProcess`, `OpenCORSteadyStateStep`.  It takes CellML files, not SBML.  I found **no existing SED-ML or SED2 to process-bigraph translator**.
   (A web search turned up none; this is absence of evidence, not proof.)
 * Why they do not fit SED2, from reading their source:
   * `CopasiUTCStep` always starts at time 0 and has no tolerance, integrator or step-size settings.
@@ -173,8 +173,9 @@ at construction (tested, section 2.5).  I did not test what a misspelt address o
     the simulator.  The plan now accepts that (section 3.12): a disagreement is a finding about the wrapper, reported
     upstream, and the `runtime` provider remains the reference.
   * All three packages are on PyPI (viva-tellurium 0.1.2, viva-copasi 0.1.2, viva-superpowers 0.23.0).
-* The README and tutorial 3 advertise `MathExpressionStep`, but there is no such module in the 1.8.5 checkout
-  (`grep` finds only the README line).  This plan does not use it.  It would be a small upstream documentation issue.
+* The README and tutorial 3 advertise `MathExpressionStep` as if it were part of process-bigraph, but there is no such module in 1.8.5;
+  it lives in the separate package pbg-basic-processes (`viva_basic_processes`), which registers it when installed.  This plan does not use it.
+  It would be a small upstream documentation issue (P-4).
 
 ### 2.9 What was tested
 
@@ -203,7 +204,7 @@ All in a throw-away venv with process-bigraph 1.8.5 from a clone of the reposito
 | viva-tellurium `TelluriumUTCStep` with `absolute_tolerance` 1e-3, `relative_tolerance` 1e-2, integrator gillespie, seed 5 | Integrator kept roadrunner's 1e-12 / 1e-6; Gillespie was selected, the seed was not applied (W-1).  `TelluriumProcess` applies the tolerances |
 | viva-copasi `CopasiUTCStep` with `start_time` 2, `relative_tolerance` 1e-3, `method` stochastic, SBML text as `model_source` | The first three run and are ignored (W-2, W-3); SBML text is refused, only a path or URL is accepted (W-4) |
 | Either UTC step fired twice | The second firing continues from the first one's end state (W-10); a Step that may fire more than once must not be stateful |
-| Scheduler exporter prototype (`pbg/research/pbg2py.py`): two coupled processes, intervals 1 and 1, then 1 and 2 | Generated plain script, reading inputs at the start of each interval, matches process-bigraph exactly in both cases.  Reading inputs at the event time matches for equal intervals and differs for 1 and 2 (at t = 4: x 0.25 / y 0.25 against 0.15625 / 0.140625).  See upstream/P-3.md |
+| Scheduler exporter prototype (`pbg/research/pbg2py.py`): two coupled processes, intervals 1 and 1, then 1 and 2 | Generated plain script, reading inputs at the start of each interval, matches process-bigraph exactly in both cases.  Reading inputs at the event time matches for equal intervals and differs for 1 and 2 (at t = 4: x 0.25 / y 0.25 against 0.15625 / 0.140625).  See P-3 |
 | Mock ODE (Monod, roadrunner) + FBA (toy overflow model, COBRApy) in a plain Python loop, 41 intervals | Glucose is consumed, acetate is secreted then re-used, biomass grows; behaves as designed (`pbg/tests/advanced/data/cosimulation/refloop.py`) |
 | The same loop with the real iAF1260 model of CRM-FBA (2382 reactions) | 0.07 s per solve (41 solves in 3 s); growth 0.868 and acetate secretion 0.77 at the start; **once glucose is exhausted the FBA is infeasible** (maintenance requirement), see 3.13 and section 6 |
 
@@ -224,7 +225,7 @@ Read 2026-10-09: Agmon and Spangler, arXiv:2512.23754v2 (main text), Supplement 
 2. **Equal-interval processes in parallel is by design.**  S1 3.8.2: all processes due at the same event time are updated
    "conceptually in parallel when their deltas commute"; S1 3.8.3 adds *reconcilers*: deltas to one store are combined,
    reconciled (a type-specific rule, for structural edits a canonical order) and applied.  The Jacobi behaviour measured in
-   2.9 is therefore specified behaviour, not an accident (see `process-bigraph-clock.md`, G2).
+   2.9 is therefore specified behaviour, not an accident (see `pbg2sed2/process-bigraph-clock.md`, G2).
 3. **A difference between the formal rule and the implementation, for unequal intervals.**  The small-step rule reads a
    process's inputs at the event time `t*` at which it is due.  The implementation (tested, 2.9) reads them at the *start*
    of the process's interval and applies the result at its end.  With equal intervals both agree; with intervals 1 and 2
@@ -245,7 +246,7 @@ Read 2026-10-09: Agmon and Spangler, arXiv:2512.23754v2 (main text), Supplement 
    what the cosimulation test case (5.1) leaves unspecified: the id mapping and the rate law between the ODE state and the
    FBA bounds.  In process-bigraph the mapping is a config of the FBA process; in SED2 it would have to be explicit
    Calculation and ModelChange tasks.  It also makes COBRApy the natural FBA backend for pySED2Translate (section 3.13) and
-   gives the survey in `process-bigraph-to-sed2.md` a concrete corpus (the Spatio-Flux repository and its composites).
+   gives the survey in `pbg2sed2/process-bigraph-to-sed2.md` a concrete corpus (the Spatio-Flux repository and its composites).
 7. **Modularity is also what the authors stress.**  Documents run unchanged under local, multiprocessing, Ray and REST
    protocols (S1 3.10; S2 2.1, four execution modes), which supports keeping every engine behind a two-function interface
    (3.11).
@@ -262,7 +263,7 @@ Read 2026-10-09: Agmon and Spangler, arXiv:2512.23754v2 (main text), Supplement 
   or deferred and written down (section 6), not patched around.
 * ASCII only in files.  Do not commit.
 * **Nothing is filed upstream by the assistant** (your rule, 2026-10-09).  A wrapper gap, a framework question or a simulator
-  disagreement becomes a drafted file (`pbg/upstream/` for other projects' trackers; `pbg/findings/` for this project's own
+  disagreement becomes a drafted file (`work/others/` for other projects' trackers; `work/todo/` for this project's own
   `disagreements.json` and SED2/TODO.md entries), and you decide whether and where to report it.
 
 ### 3.2 Command line and files
@@ -409,7 +410,7 @@ Rules the translator must follow (each cost a failed experiment):
    Loop, a Loop in a Loop and a Scatter in a Scatter were each checked with libsed2: 0 problems): a nested Scatter becomes a `SedRepeat` step
    inside the inner composite, a nested Loop becomes another `SedLoop` step with its own inner composite, recursively.
    The only *processes* in an inner document are the clocks; SED2's parallel branches are steps, not coupled processes,
-   so the coupling semantics stay those of SED2 (see `process-bigraph-clock.md`, G2).
+   so the coupling semantics stay those of SED2 (see `pbg2sed2/process-bigraph-clock.md`, G2).
 5. **Number of iterations.**  `numericRange` with only `numberOfSteps` has numberOfSteps + 1 entries; the translator
    uses the length of the evaluated range, not `numberOfSteps`.  A range computed at run time is evaluated by the host
    Step before it builds the inner document, which is why the clock takes its values from config at run time.
@@ -449,7 +450,7 @@ Rejected alternatives:
   other than 0 (the clock starts at 0), steady states, Jacobians, and anything after a `ModelChange`.  (Repeats are
   not part of the native form: the clock of a Loop, section 3.8, counts iterations inside a Step and is unrelated to
   the simulated time of the document.  Putting the *simulation* clock and the *loop* clock on one timeline is the
-  open question analysed in `process-bigraph-clock.md`.)
+  open question analysed in `pbg2sed2/process-bigraph-clock.md`.)
   This is a separate engine (3.11), not a mode of `v1`, and it is where `TelluriumProcess` and `CopasiUTCProcess` are the
   natural building blocks.  It stays optional (phase 5).
 
@@ -567,7 +568,7 @@ and puts three kinds of file (code, tests, goldens) in three host folders; its r
 the separate package.
 
 **Where the other decisions of this plan sit under the rule.**  The native-process form (3.9) is a different engine
-(`v2`-style, or `native`), not a flag of `v1`.  The reverse direction (`process-bigraph-to-sed2.md`) is a different
+(`v2`-style, or `native`), not a flag of `v1`.  The reverse direction (`pbg2sed2/process-bigraph-to-sed2.md`) is a different
 package again, as you said; the only thing it may share with this one is the mapping table, and that sharing stays a
 document (section 4) until a second implementation actually needs code.  The viva-wrapper approach (section 2.8), if you
 ever want it, is another engine with the same two functions.
@@ -578,7 +579,7 @@ ever want it, is another engine with the same two functions.
 a setting that SED2 needs, such as a tolerance, that is a bug or feature request for the wrapper maintainers, recorded and
 submitted, and not something the translator quietly works around.  This reverses the first draft of this plan, which built
 its own steps only (section 1, recommendation 4, is rewritten).  **Filing is yours:** every ledger entry is drafted as a text file
-under `pbg/upstream/` and the assistant files nothing, anywhere, on its own.
+under `work/others/` and the assistant files nothing, anywhere, on its own.
 
 **Providers.**  Inside engine `v1` (so the rule of 3.11 holds: nothing outside `pbg/` knows about this), every task that
 runs a simulator is produced by a *provider*, selected by `--wrappers {strict,prefer,off}` (default `strict`):
@@ -586,7 +587,7 @@ runs a simulator is produced by a *provider*, selected by `--wrappers {strict,pr
 | Provider | What it is | Used for |
 |---|---|---|
 | `viva` | A thin adapter over the community wrappers: builds the wrapper's step or process node from a SED2 task, and an adapter step that turns the wrapper's output into labelled `AnnotatedData` | Tasks whose every setting the wrapper can take (decided by a small capability table, below) |
-| `runtime` | Our own steps over the host's `runtime` (the first draft of this plan) | OpenCOR (no wrapper exists), and any task a wrapper cannot take |
+| `runtime` | Our own steps over the host's `runtime` (the first draft of this plan) | OpenCOR (viva-opencor exists, but it runs CellML and the provider does not yet convert the SBML model for it: L-6), and any task a wrapper cannot take |
 
 * `strict` (**default**, your answer 2026-10-09: "start with --strict"): use `viva` when its table says the wrapper can take the
   task; otherwise refuse the task (exit 11, with the ledger ids as the reason).  This is the mode that measures wrapper coverage
@@ -624,13 +625,13 @@ where marked, confirmed by running them (2026-10-09, tellurium 2.2.13.1 / roadru
 | W-6 | both | No end-state model output (SED2's `.model`), and no model *input* port, so a simulation cannot continue from a previous task's model.  (`TelluriumProcess.get_sbml()` exists as a method, not as a port.) | `OneStepODESimulation`, `ModelChange` chains, Loops carrying a model | Source |
 | W-7 | both | Output selection is the wrapper's own: tellurium returns floating species only (default `simulate` columns); no selection of parameters, rates or other variables; copasi columns are SBML ids. | `outputVariables` of any model element | Source |
 | W-8 | both | Steady state: no solver, tolerance or time-limit settings; no Jacobian step in either.  (COPASI's step is read, not run.) | `SteadyState`, `JacobianFull`, `JacobianReduced` | Source |
-| W-9 | (no wrapper) | No OpenCOR / CellML wrapper exists. | The third backend of this project | Search (absence of evidence) |
+| W-9 | (withdrawn) | Withdrawn: I reported that no OpenCOR wrapper exists, but viva-opencor does (CellML, libOpenCOR).  The provider gap that remains is its own: L-6. | The third backend of this project | Wrong |
 | W-10 | both UTC steps | Not idempotent: a second firing continues from the first one's end state, and a process-bigraph Step can fire more than once. | A task's result must not depend on how often the scheduler fires it | **Confirmed by running** |
 
 Four framework items found on the way (P-1 unknown config keys accepted silently, P-2 step cycles broken silently, P-3 which time
-the longer-interval process reads the state at, P-4 `MathExpressionStep` documented but absent) are drafted the same way for the
-process-bigraph maintainers.  All 14 drafts are in `pbg/upstream/` with an index (`README.md`) and the order I would suggest.
-Each W-id is a short issue text under `pbg/upstream/` (title, minimal reproduction, expected behaviour, environment), **drafted,
+the longer-interval process reads the state at, P-4 the README and tutorial 3 point at `MathExpressionStep` in process_bigraph, but it lives in pbg-basic-processes) are drafted the same way for the
+process-bigraph maintainers.  All 16 drafts are in `work/others/` with an index (`work/INDEX.md`) and the order I would suggest.
+Each W-id is a short issue text under `work/others/` (title, minimal reproduction, expected behaviour, environment), **drafted,
 not filed**; you report them.  W-1 is a plain bug and can go first, then W-10, P-1, W-2, W-3.  The ledger lives in the repository so the table above is regenerated from
 it (and from the `strict` run), not edited by hand.
 
@@ -739,7 +740,7 @@ product of the lists over the kinds each case actually uses (a case without FBA 
 translates and runs each combination, and compares it with the canonical data.  `--crosscheck` also compares the combinations with
 each other: ODE series at the suite's tolerance; FBA by the objective value and the *uniquely determined* fluxes (3.13), since
 alternate optima make full flux vectors differ legitimately.  Output: a case x combination table.  A disagreement between two
-combinations is written as a draft entry (for `disagreements.json`) under `pbg/findings/`, which you move or discard; nothing is
+combinations is written as a draft entry (for `disagreements.json`) under `work/todo/`, which you move or discard; nothing is
 added to the suite's own files by the tool.  The cosimulation test case (5.1) is the main user: every ODE backend x every FBA
 backend must agree within tolerance, which is the "test against each other and in combinations" you described.
 
@@ -1268,9 +1269,9 @@ ports.  Shape tested with stand-in classes (section 2.9); the real classes do no
 | `new_ode` sets values from the whole `fbasim` result (fluxes), again with no id mapping or rate conversion. | Same; and rates versus fluxes need units. |
 | The `FBA_model` loop variable is `fbasim.model`, but nothing reads the FBA model of iteration k - 1 other than the next `new_fba`, which changes it again. | Harmless; kept, because the translation of loop variables must not depend on whether the author needed them. |
 | The report is 3-dimensional (iterations x time points x species). | The existing Report writer handles it as HDF5 only; the CSV writer refuses.  Same behaviour as the script target. |
-| An FBA problem can be **infeasible** (found with iAF1260 once glucose is exhausted: the maintenance reaction cannot be supplied).  SED2 does not say what a `FluxBalanceAnalysis` task returns then. | The mock pair avoids it by construction.  The real-model case needs a rule in the document (a Calculation that maps "no solution" to zero growth) and the backend must report infeasibility as data or as a refusal, not as a made-up flux table.  Drafted as a question for the SED2 author in `pbg/findings/sed2-fba-infeasible.md`, not added to SED2/TODO.md by me. |
+| An FBA problem can be **infeasible** (found with iAF1260 once glucose is exhausted: the maintenance reaction cannot be supplied).  SED2 does not say what a `FluxBalanceAnalysis` task returns then. | The mock pair avoids it by construction.  The real-model case needs a rule in the document (a Calculation that maps "no solution" to zero growth) and the backend must report infeasibility as data or as a refusal, not as a made-up flux table.  Recorded as a question in SED2/TODO.md; the evidence is item T-1 in SED2's `work/todo/`. |
 | `fluxBalanceAnalysis` is deferred on every backend in `capabilities.json`. | The case can be translated and structurally tested now, but cannot run end to end until an FBA backend exists.  The FBA to pull in is COBRApy (section 3.13).  Exit status 11 with the usual skip line until then. |
-| Process-bigraph's own cosimulation couples **processes** with a clock; SED2's loop runs the sub-tasks **in sequence**, each reading the previous one's result.  In process-bigraph, two processes with the same interval read the state at the start of the interval (tested), so the same models wired as processes give different numbers. | The translation preserves SED2's sequential semantics (all sub-tasks are steps).  The coupled-process form is a different, parallel scheme; see `process-bigraph-clock.md`. |
+| Process-bigraph's own cosimulation couples **processes** with a clock; SED2's loop runs the sub-tasks **in sequence**, each reading the previous one's result.  In process-bigraph, two processes with the same interval read the state at the start of the interval (tested), so the same models wired as processes give different numbers. | The translation preserves SED2's sequential semantics (all sub-tasks are steps).  The coupled-process form is a different, parallel scheme; see `pbg2sed2/process-bigraph-clock.md`. |
 
 **What is tested when.**  Both cases (as written and timed) are kept, as you asked, and both eventually run for real.
 
@@ -1321,9 +1322,9 @@ libsed2; `disagreements.json` for simulators).  None of these has been logged ye
 7. **Specification gaps carry over.**  Everything in docs/deferred.md is still deferred.  The clock work adds a
    larger list of things SED2 cannot say about process-bigraph's clock (coupled and multi-rate processes, adaptive
    steps, conditional and open-ended loops, stateful continuation); they are written up with proposed SED2 extensions
-   in `process-bigraph-clock.md`, and none is needed for the translation itself.
-8. **Upstream notes** are drafted, not filed (P-1 to P-4 in `pbg/upstream/`): unknown config keys accepted silently, step cycles
-   broken silently, the read time of longer-interval processes, `MathExpressionStep` documented but absent.  The opaque "two different
+   in `pbg2sed2/process-bigraph-clock.md`, and none is needed for the translation itself.
+8. **Upstream notes** are drafted, not filed (P-1 to P-4 in `work/others/`): unknown config keys accepted silently, step cycles
+   broken silently, the read time of longer-interval processes, the README and tutorial 3 pointing at `MathExpressionStep` in process_bigraph although it now lives in pbg-basic-processes.  The opaque "two different
    wrappings" error is not drafted.  Reporting is yours.
 9. **Wrapper churn and gaps.**  The wrappers are at 0.1.2 and were renamed once already; a wrapper update can change a
    result or close a ledger item.  Pins plus the `strict` run as a regular CI job catch both.  A wrapper that cannot pass a
@@ -1378,7 +1379,7 @@ because the code path is shared; a difference is a bug in one of the new layers)
 (wrapper output -> labelled `AnnotatedData`), `--wrappers strict|prefer|off` (default `strict`), and the ledger (3.12).  Acceptance: `strict`
 run over the whole suite produces the list of tasks the wrappers can take and, for the rest, the W-ids; every task the
 wrapper takes agrees with the canonical data at the suite's tolerance, or is a recorded finding.  Deliverable beside the code:
-the drafted issue texts under `pbg/upstream/` (14 exist already; W-1 first), never filed by the assistant.
+the drafted issue texts under `work/others/` (16 exist already; W-1 first), never filed by the assistant.
 
 **Phase 3 - repeats and files.**  `SedLoop` with the `SedClock` process and the `SedStep` init guard (Loop, clock
 form), `SedRepeat` (Scatter, ParameterScan, and Loop under `--loop-form nested`), `SedCsvImport`, `Plot2D`/`Plot3D`
@@ -1408,8 +1409,8 @@ Files (the layout of section 3.11; everything is under `pbg/`):
 ```
 pbg/pyproject.toml, requirements-lock.txt, README.md, NOTES.md
 pbg/research/                                   # experiments, runnable, with expected output (README says how to rerun)
-pbg/upstream/                                   # drafted issue texts for other projects (14 files + README); never filed by the assistant
-pbg/findings/                                   # drafts for this project's own disagreements.json / SED2 TODO; you move or discard them
+work/others/                                    # drafted issue texts for other projects (16 files); never filed by the assistant
+work/todo/                                      # our own work items, one file each
 pbg/tools/pbg2py.py                             # scheduler exporter for tier C (route 2); not imported by the engine
 pbg/tests/advanced/data/cosimulation/           # mock ODE and FBA models, builder, plain-Python reference loops
 pbg/tests/native/                               # tier C documents, translated scripts, expected output
@@ -1448,12 +1449,12 @@ order is reversed from the first draft: route 2 first, route 1 when it exists.
    import": the process classes themselves still import process-bigraph's `Process` base and `allocate_core`; only the composite
    machinery is avoided.)  The *scheduling* is therefore independent, and scheduling is what these cases test; the process code is
    shared, so it is less independent than route 1.  Two readings are options (`--reading start|event`), because the specification and
-   the implementation differ for unequal intervals (section 2.10, item 3; `pbg/upstream/P-3.md`).
+   the implementation differ for unequal intervals (section 2.10, item 3; P-3).
    **Prototype, run 2026-10-09** (`pbg/research/pbg2py.py`, `exp9.py`): for two coupled processes with intervals 1 and 1 the export agrees
    with process-bigraph under both readings; for intervals 1 and 2 it agrees exactly under `start` and differs under `event`.  The
    prototype handles processes only (no steps, no emitter nodes, no `overwrite` ports beyond the merge rule); the real tool adds
    them, driven by the cases below.
-1. **PBG -> SED2 -> script - later, if the reverse direction is ever built.**  The importer (`process-bigraph-to-sed2.md`, set
+1. **PBG -> SED2 -> script - later, if the reverse direction is ever built.**  The importer (`pbg2sed2/process-bigraph-to-sed2.md`, set
    aside) turns the document into SED2, and the host's translator turns that into a script.  It would give a second, more
    independent oracle for the cases SED2 can say (one clock, chained or parallel processes, static models).
 
@@ -1489,10 +1490,10 @@ ledger ids in the expected-gaps file; (e) the modularity rules M1 to M9 of secti
 | 5 | Windows | No need to test on your own machine; CI should cover as many platforms as possible. | 3.11 M8, phase 0 |
 | 6 | The cosimulation file | Update it so the ODE times continue; both cases (as written and timed) eventually, once FBA exists. | 5.1 |
 | 7 | An FBA backend | Pull in a good one if I can find it: COBRApy checked (3.13). | 3.13 |
-| 8 | PBG to SED2 | Set aside: "let's see what we can do without it for now". | `process-bigraph-to-sed2.md` unchanged; tier C route 2 first (section 7) |
+| 8 | PBG to SED2 | Set aside: "let's see what we can do without it for now". | `pbg2sed2/process-bigraph-to-sed2.md` unchanged; tier C route 2 first (section 7) |
 | 9 | Where FBA lives | In the main group (the host).  More sophisticated command-line switches are needed for two FBA simulators, for testing them against each other and in combinations (copasi with cobra, and so on). | 3.13 (H-1 to H-5), 3.14, phase 3b |
 | 10 | Wrapper default | `--strict` for now. | 3.12, summary, phase 2b |
-| 11 | Filing bug reports | Never by the assistant.  Always a file somewhere, and you report. | 3.1, 3.12, `pbg/upstream/` (14 drafts), `pbg/findings/` |
+| 11 | Filing bug reports | Never by the assistant.  Always a file somewhere, and you report. | 3.1, 3.12, `work/others/` (16 drafts), `work/todo/` |
 | 12 | COBRApy licence | Fine, as a dependency. | 3.13 |
 | 13 | Tier C before the reverse direction | Do not wait: create tier C tests now. | Section 7 (scheduler exporter, cases C1 to C5) |
 | 14 | The real CRM-FBA models | Look for them; mock something simple up regardless, and test the real ones too. | 3.13 (found: iAF1260 and four more; the CRMs are Python classes), 5.1 stages 3 and 4, mock pair delivered |
@@ -1509,14 +1510,14 @@ Earlier answers: the separate `pbg/` package and the small M1 host test were app
 3. **The real models.**  The CRM-FBA repository has no licence file that I found, so the models are fetched at a pinned commit and not
    copied here.  If you prefer them stored in the repository, that needs the authors' permission first.
 4. **Infeasible FBA.**  SED2 does not say what a `FluxBalanceAnalysis` task returns for an infeasible problem (found with iAF1260).  A
-   draft question for the SED2 author is in `pbg/findings/sed2-fba-infeasible.md`; I did not add anything to SED2/TODO.md.
+   question is recorded in SED2/TODO.md; the evidence is item T-1 in SED2's `work/todo/`.
 
 ## 9. Status: what was built (2026-10-09)
 
 Almost everything is in `pbg/` (`pbg/README.md` has the layout and the kill list; `pbg/NOTES.md` the lessons).  Outside `pbg/`, this work
 changed the host for flux balance analysis only (the approved edits H-1 to H-5: the `cobra` backend, the capability table, the command
 line, the suite runner, tests and docs), added the FBA series to sed2-test-suite, and added a section at the end of `SED2/TODO.md`.
-Nothing is committed and nothing has been filed upstream (18 drafts wait in `pbg/upstream/`).
+Nothing is committed and nothing has been filed upstream (16 drafts wait in `work/others/`; two more were withdrawn).
 
 **Built, with the tests that pin it.**
 
@@ -1548,14 +1549,14 @@ Nothing is committed and nothing has been filed upstream (18 drafts wait in `pbg
 
 **What the wrappers cost, measured** (`pbg/tests/providers/expected_gaps.json`, `pbg/tools/provider_gaps.py`): roadrunner 30 wrapped
 cases: 21 pass, 8 are skipped while running (W-7), 1 misses the canonical data (case 00119, because the step cannot set tolerances, W-1;
-`pbg/findings/viva-tellurium-default-tolerances.md`).  copasi 28 wrapped cases: 17 pass, 6 are skipped (W-7), 5 fail inside the wrapper on a
+the finding is kept with the W-1 draft).  copasi 28 wrapped cases: 17 pass, 6 are skipped (W-7), 5 fail inside the wrapper on a
 model without species (W-14).  Every difference from this file fails the test.
 
 **Open.**
 
 * Phase 5 (the native-process form, section 3.9) is not started; it was optional.
 * The reverse direction (PBG to SED2) is set aside, as you said; tier C scripts come from the scheduler exporter.
-* The 18 drafts are for you to report; the order I would suggest is in `pbg/upstream/README.md` (W-1, W-10, W-14, P-1, W-12, W-13 first).
+* The 16 drafts are for you to report; the order I would suggest is in `work/INDEX.md` (W-1, W-10, W-14, P-1, W-12, W-13 first).
 * The Monod CRM-FBA model as SBML (docs/deferred.md), after which the real cosimulation template can run.
 * If a wrapper gains a missing feature, `tests/providers` will say so by failing; the ledger entry is then closed and the case moves from
   refused to wrapped in `expected_gaps.json` (a reviewed change, not an automatic one).

@@ -22,7 +22,7 @@ import pbg2py  # noqa: E402
 pytest.importorskip("process_bigraph")
 CASES = sorted(os.path.basename(p)[: -len(".case.json")] for p in glob.glob(os.path.join(HERE, "*.case.json")))
 ENV = {**os.environ, "PYTHONPATH": HERE + os.pathsep + os.environ.get("PYTHONPATH", "")}
-# the event reading differs from the framework where intervals differ (pbg/upstream/P-3.md)
+# the event reading differs from the framework where intervals differ (P-3)
 EVENT_DIFFERS = {"c2_unequal_intervals"}
 
 

@@ -241,3 +241,6 @@ desktop.ini
 
 # Running log of libsed2 gaps (local working file)
 GAPS.md
+
+# Our work notes and the drafts of reports about other projects' bugs: kept locally (work/INDEX.md), reported by hand, never committed
+work/

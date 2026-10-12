@@ -1,7 +1,7 @@
 """The expected gaps of the viva wrappers over the whole sed2-test-suite (`tests/providers/expected_gaps.json`).
 
 For every case and every wrapper-backed backend (roadrunner -> viva-tellurium, copasi -> viva-copasi), `--wrappers strict` either
-translates (some simulation tasks run in a wrapper) or refuses with ledger ids (pbg/upstream).  The file records which, and what
+translates (some simulation tasks run in a wrapper) or refuses with ledger ids.  The file records which, and what
 the translated documents did when run (PASS, SKIP with the ledger id found while running, FAIL).  The test fails on any
 difference: a case that starts to pass, or to be refused, or to fail, is news that has to be read and recorded here, never absorbed.
 
@@ -91,7 +91,7 @@ def run_wrapped(suite, found: dict, jobs: int = 4) -> None:
         shutil.rmtree(work, ignore_errors=True)
 
 
-# errors inside a wrapper that are a recorded gap (pbg/upstream): (text in the error, ledger id)
+# errors inside a wrapper that are a recorded gap (a ledger id): (text in the error, ledger id)
 KNOWN_ERRORS = (("spec_df[\"sbml_id\"]", "W-14"),)
 
 

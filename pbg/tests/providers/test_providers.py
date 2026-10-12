@@ -1,6 +1,6 @@
 """The viva wrapper provider (`--wrappers strict|prefer|off`): the rules, the documents, the ledger, and runs.
 
-The wrappers are community packages; every gap found in them is a ledger entry (pbg/upstream/W-n.md, drafts, never filed by an
+The wrappers are community packages; every gap found in them is a ledger entry (a W-n draft, never filed by an
 assistant).  A test here never loosens a rule to pass: a wrapper that cannot do a task is refused with its ledger id."""
 import glob
 import json
@@ -20,7 +20,7 @@ from pysed2translate_pbg.engines.v1.providers import Request, WrapperRefusal, ga
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
-UPSTREAM = os.path.abspath(os.path.join(HERE, "..", "..", "upstream"))
+UPSTREAM = os.path.abspath(os.path.join(HERE, "..", "..", "..", "work", "others"))
 MODEL = {"_type": "modelImport", "location": "decay.xml", "language": "urn:sedml:language:sbml"}
 IV = "urn:sedml:symbol:time"
 
@@ -81,8 +81,8 @@ def test_a_plain_uniform_time_course_gets_a_plan_for_each_wrapper():
     (dict(algorithm="KISAO:0000032"), ["L-5"]),
     (dict(language="urn:sedml:language:cellml"), ["L-3"]),
     (dict(init=1.0), ["L-4"]),
-    (dict(backend="opencor"), ["W-9"]),
-    (dict(kind="fba", backend="cobra:glpk"), ["W-11"]),
+    (dict(backend="opencor"), ["L-6"]),
+    (dict(kind="fba", backend="cobra:glpk"), ["L-7"]),
     (dict(kind="jacobian"), ["W-8"]),
 ])
 def test_tellurium_gaps(change, expected):
@@ -180,7 +180,9 @@ def test_the_default_mode_is_strict():
 # ------------------------------------------------------------------------------------------------ the ledger
 
 def test_every_ledger_entry_has_its_draft_and_every_draft_its_entry():
-    drafts = {os.path.basename(p)[:-3] for p in glob.glob(os.path.join(UPSTREAM, "W-*.md"))}
+    if not os.path.isdir(UPSTREAM):
+        pytest.skip("work/others (the drafts of reports about other projects) is a local, git-ignored folder; not present here")
+    drafts = {re.match(r"(W-\d+)-", os.path.basename(p)).group(1) for p in glob.glob(os.path.join(UPSTREAM, "W-*.md")) + glob.glob(os.path.join(UPSTREAM, "addressed_awaiting_release", "W-*.md"))}   # open, or fixed and awaiting a release; the file name starts with the ledger id
     assert drafts == {i for i in providers.LEDGER if i.startswith("W-")}
     for i in providers.LEDGER:
         assert re.fullmatch(r"[WL]-\d+", i)

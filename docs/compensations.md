@@ -1,0 +1,14 @@
+# Known deviations from a simulator's plain result
+
+The rule (CLAUDE.md, "Never hide a problem; expose it"): a backend returns what the simulator returns, or it refuses.  It does not re-run, interpolate, relabel, re-time, rescale or substitute settings to make a result come out right.  This file lists the places in the backends where that is not the case.  It should be empty.  Every entry is a decision waiting for the user; nothing is added here to make a deviation acceptable.  `tests/test_no_compensation.py` requires that the `COMP-n` ids in the backends' source and the ids in the table below are the same set.
+
+How to handle a simulator that gets something wrong: return its plain result (or refuse with the real reason), record the problem in sed2-test-suite's `disagreements.json`, draft an upstream report in `work/others/` (a local, git-ignored folder) for the user to file, and let the failing test fail (a strict `xfail` that names the disagreement is the way to keep the run readable; the assertion itself is not loosened).
+
+The one deviation of this kind that was removed: roadrunner's last variable-step row was replaced by a separately integrated end point (disagreement D-003).
+
+| ID | Where | What the backend does | Why it was added | Proposed handling | Status |
+|---|---|---|---|---|---|
+| COMP-1 | `copasi_backend.py`, `COPASI_JACOBIAN_FACTOR` | Calls COPASI's `calculateJacobian` with a derivation factor of 1e-6 instead of basico's 1e-12. | basico's factor loses about 5e-5 to rounding. | Use the simulator's own default and let the cases show the difference, or make the factor a visible setting; report the rounding to the COPASI developers. | open, needs a decision |
+| COMP-2 | `copasi_backend.py`, `_jacobian` | Does not use `basico.get_jacobian_matrix`; names the rows and columns of COPASI's matrix from the state template. | basico labels the matrix in the model's species order, but the matrix is in state order (disagreement D-001, part 2). | This is a correct use of the COPASI API more than a correction of a result, but it replaces the wrapper's answer.  Keep it and report the basico labelling, or call basico's function and let wrong labels show. | open, needs a decision |
+| COMP-3 | `copasi_backend.py`, time course | When there is a single output point at the start, drops the second row COPASI writes. | COPASI writes two rows for one point. | Refuse, or keep as a documented difference in the output shape; report to the basico developers. | open, needs a decision |
+| COMP-4 | `copasi_backend.py`, steady state | Sets the steady-state resolution to 1e-12 (COPASI's default is 1e-9) and accepts negative concentrations. | To agree with roadrunner (environment-notes.md: every backend's tolerances are set explicitly). | Take the resolution from the document's settings or COPASI's default; refuse a steady state with negative concentrations, or have the document ask for it. | open, needs a decision |

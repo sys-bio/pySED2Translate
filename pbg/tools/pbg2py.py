@@ -11,7 +11,7 @@ schedules them itself.  It does NOT use `Composite` or its scheduler (the classe
   start  a process reads its inputs at the start of its interval and its update is applied at the end (what process-bigraph 1.8.5
          does, measured)
   event  a process reads its inputs at its event time and its update is applied at once (one reading of the formal rule; for
-         unequal intervals it differs from the framework, see pbg/upstream/P-3.md)
+         unequal intervals it differs from the framework, see P-3)
 
 Steps: every step runs once at time 0 and again after an event batch has changed a store it reads (steps that read what other steps
 wrote follow in dependency order).  A step's outputs replace the stores they are wired to.  Emitter steps are not run; the script

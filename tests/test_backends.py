@@ -145,10 +145,39 @@ def test_span_chooses_its_own_points(backend, model):
             backend.time_course(model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0)))
         return
     data, _ = backend.time_course(model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0)))
-    t, y = data.values[:, 0], data.values[:, 1]
+    t = data.values[:, 0]
     assert t[0] == 0.0 and t[-1] == pytest.approx(3.0) and np.all(np.diff(t) > 0)
-    close(y, s1(t))
     assert len(t) >= 3
+
+
+def test_span_values_are_accurate(backend, model, request):
+    if backend.name == "opencor":
+        pytest.skip("libopencor has only uniform time courses")
+    if backend.name == "roadrunner":
+        # The assertion is not loosened; the failure is recorded.  strict: it fails the run when roadrunner is fixed.
+        request.applymarker(pytest.mark.xfail(strict=True, reason="roadrunner 2.10's last variable-step row is inaccurate "
+                                              "(disagreement D-003); the backend returns it as it is"))
+    data, _ = backend.time_course(model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0)))
+    t, y = data.values[:, 0], data.values[:, 1]
+    close(y, s1(t))
+
+
+def test_roadrunner_span_is_the_plain_roadrunner_result(model):
+    """The backend must not correct roadrunner's rows (CLAUDE.md, never hide a problem; tests/test_no_compensation.py)."""
+    roadrunner = pytest.importorskip("roadrunner")
+    from pysed2translate import kisao
+
+    data, _ = backends.get("roadrunner").time_course(
+        model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0)))
+    solver, options = kisao.solver_for("roadrunner", None)
+    rr = roadrunner.RoadRunner(model.text)
+    rr.setIntegrator(solver)
+    for key, value in {**options, "relative_tolerance": kisao.DEFAULT_RELATIVE_TOLERANCE,
+                       "absolute_tolerance": kisao.DEFAULT_ABSOLUTE_TOLERANCE, "variable_step_size": True}.items():
+        rr.integrator.setValue(key, value)
+    rr.timeCourseSelections = ["time", "[S1]"]
+    plain = np.array(rr.simulate(0.0, 3.0))
+    assert np.array_equal(data.values, plain)
 
 
 # --------------------------------------------------------------------------- the model at the end of a run

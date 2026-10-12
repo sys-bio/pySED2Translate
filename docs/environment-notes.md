@@ -9,9 +9,7 @@
 * The libsed2 wheel is not on PyPI.  Put `libsed2-<version>-py3-none-any.whl` in this directory (it is
   git-ignored); `scripts/setup_env.sh` installs the newest one.  Current: 0.1.1 (rebuilt 2026-10-08; the version number did not change, so
   reinstall with `--force-reinstall`).
-* roadrunner 2.10: the `rk45` integrator returns wrong values at fixed output points, and there is no Euler
-  integrator; the variable-step last row (BoundedODESimulation) is interpolated and less accurate, so the backend
-  recomputes the end point on its own.
+* roadrunner 2.10: the `rk45` integrator returns wrong values at fixed output points, and there is no Euler integrator.  The last row of a variable-step run (BoundedODESimulation) is less accurate than the others (1.2e-4 relative on case 00135); the backend returns it as it is, so roadrunner is not an admitted backend for 00135 (disagreement D-003; report drafted locally, not yet filed).
 * roadrunner reports `steadyState()` as a residual and raises `RuntimeError` when it fails; the backend also
   rejects a residual above 1e-6.  Its Jacobians are concentration-based.
 * COPASI (basico): `get_jacobian_matrix` labels the full Jacobian in the model's species order but the matrix is in
@@ -35,8 +33,8 @@
 * libcellml 0.7.1 (needed by `sbml2cellml`, so by the OpenCOR route): its win_amd64 wheel on PyPI contains ARM64 binaries, so
   `import libcellml` fails on x86-64 Windows ("DLL load failed while importing _analyser: %1 is not a valid Win32 application").
   The OpenCOR smoke test and OpenCOR tests fail on Windows until it is fixed; sbml2cellml requires `libcellml>=0.7.1`, so the
-  older, correct 0.6.3 cannot be pinned.  Draft report (not filed): `docs/upstream/libcellml-win-amd64-wheel/`.
+  older, correct 0.6.3 cannot be pinned.  The report (C-1) is kept locally (not in the repository).
 * libroadrunner 2.10.0 has wheels for Linux x86-64 (manylinux_2_28), Windows x86-64, macOS arm64 (14.0 and later) and macOS
   x86-64 (15.0 and later) only: nothing for Linux aarch64 or Windows arm64, so `requirements.txt` cannot be installed on those
   (found when the CI jobs on ubuntu-24.04-arm and windows-11-arm failed).  The CI workflows do not run there.
-
+* Places where a backend deviates from the simulator's plain result are listed in `docs/compensations.md`; there should be none.
