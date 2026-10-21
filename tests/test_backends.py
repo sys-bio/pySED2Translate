@@ -150,13 +150,9 @@ def test_span_chooses_its_own_points(backend, model):
     assert len(t) >= 3
 
 
-def test_span_values_are_accurate(backend, model, request):
+def test_span_values_are_accurate(backend, model):
     if backend.name == "opencor":
         pytest.skip("libopencor has only uniform time courses")
-    if backend.name == "roadrunner":
-        # The assertion is not loosened; the failure is recorded.  strict: it fails the run when roadrunner is fixed.
-        request.applymarker(pytest.mark.xfail(strict=True, reason="roadrunner 2.10's last variable-step row is inaccurate "
-                                              "(disagreement D-003); the backend returns it as it is"))
     data, _ = backend.time_course(model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0)))
     t, y = data.values[:, 0], data.values[:, 1]
     close(y, s1(t))

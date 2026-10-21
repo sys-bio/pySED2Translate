@@ -130,7 +130,7 @@ class RunResult:
     items: list = dataclasses.field(default_factory=list)   # failing/passing items from compare_case
     score: Optional[float] = None     # the largest score of the items; None if nothing was compared
     manifest: dict = dataclasses.field(default_factory=dict)
-    known: list = dataclasses.field(default_factory=list)   # log entries ("D-003 (open)") that cover this result's differences
+    known: list = dataclasses.field(default_factory=list)   # log entries ("D-001 (open)") that cover this result's differences
 
     def to_json(self) -> dict:
         d = {"case": self.case, "backend": self.backend, "status": self.status, "canonical": self.canonical,
@@ -286,7 +286,7 @@ class Disagreement:
     backends: tuple          # (a, b); b may be "expected"
     report: str
     measure: dict
-    known: str = ""          # the log entry that covers it ("D-003 (open)"), if there is one
+    known: str = ""          # the log entry that covers it ("D-001 (open)"), if there is one
 
     def message(self) -> str:
         m = self.measure

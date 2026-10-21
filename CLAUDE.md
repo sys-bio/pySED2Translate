@@ -37,7 +37,7 @@ right because a problem was covered up defeats that goal.
 
 ### A simulator's result is returned as it is (the rule that was broken once, and the guards)
 
-The roadrunner backend once replaced roadrunner's inaccurate last variable-step row with a value it integrated separately, so a test passed and the simulator's bug stayed invisible (disagreement D-003).  That is the failure to prevent.  It is a recurring temptation because the correction looks like care.
+The roadrunner backend once replaced roadrunner's inaccurate last variable-step row with a value it integrated separately, so a test passed and the simulator's bug stayed invisible.  That is the failure to prevent.  It is a recurring temptation because the correction looks like care.
 
 * **Before writing any code in `src/pysed2translate/runtime/backends/` or `kisao.py`, ask: does the simulator's plain call give the right answer here?**  If it does not, write nothing that fixes it.  The backend returns the plain result, or refuses with the real reason.  Then record the problem (`disagreements.json`, a draft in `../work/others/`) and tell the user in the same message.
 * **Forbidden forms, whatever the reason and however small:** running a simulation again to replace a row or a value; interpolating, extrapolating, clipping or rounding a result; changing a step size, derivation factor, resolution or tolerance that the document did not set; trying other settings until a case passes; renaming, reordering, adding or dropping rows or columns to repair a simulator's output; substituting a value from another simulator.  Settings that are not the document's must be the simulator's own defaults (or the project's single stated default policy), never tuned to a case.

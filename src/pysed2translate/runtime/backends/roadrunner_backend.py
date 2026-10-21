@@ -87,8 +87,7 @@ class RoadRunnerBackend(Backend):
                 raise DataError("independentVariableInit must equal the span's start")
             rr.model.setTime(a)
             rr.integrator.setValue("variable_step_size", True)
-            # The rows are returned exactly as roadrunner gives them.  Its last row (at the span's end) is less accurate
-            # than the others (disagreement D-003 in sed2-test-suite); that is reported, not corrected here.
+            # The rows are returned exactly as roadrunner gives them.
             table = np.array(rr.simulate(a, b))
         else:
             start = float(tc.start or 0.0)

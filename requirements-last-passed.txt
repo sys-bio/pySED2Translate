@@ -1,3 +1,7 @@
+# The versions that were installed the last time the tests passed.  A record only: nothing installs from this file.
+# requirements.txt has no pins, so every CI run installs the latest of everything; the workflow uploads a new list as the
+# artifact requirements-last-passed-<os> of a passing run, and this file is replaced by hand from it when wanted.
+# When a run starts failing, compare its installed versions with this list to see what changed.
 annotated-types==0.8.0
 antimony==3.2.0
 antlr4-python3-runtime==4.13.2

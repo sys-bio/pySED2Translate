@@ -9,7 +9,7 @@
 * The libsed2 wheel is not on PyPI.  Put `libsed2-<version>-py3-none-any.whl` in this directory (it is
   git-ignored); `scripts/setup_env.sh` installs the newest one.  Current: 0.1.1 (rebuilt 2026-10-08; the version number did not change, so
   reinstall with `--force-reinstall`).
-* roadrunner 2.10: the `rk45` integrator returns wrong values at fixed output points, and there is no Euler integrator.  The last row of a variable-step run (BoundedODESimulation) is less accurate than the others (1.2e-4 relative on case 00135); the backend returns it as it is, so roadrunner is not an admitted backend for 00135 (disagreement D-003; report drafted locally, not yet filed).
+* roadrunner 2.11: There is no Euler integrator.
 * roadrunner reports `steadyState()` as a residual and raises `RuntimeError` when it fails; the backend also
   rejects a residual above 1e-6.  Its Jacobians are concentration-based.
 * COPASI (basico): `get_jacobian_matrix` labels the full Jacobian in the model's species order but the matrix is in

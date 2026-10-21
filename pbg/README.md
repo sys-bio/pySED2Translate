@@ -10,7 +10,7 @@ committed, and nothing has been reported to any other project (the drafts for yo
     pysed2translate-pbg --backend-list
     pysed2translate-pbg engines
 
-Install (after the host, see `../README.md`): `pip install -r pbg/requirements-lock.txt && pip install -e pbg --no-deps`.
+Install (after the host, see `../README.md`): `pip install -r pbg/requirements.txt && pip install -e pbg --no-deps`.
 Only `process-bigraph` and `bigraph-schema` are needed for `--wrappers off`; `viva-tellurium` and `viva-copasi` for the wrappers
 (`pip install ./pbg[viva]`).  Exit statuses are the host's: 0 done, 1 a task failed, 2 usage, 10 invalid document, 11 the chosen
 backend (or, in strict mode, the wrapper) cannot do it, 12 other translation error.
@@ -46,7 +46,7 @@ the wrapper on models without species (W-14); all are recorded, none is worked a
 | `tests/advanced/` | the real iAF1260 model through a Scatter (needs the model, which is not in the repository) |
 | `tools/` | `pbg2py.py` (scheduler exporter), `make_tier_c.py`, `provider_gaps.py` |
 | `research/` | the experiments the plan's findings come from (see its README) |
-| `../../work/others/` | 16 drafted issue texts (W-1 to W-14, P-1 to P-4; W-9 and W-11 are withdrawn), kept locally: the folder is git-ignored.  You report them |
+| `../../work/others/` | 16 drafted issue texts (W-n and P-n), kept locally: the folder is git-ignored.  You report them |
 | `../../work/todo/` | (git-ignored) our own work items for this project, one file each |
 | `../.github/workflows/pbg.yml` | the CI workflow for this package (host alone, target, target with wrappers) on many platforms; runs only when `pbg/`, `src/` or the workflow change; the host's own tests are in `../.github/workflows/ci.yml` |
 | `NOTES.md` | lessons that survive a rewrite |

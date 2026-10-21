@@ -1,24 +1,25 @@
-# Direct dependencies, pinned to the versions tested together on Python 3.13.
+# Direct dependencies, deliberately not pinned: every install gets the latest, so a break (or a fix) in any of them shows
+# at once.  The versions of the last passing run are in requirements-last-passed.txt.
 # Install with scripts/setup_env.sh (Linux/macOS) or scripts/setup_env.ps1 (Windows).
 # The libsed2 wheel is installed separately (see README / build.md).
 #
 # Roadrunner backend
-libroadrunner==2.10.0
-tellurium==2.2.13.1
+libroadrunner
+tellurium
 # COPASI backend
-python-copasi==4.48.309
-copasi-basico==0.87
+python-copasi
+copasi-basico
 # OpenCOR backend (libopencor is the Python route; sbml2cellml needs Python >= 3.13)
-libopencor==1.20261006.1
-sbml2cellml==0.4.2
-# Flux balance analysis backend.  cobra 0.32.1 needs pandas < 3, so pandas is pinned to 2.3.3 (COPASI's basico accepts it).
-cobra==0.32.1
-pandas==2.3.3
+libopencor
+sbml2cellml
+# Flux balance analysis backend
+cobra
+pandas
 # Shared
-antimony==3.2.0
-h5py==3.16.0
-numpy==2.5.3
-matplotlib==3.11.2
-jsonschema==4.26.0
-antlr4-python3-runtime==4.13.2
-pytest==9.1.1
+antimony
+h5py
+numpy
+matplotlib
+jsonschema
+antlr4-python3-runtime
+pytest

@@ -62,6 +62,21 @@ jobs:
         if: ${{ !cancelled() }}
         run: python -m pytest -ra
 
+      # After a fully passing run: the versions that were installed, to copy into requirements-last-passed.txt when wanted.
+      - name: Record the installed versions
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          mkdir freeze
+          pip freeze --exclude-editable > freeze/requirements-last-passed.txt
+
+      - name: Keep the installed versions
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: requirements-last-passed-${{ matrix.os }}
+          path: freeze/requirements-last-passed.txt
+
   suite:
     name: Test suite cases (Linux)
     runs-on: ubuntu-latest

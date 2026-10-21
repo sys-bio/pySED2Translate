@@ -54,5 +54,5 @@ jobs:
       - name: target, with the community wrappers
         shell: bash
         run: |
-          pip install -r pbg/requirements-lock.txt
+          pip install -r pbg/requirements.txt
           cd pbg && python -m pytest -q

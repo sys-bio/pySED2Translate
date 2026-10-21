@@ -1,0 +1,22 @@
+# The target's own dependencies (rule M8), not pinned: every install gets the latest.  The host's requirements-last-passed.txt is not edited; install the host first, then this.
+#     pip install -r requirements.txt && pip install ./libsed2-*.whl && pip install -e . --no-deps      (host, from the repository root)
+#     pip install -r pbg/requirements.txt && pip install -e pbg --no-deps
+process-bigraph
+bigraph-schema
+# community wrappers (--wrappers strict | prefer) and what they bring
+viva-tellurium
+viva-copasi
+viva-superpowers
+viva-emitters
+viva-workspace
+# the simulators and tools behind them (the same as the host's requirements.txt)
+libroadrunner
+tellurium
+python-copasi
+copasi-basico
+cobra
+pandas
+numpy
+h5py
+matplotlib
+pytest

@@ -39,7 +39,7 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
    sed2-test-suite acceptance rule (|a-e| <= abs + rel*|e|) applies unchanged.
 4. **Use the community wrappers (viva-tellurium, viva-copasi) when possible**, and own steps over the host's `runtime` as
    the fallback (section 3.12).  Every wrapper gap that stops a SED2 setting from being passed (no tolerance, no start
-   time, no model input) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now; W-9, "no OpenCOR wrapper", was wrong and is withdrawn) and **drafted** as an issue text for
+   time, no model input) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now) and **drafted** as an issue text for
    the wrapper maintainers (`../work/others/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
    step accepts tolerances and a seed and ignores them (W-1); viva-copasi cannot start at a time other than 0 (W-2), cannot
    choose a method or tolerances (W-3), cannot take SBML text (W-4); both UTC steps continue from their previous end state when
@@ -485,7 +485,7 @@ below are design rules, each with a mechanical check, so that the property does 
 ```
 pbg/                                   # its own distribution: "pysed2translate-pbg"; the ONLY new top-level folder
   pyproject.toml                       # own dependencies (process-bigraph, bigraph-schema), own entry points
-  requirements-lock.txt                # its own pins; the host's lock file is not edited
+  requirements.txt                     # its own dependencies, not pinned; the host's requirements-last-passed.txt is not edited
   README.md                            # what it is, how to remove it (the kill list, below)
   NOTES.md                             # lessons that survive a rewrite (the rules in 3.8, pitfalls in 2.5, 2.9)
   research/                            # the scratch experiments as runnable scripts, with their expected output
@@ -516,7 +516,7 @@ Installing the target is `pip install -e ./pbg`; uninstalling it is `pip uninsta
 | M5 | The acceptance tests do not know any engine's internals.  They call only the interface (`translate`, `run`) and compare results with the suite's canonical data.  Internals (golden documents, step tests) live under `tests/<engine>/` and are deleted with it. | `tests/contract/` imports nothing from `engines.*` except through the discovery function. |
 | M6 | Generated documents say which engine made them (`sed2.engine`, `sed2.engineVersion`), and step addresses contain the engine folder name (`local:!pysed2translate_pbg.engines.v1.steps.SedOdeSimulation`).  Two engines' documents can coexist in one directory and in one process. | Test: every golden document has both keys and every address starts with its engine's module path. |
 | M7 | No change to the host `runtime/` for the target's sake.  If an engine needs a function that does not exist, it is first tried as a wrapper in `host.py`; only a function that is useful to the Python-script path as well is proposed to the host as its own change. | Review rule; recorded in `NOTES.md` when it happens. |
-| M8 | The target's dependencies are the target's.  `process-bigraph` and `bigraph-schema` appear only in `pbg/pyproject.toml`; the host's `requirements-lock.txt` is untouched.  A test environment without them still runs the whole host suite. | CI job, on **as many platforms as possible** (your answer 5): Linux, Windows and macOS, x86_64 and arm64 where runners exist, Python 3.13: install the host alone and run its tests; then install `./pbg` and run `pbg/tests`, once with `--wrappers off`, once with the wrappers installed. |
+| M8 | The target's dependencies are the target's.  `process-bigraph` and `bigraph-schema` appear only in `pbg/pyproject.toml`; the host's `requirements-last-passed.txt` is untouched.  A test environment without them still runs the whole host suite. | CI job, on **as many platforms as possible** (your answer 5): Linux, Windows and macOS, x86_64 and arm64 where runners exist, Python 3.13: install the host alone and run its tests; then install `./pbg` and run `pbg/tests`, once with `--wrappers off`, once with the wrappers installed. |
 | M9 | One default, in one place.  `DEFAULT_ENGINE = "v1"` in `cli.py`, overridable by `--engine` or `PYSED2TRANSLATE_PBG_ENGINE`. | Contract tests run all engines regardless of the default. |
 
 **The interface of an engine** (a module or class in the engine folder named in `engines/__init__.py` by convention, not by
@@ -625,7 +625,6 @@ where marked, confirmed by running them (2026-10-09, tellurium 2.2.13.1 / roadru
 | W-6 | both | No end-state model output (SED2's `.model`), and no model *input* port, so a simulation cannot continue from a previous task's model.  (`TelluriumProcess.get_sbml()` exists as a method, not as a port.) | `OneStepODESimulation`, `ModelChange` chains, Loops carrying a model | Source |
 | W-7 | both | Output selection is the wrapper's own: tellurium returns floating species only (default `simulate` columns); no selection of parameters, rates or other variables; copasi columns are SBML ids. | `outputVariables` of any model element | Source |
 | W-8 | both | Steady state: no solver, tolerance or time-limit settings; no Jacobian step in either.  (COPASI's step is read, not run.) | `SteadyState`, `JacobianFull`, `JacobianReduced` | Source |
-| W-9 | (withdrawn) | Withdrawn: I reported that no OpenCOR wrapper exists, but viva-opencor does (CellML, libOpenCOR).  The provider gap that remains is its own: L-6. | The third backend of this project | Wrong |
 | W-10 | both UTC steps | Not idempotent: a second firing continues from the first one's end state, and a process-bigraph Step can fire more than once. | A task's result must not depend on how often the scheduler fires it | **Confirmed by running** |
 
 Four framework items found on the way (P-1 unknown config keys accepted silently, P-2 step cycles broken silently, P-3 which time
@@ -637,7 +636,7 @@ it (and from the `strict` run), not edited by hand.
 
 **Consequences for the rest of the plan.**  Phase 2 is split (section 7).  The "bit-identical to the scripts" claim of the
 first draft now applies to the `runtime` provider only.  Packaging: viva-tellurium, viva-copasi and their dependency
-viva-superpowers are all on PyPI (0.1.2, 0.1.2, 0.23.0); they are pinned in `pbg/requirements-lock.txt` together with
+viva-superpowers are all on PyPI (0.1.2, 0.1.2, 0.23.0); they are listed in `pbg/requirements.txt` together with
 tellurium and basico versions that match the host's lock, and checked in CI (M8).  Wrapper API churn is a risk (section 6):
 the `pbg_*` -> `viva_*` rename already happened once.  The `viva` provider imports the wrappers lazily, so an environment
 without them still runs `--wrappers off`.
@@ -1407,7 +1406,7 @@ in admitting suite cases.
 Files (the layout of section 3.11; everything is under `pbg/`):
 
 ```
-pbg/pyproject.toml, requirements-lock.txt, README.md, NOTES.md
+pbg/pyproject.toml, requirements.txt, README.md, NOTES.md
 pbg/research/                                   # experiments, runnable, with expected output (README says how to rerun)
 ../work/others/                                    # drafted issue texts for other projects (16 files); never filed by the assistant
 ../work/todo/                                      # our own work items, one file each
@@ -1517,7 +1516,7 @@ Earlier answers: the separate `pbg/` package and the small M1 host test were app
 Almost everything is in `pbg/` (`pbg/README.md` has the layout and the kill list; `pbg/NOTES.md` the lessons).  Outside `pbg/`, this work
 changed the host for flux balance analysis only (the approved edits H-1 to H-5: the `cobra` backend, the capability table, the command
 line, the suite runner, tests and docs), added the FBA series to sed2-test-suite, and added a section at the end of `SED2/TODO.md`.
-Nothing is committed and nothing has been filed upstream (16 drafts wait in `../work/others/`; two more were withdrawn).
+Nothing is committed and nothing has been filed upstream (16 drafts wait in `../work/others/`).
 
 **Built, with the tests that pin it.**
 

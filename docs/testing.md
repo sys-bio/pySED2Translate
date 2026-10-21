@@ -47,7 +47,7 @@ Each cell of the matrix is PASS, FAIL, SKIP (the translator says the backend can
 backend that the case's `settings.json` records as having produced canonical results.  The rule for those: the
 translator must support them, so "unsupported" there is a FAIL.  The exit status is 1 if anything is FAIL or ERROR.
 
-A FAIL whose differences are already in `disagreements.json` (same case, backends and report) is still a FAIL and still makes the exit status 1; its line in the report and the line in "differences found" add `[known: D-003 (open)]` with the entry's id and status.
+A FAIL whose differences are already in `disagreements.json` (same case, backends and report) is still a FAIL and still makes the exit status 1; its line in the report and the line in "differences found" add `[known: D-001 (open)]` with the entry's id and status.
 
 `--promote BACKEND` writes the results of the run into the case folder (refusing to replace existing result files
 without `--force`), creates `NNNNN.settings.json` if the case has none, and records the backend and its version

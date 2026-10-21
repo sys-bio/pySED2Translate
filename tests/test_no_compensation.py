@@ -62,7 +62,7 @@ def test_no_unrecorded_correction_in_the_backends():
                        "text is not a correction, name the recorded problem (D-n) on the line.\n" + "\n".join(found))
 
 
-# the correction that was removed from the roadrunner backend (disagreement D-003), as it was written
+# the correction that was removed from the roadrunner backend, as it was written
 REMOVED_CORRECTION = """\
             rr.model.setTime(a)
             rr.integrator.setValue("variable_step_size", True)
@@ -80,7 +80,7 @@ REMOVED_CORRECTION = """\
 def test_the_tripwire_catches_the_correction_that_was_removed():
     lines = ["            if tc.start not in (None, 0.0) and tc.start != a:",
              '                raise DataError("independentVariableInit must equal the span\'s start")'] + REMOVED_CORRECTION.split("\n")
-    assert unrecorded(lines), "the word tripwire no longer catches the D-003 correction"
+    assert unrecorded(lines), "the word tripwire no longer catches the removed correction"
 
 
 def _used_comp_ids():

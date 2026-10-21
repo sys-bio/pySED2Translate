@@ -93,7 +93,7 @@ def test_m8_dependencies_are_the_targets_own():
     text = open(os.path.join(ROOT, "pyproject.toml"), encoding="utf-8").read()
     assert "process-bigraph" in text and "bigraph-schema" in text
     host_root = os.path.abspath(os.path.join(ROOT, ".."))
-    for name in ("pyproject.toml", "requirements.txt", "requirements-lock.txt"):
+    for name in ("pyproject.toml", "requirements.txt", "requirements-last-passed.txt"):
         p = os.path.join(host_root, name)
         if os.path.exists(p):
             body = open(p, encoding="utf-8").read().lower()
