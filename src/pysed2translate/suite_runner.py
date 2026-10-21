@@ -21,6 +21,11 @@ cell of the result matrix is one of
 The rule for canonical backends: a backend listed in `backends` of the case's settings.json produced canonical
 results, so the translator must support it for that case; "unsupported" there is a FAIL, not a SKIP.
 
+Every run that was compared also has a score: the largest ratio of a difference to the difference the case's tolerances
+allow (see sed2-test-suite docs/FORMATS.md).  It is 0 for identical results and at most 1 for a PASS; above 1 is a FAIL,
+and infinity a mismatch with no size.  The table shows it after the status, the JSON output has it as "score" (null
+for infinity), and the last line names the worst one.
+
 Exit status: 0 if there is no FAIL and no ERROR, 1 if there is, 2 for usage errors.
 
 The suite is found with --suite, $SED2SUITE, or a sibling `sed2-test-suite` folder.
@@ -32,6 +37,7 @@ import contextlib
 import dataclasses
 import datetime
 import json
+import math
 import os
 import re
 import shutil
@@ -122,6 +128,7 @@ class RunResult:
     out_dir: str = ""
     seconds: float = 0.0
     items: list = dataclasses.field(default_factory=list)   # failing/passing items from compare_case
+    score: Optional[float] = None     # the largest score of the items; None if nothing was compared
     manifest: dict = dataclasses.field(default_factory=dict)
 
     def to_json(self) -> dict:
@@ -129,6 +136,8 @@ class RunResult:
              "seconds": round(self.seconds, 2)}
         if self.reason:
             d["reason"] = self.reason
+        if self.score is not None:
+            d["score"] = None if math.isinf(self.score) else self.score      # JSON has no infinity
         return d
 
 
@@ -255,6 +264,7 @@ def run_case(suite: Suite, case_dir: str, backend: str, work_dir: str, timeout: 
         return done(PASS, "ran; the case has no settings.json yet, so nothing was compared")
     try:
         res.items = suite.compare.compare_case(case_dir, out_dir, settings)
+        res.score = max((i.score for i in res.items), default=None)
     except (OSError, ValueError, KeyError) as e:
         return done(ERROR, f"cannot compare: {e}")
     bad = [i for i in res.items if not i.ok]
@@ -443,14 +453,19 @@ def format_matrix(results: list, backends: list) -> str:
     """A table: one row per case, one column per backend.  A star marks a backend with canonical results."""
     cases = sorted({r.case for r in results})
     by = {(r.case, r.backend): r for r in results}
-    width = max([len(b) for b in backends] + [6]) + 2
-    lines = ["case   " + "".join(b.ljust(width) for b in backends)]
+    rows = []
     for c in cases:
         cells = []
         for b in backends:
             r = by.get((c, b))
-            cells.append(((r.status + ("*" if r.canonical else "")) if r else "-").ljust(width))
-        lines.append(f"{c:<7}" + "".join(cells))
+            text = (r.status + ("*" if r.canonical else "")) if r else "-"
+            if r is not None and r.score is not None:
+                text += " " + ("inf" if math.isinf(r.score) else f"{r.score:.2g}")
+            cells.append(text)
+        rows.append((c, cells))
+    width = max([len(b) for b in backends] + [len(t) for _, cells in rows for t in cells] + [6]) + 2
+    lines = ["case   " + "".join(b.ljust(width) for b in backends)]
+    lines += [f"{c:<7}" + "".join(t.ljust(width) for t in cells) for c, cells in rows]
     return "\n".join(lines)
 
 
@@ -469,6 +484,11 @@ def format_report(results: list, backends: list) -> str:
     counts = {s: sum(1 for r in results if r.status == s) for s in (PASS, FAIL, SKIP, ERROR)}
     lines.append("")
     lines.append(", ".join(f"{n} {s}" for s, n in counts.items()) + "   (* = backend recorded in settings.json as canonical)")
+    scored = [r for r in results if r.score is not None]
+    if scored:
+        w = max(scored, key=lambda r: r.score)
+        lines.append(f"worst score {'inf' if math.isinf(w.score) else f'{w.score:.2g}'} ({w.case} {w.backend}); "
+                     f"a result passes when its score is at most 1")
     return "\n".join(lines)
 
 

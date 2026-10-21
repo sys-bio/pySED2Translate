@@ -33,6 +33,7 @@ Warnings from libsed2 validation are logged but do not stop translation.
   * `<prefix>.<plot_id>_as_data.csv` (Plot2D) or `.h5` (Plot3D)
   * `<prefix>.<plot_id>.png` when matplotlib is available and pictures are enabled (`--no-png` turns them off; the
     `_as_data` files are always written).  A picture that cannot be drawn is reported on stderr and does not fail the plot.
+  * `<prefix>.<plot_id>.plotly.json`, a plotly figure (`data` and `layout`) built from the same arrays as the `_as_data` file and written whenever that file is, also with `--no-png`.  Numbers have full precision and nan and the infinities are null.  It carries the styles (axis scale and limits, legend, size, curve types) as an illustration, is not listed in the manifest and is never compared.  A figure that cannot be built is reported on stderr and does not fail the plot.
 
   The prefix is the document's file name up to `.sed2.json` (`00001.sed2.json` gives `00001`), or `--prefix`.
   The formats are those of sed2-test-suite's `docs/FORMATS.md`.

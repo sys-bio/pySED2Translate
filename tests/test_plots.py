@@ -133,3 +133,121 @@ def test_no_png_option(tmp_path):
     outputs = {"p": {"_type": "plot2D", "curves": {"c": curve()}}}
     _, out = run(tmp_path, outputs, args=("--no-png",))
     assert (out / "doc.p_as_data.csv").exists() and not (out / "doc.p.png").exists()
+
+
+def figure(out, name):
+    return json.loads((out / name).read_text())
+
+
+def test_plot2d_plotly_figure(tmp_path):
+    consts = dict(CONSTANTS, third=[0.1234567890123456789, 1, 2, 3], withnan=[1, "nan", "inf", 4])
+    outputs = {"p": {"_type": "plot2D", "legend": True, "width": 400, "height": 300,
+                     "yAxis": {"scale": "log10", "min": 1, "max": 100, "grid": True},
+                     "curves": {"c": curve(y="#constants:withnan", yErrorLower="#constants:e"),
+                                "d": curve(order=2, curveType="bar", y="#constants:third")}}}
+    _, out = run(tmp_path, outputs, constants=consts)
+    fig = figure(out, "doc.p.plotly.json")
+    c, d = fig["data"]
+    assert (c["name"], c["type"], c["x"], c["y"]) == ("c", "scatter", [1.0, 2.0, 3.0, 4.0], [1.0, None, None, 4.0])
+    assert c["error_y"] == {"type": "data", "symmetric": False, "array": [0.0] * 4, "arrayminus": [0.5] * 4}
+    assert "error_x" not in c
+    assert (d["name"], d["type"], d["y"][0]) == ("d", "bar", 0.1234567890123456789)
+    assert fig["layout"]["title"] == {"text": "p"} and fig["layout"]["showlegend"] is True
+    assert (fig["layout"]["width"], fig["layout"]["height"]) == (400, 300)
+    assert fig["layout"]["yaxis"] == {"type": "log", "range": [0.0, 2.0], "showgrid": True}
+    assert "xaxis" not in fig["layout"]
+    assert fig["meta"] == {"plotType": "plot2D"}
+
+
+@pytest.mark.parametrize("kind", ["points", "bar", "barStacked", "horizontalBar", "horizontalBarStacked", "shadedArea"])
+def test_plot2d_plotly_every_curve_type(tmp_path, kind):
+    outputs = {"p": {"_type": "plot2D", "curves": {"c": curve(curveType=kind, yFrom="#constants:e",
+                                                               yTo="#constants:y")}}}
+    _, out = run(tmp_path, outputs)
+    fig = figure(out, "doc.p.plotly.json")
+    traces = fig["data"]
+    assert all(t["meta"] == {"curveType": kind} for t in traces)
+    if kind == "shadedArea":
+        assert [t.get("fill") for t in traces] == [None, "tonexty"]
+        assert traces[0]["y"] == [0.5] * 4 and traces[1]["y"] == [10.0, 20.0, 30.0, 40.0]
+    elif kind.startswith("horizontal"):
+        assert traces[0]["orientation"] == "h" and traces[0]["x"] == [10.0, 20.0, 30.0, 40.0]
+    else:
+        assert len(traces) == 1 and traces[0]["x"] == [1.0, 2.0, 3.0, 4.0]
+    assert (fig["layout"].get("barmode") == "stack") == kind.endswith("Stacked")
+
+
+def test_plot2d_plotly_right_axis_and_x_errors(tmp_path):
+    outputs = {"p": {"_type": "plot2D", "rightYAxis": {"min": 0, "max": 5},
+                     "curves": {"a": curve(), "b": curve(yAxis="right", xErrorUpper="#constants:e")}}}
+    _, out = run(tmp_path, outputs)
+    fig = figure(out, "doc.p.plotly.json")
+    assert "yaxis" not in fig["data"][0] and fig["data"][1]["yaxis"] == "y2"
+    assert fig["layout"]["yaxis2"] == {"overlaying": "y", "side": "right", "range": [0.0, 5.0]}
+    assert fig["data"][1]["error_x"]["array"] == [0.5] * 4 and fig["data"][1]["error_x"]["arrayminus"] == [0.0] * 4
+
+
+def test_plot2d_plotly_string_x_values(tmp_path):
+    outputs = {"p": {"_type": "plot2D", "curves": {"c": curve(x="#constants:labels", curveType="bar")}}}
+    _, out = run(tmp_path, outputs)
+    assert figure(out, "doc.p.plotly.json")["data"][0]["x"] == ["a", "b", "c", "d"]
+
+
+def test_plotly_figure_is_written_with_no_png_and_not_when_the_data_fails(tmp_path):
+    outputs = {"p": {"_type": "plot2D", "curves": {"c": curve()}}}
+    _, out = run(tmp_path, outputs, args=("--no-png",))
+    assert (out / "doc.p.plotly.json").exists() and not (out / "doc.p.png").exists()
+    bad = {"p": {"_type": "plot2D", "curves": {"c": curve(y="#constants:grid_z")}}}
+    (tmp_path / "bad").mkdir()
+    _, out = run(tmp_path / "bad", bad, expect=1)
+    assert not (out / "doc.p.plotly.json").exists()
+
+
+def test_plot3d_plotly_grid_orientation(tmp_path):
+    consts = dict(CONSTANTS, grid_t=[[1, 4], [2, 5], [3, 6]])         # z[x][y]: transposed to one row per y
+    outputs = {"q": {"_type": "plot3D", "surfaces": {
+        "a": {"surfaceType": "surfaceMesh", "x": "#constants:gx", "y": "#constants:gy", "z": "#constants:grid_z"},
+        "b": {"surfaceType": "surfaceContour", "x": "#constants:gx", "y": "#constants:gy", "z": "#constants:grid_t"}}}}
+    _, out = run(tmp_path, outputs, constants=consts)
+    a, b = figure(out, "doc.q.plotly.json")["data"]
+    assert a["type"] == "surface" and a["x"] == [0.0, 1.0, 2.0] and a["y"] == [0.0, 1.0]
+    assert a["z"] == [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]] and b["z"] == a["z"]
+    assert b["contours"] == {"z": {"show": True}}
+
+
+def test_plot3d_plotly_flat_plot_uses_2d_axes(tmp_path):
+    outputs = {"q": {"_type": "plot3D", "xAxis": {"scale": "log10"}, "zAxis": {"min": 0, "max": 9},
+                     "surfaces": {"h": {"surfaceType": "heatMap", "x": "#constants:gx", "y": "#constants:gy",
+                                        "z": "#constants:grid_z"},
+                                  "k": {"surfaceType": "contour", "x": "#constants:gx", "y": "#constants:gy",
+                                        "z": "#constants:grid_z"}}}}
+    _, out = run(tmp_path, outputs)
+    fig = figure(out, "doc.q.plotly.json")
+    assert [t["type"] for t in fig["data"]] == ["heatmap", "contour"]
+    assert fig["layout"]["xaxis"] == {"type": "log"} and "scene" not in fig["layout"] and "zaxis" not in fig["layout"]
+
+
+def test_plot3d_plotly_scene_axes_and_mixed_types(tmp_path):
+    outputs = {"q": {"_type": "plot3D", "zAxis": {"min": 0, "max": 9},
+                     "surfaces": {"h": {"surfaceType": "heatMap", "x": "#constants:gx", "y": "#constants:gy",
+                                        "z": "#constants:grid_z"},
+                                  "c": {"surfaceType": "parametricCurve", "x": "#constants:x", "y": "#constants:y",
+                                        "z": "#constants:e"}}}}
+    _, out = run(tmp_path, outputs)
+    fig = figure(out, "doc.q.plotly.json")
+    assert [t["type"] for t in fig["data"]] == ["surface", "scatter3d"]     # a heat map in a 3-D scene is a surface
+    assert fig["layout"]["scene"] == {"zaxis": {"range": [0.0, 9.0]}}
+
+
+@pytest.mark.parametrize("kind", ["parametricCurve", "surfaceMesh", "surfaceContour", "contour", "heatMap",
+                                  "stackedCurves", "bar"])
+def test_plot3d_plotly_every_surface_type(tmp_path, kind):
+    if kind == "parametricCurve":
+        s = {"surfaceType": kind, "x": "#constants:x", "y": "#constants:y", "z": "#constants:e"}
+    else:
+        s = {"surfaceType": kind, "x": "#constants:gx", "y": "#constants:gy", "z": "#constants:grid_z"}
+    r, out = run(tmp_path, {"q": {"_type": "plot3D", "surfaces": {"s": s}}})
+    assert "plotly figure" not in r.stderr, r.stderr
+    traces = figure(out, "doc.q.plotly.json")["data"]
+    assert traces and all(t["meta"] == {"surfaceType": kind} for t in traces)
+    assert len(traces) == (2 if kind == "stackedCurves" else 1)

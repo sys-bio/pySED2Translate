@@ -1,5 +1,6 @@
 """The suite runner, on small temporary suites (constants-only documents, so no simulator is needed)."""
 import json
+import math
 import os
 import shutil
 import sys
@@ -325,6 +326,23 @@ def test_matrix_and_report():
     assert "1 PASS, 1 FAIL, 1 SKIP, 0 ERROR" in text
 
 
+def test_matrix_shows_scores_and_the_worst_one_is_named():
+    rs = [sr.RunResult("00001", "roadrunner", sr.PASS, canonical=True, score=0.0123),
+          sr.RunResult("00001", "copasi", sr.FAIL, "report r: off", score=3.5),
+          sr.RunResult("00002", "roadrunner", sr.FAIL, "missing", canonical=True, score=math.inf)]
+    text = sr.format_report(rs, ["roadrunner", "copasi"])
+    lines = text.splitlines()
+    assert lines[1].split() == ["00001", "PASS*", "0.012", "FAIL", "3.5"]
+    assert lines[2].split() == ["00002", "FAIL*", "inf", "-"]
+    assert "worst score inf (00002 roadrunner)" in text
+
+
+def test_run_result_json_has_the_score_only_when_compared():
+    assert "score" not in sr.RunResult("00001", "roadrunner", sr.SKIP).to_json()
+    assert sr.RunResult("00001", "roadrunner", sr.PASS, score=0.25).to_json()["score"] == 0.25
+    assert sr.RunResult("00001", "roadrunner", sr.FAIL, score=math.inf).to_json()["score"] is None
+
+
 def run_main(suite, *args):
     return sr.main(["--suite", suite.root, *args])
 
@@ -334,7 +352,8 @@ def test_main_exit_codes_and_output(suite, tmp_path, capsys):
     shutil.copytree(os.path.join(os.path.dirname(compare.__file__), ".."), root / "tools", ignore=shutil.ignore_patterns("__pycache__"))
     make_case(root, "00001")
     assert run_main(suite, "00001", "-b", "roadrunner") == 0
-    assert "PASS*" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "PASS*" in out and "worst score" in out
     make_case(root, "00002", expected=(9.0, 9.0, 9.0))
     assert run_main(suite, "-b", "roadrunner", "--log-draft") == 1
     out = capsys.readouterr().out
@@ -342,6 +361,7 @@ def test_main_exit_codes_and_output(suite, tmp_path, capsys):
     assert run_main(suite, "00002", "-b", "roadrunner", "--json") == 1
     data = json.loads(capsys.readouterr().out)
     assert data["results"][0]["status"] == "FAIL" and data["disagreements"][0]["report"] == "r"
+    assert data["results"][0]["score"] > 1
 
 
 def test_main_usage_errors(suite, tmp_path, capsys):
