@@ -2,7 +2,7 @@
 
 The rule (CLAUDE.md, "Never hide a problem; expose it"): a backend returns what the simulator returns, or it refuses.  It does not re-run, interpolate, relabel, re-time, rescale or substitute settings to make a result come out right.  This file lists the places in the backends where that is not the case.  It should be empty.  Every entry is a decision waiting for the user; nothing is added here to make a deviation acceptable.  `tests/test_no_compensation.py` requires that the `COMP-n` ids in the backends' source and the ids in the table below are the same set.
 
-How to handle a simulator that gets something wrong: return its plain result (or refuse with the real reason), record the problem in sed2-test-suite's `disagreements.json`, draft an upstream report in `work/others/` (a local, git-ignored folder) for the user to file, and let the failing test fail (a strict `xfail` that names the disagreement is the way to keep the run readable; the assertion itself is not loosened).
+How to handle a simulator that gets something wrong: return its plain result (or refuse with the real reason), record the problem in sed2-test-suite's `disagreements.json`, draft an upstream report in `../work/others/` (a local, git-ignored folder) for the user to file, and let the failing test fail (a strict `xfail` that names the disagreement is the way to keep the run readable; the assertion itself is not loosened).
 
 The one deviation of this kind that was removed: roadrunner's last variable-step row was replaced by a separately integrated end point (disagreement D-003).
 

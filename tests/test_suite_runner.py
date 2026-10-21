@@ -343,6 +343,34 @@ def test_run_result_json_has_the_score_only_when_compared():
     assert sr.RunResult("00001", "roadrunner", sr.FAIL, score=math.inf).to_json()["score"] is None
 
 
+def test_known_disagreement_is_noted_on_the_failure_and_the_difference(suite, tmp_path):
+    case = make_case(tmp_path / "suite", expected=(9.0, 9.0, 9.0))
+    r = run(suite, case)
+    found = sr.disagreements_with_expected(suite, case, [r])
+    sr.mark_known(suite, found, [r])
+    assert r.status == sr.FAIL and r.known == [] and all(not d.known for d in found)
+    (entry,) = sr.draft_entries(suite, found)
+    open(suite.log_path, "w").write(json.dumps({"schemaVersion": 1, "entries": [entry]}))
+    sr.mark_known(suite, found, [r])
+    assert r.status == sr.FAIL and r.known == ["D-001 (open)"]
+    assert found[0].message().endswith("[known: D-001 (open)]")
+    assert "FAIL  00001 roadrunner: " in sr.format_report([r], ["roadrunner"])
+    assert any(ln.startswith("FAIL") and ln.endswith("[known: D-001 (open)]") for ln in sr.format_report([r], ["roadrunner"]).splitlines())
+    assert r.to_json()["known"] == ["D-001 (open)"]
+
+
+def test_main_known_disagreement_still_fails_the_run(suite, tmp_path, capsys):
+    root = tmp_path / "suite"
+    shutil.copytree(os.path.join(os.path.dirname(compare.__file__), ".."), root / "tools", ignore=shutil.ignore_patterns("__pycache__"))
+    make_case(root, "00002", expected=(9.0, 9.0, 9.0))
+    assert run_main(suite, "-b", "roadrunner", "--log-draft") == 1
+    draft = json.loads(capsys.readouterr().out.split("draft entries for disagreements.json (add them by hand once looked at):")[1])
+    open(suite.log_path, "w").write(json.dumps({"schemaVersion": 1, "entries": draft}))
+    assert run_main(suite, "-b", "roadrunner") == 1
+    out = capsys.readouterr().out
+    assert "[known: D-001 (open)]" in out and out.count("[known: D-001 (open)]") == 2
+
+
 def run_main(suite, *args):
     return sr.main(["--suite", suite.root, *args])
 

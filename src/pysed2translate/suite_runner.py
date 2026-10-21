@@ -130,6 +130,7 @@ class RunResult:
     items: list = dataclasses.field(default_factory=list)   # failing/passing items from compare_case
     score: Optional[float] = None     # the largest score of the items; None if nothing was compared
     manifest: dict = dataclasses.field(default_factory=dict)
+    known: list = dataclasses.field(default_factory=list)   # log entries ("D-003 (open)") that cover this result's differences
 
     def to_json(self) -> dict:
         d = {"case": self.case, "backend": self.backend, "status": self.status, "canonical": self.canonical,
@@ -138,6 +139,8 @@ class RunResult:
             d["reason"] = self.reason
         if self.score is not None:
             d["score"] = None if math.isinf(self.score) else self.score      # JSON has no infinity
+        if self.known:
+            d["known"] = list(self.known)
         return d
 
 
@@ -283,12 +286,14 @@ class Disagreement:
     backends: tuple          # (a, b); b may be "expected"
     report: str
     measure: dict
+    known: str = ""          # the log entry that covers it ("D-003 (open)"), if there is one
 
     def message(self) -> str:
         m = self.measure
         size = (f"abs {m['maxAbsolute']:.3g}, rel {m['maxRelative']:.3g}" if m.get("comparable")
                 else m.get("reason", "not comparable"))
-        return f"{self.case}{' ' + self.report if self.report else ''}: {' vs '.join(self.backends)}: {size}"
+        text = f"{self.case}{' ' + self.report if self.report else ''}: {' vs '.join(self.backends)}: {size}"
+        return text + (f" [known: {self.known}]" if self.known else "")
 
 
 def _settings_or_none(suite: Suite, case_dir: str):
@@ -332,6 +337,18 @@ def crosscheck(suite: Suite, case_dir: str, results: list) -> list:
                 if not m["ok"]:
                     out.append(Disagreement(case, (a.backend, b.backend), m["name"], m))
     return out
+
+
+def mark_known(suite: Suite, found: list, results: list) -> None:
+    """Note, on each difference and on the FAIL it comes from, the entry of disagreements.json that already covers it.
+    Only the report changes: the status of the result, and so the exit status, stays as it was."""
+    log = suite.disagreements.load_log(suite.log_path)
+    for d in found:
+        entry = suite.disagreements.find(log, d.case, list(d.backends), d.report or None)
+        if entry:
+            d.known = f"{entry['id']} ({entry['status']})"
+    for r in results:
+        r.known = sorted({d.known for d in found if d.known and d.case == r.case and d.backends == (r.backend, "expected")})
 
 
 def draft_entries(suite: Suite, found: list) -> list:
@@ -480,7 +497,7 @@ def format_report(results: list, backends: list) -> str:
     lines = [format_matrix(results, backends), ""]
     for r in results:
         if r.reason:
-            lines.append(f"{r.status:<5} {r.case} {r.backend}: {r.reason}")
+            lines.append(f"{r.status:<5} {r.case} {r.backend}: {r.reason}" + (f" [known: {', '.join(r.known)}]" if r.known else ""))
     counts = {s: sum(1 for r in results if r.status == s) for s in (PASS, FAIL, SKIP, ERROR)}
     lines.append("")
     lines.append(", ".join(f"{n} {s}" for s, n in counts.items()) + "   (* = backend recorded in settings.json as canonical)")
@@ -579,12 +596,14 @@ def main(argv=None) -> int:
             found += disagreements_with_expected(suite, case_dir, case_results)
             if args.crosscheck or args.log_draft:
                 found += crosscheck(suite, case_dir, case_results)
+        mark_known(suite, found, results)
         drafts = draft_entries(suite, found) if args.log_draft else []
         if args.json:
             print(json.dumps({"results": [r.to_json() for r in results],
                               "admitted": admitted,
                               "disagreements": [{"case": d.case, "backends": list(d.backends), "report": d.report,
-                                                 "message": d.message()} for d in found],
+                                                 "message": d.message(), **({"known": d.known} if d.known else {})}
+                                                for d in found],
                               "draftEntries": drafts}, indent=2))
         else:
             print(format_report(results, columns(results)))

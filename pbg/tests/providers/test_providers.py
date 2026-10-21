@@ -20,7 +20,7 @@ from pysed2translate_pbg.engines.v1.providers import Request, WrapperRefusal, ga
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
-UPSTREAM = os.path.abspath(os.path.join(HERE, "..", "..", "..", "work", "others"))
+UPSTREAM = os.path.abspath(os.path.join(HERE, "..", "..", "..", "..", "work", "others"))
 MODEL = {"_type": "modelImport", "location": "decay.xml", "language": "urn:sedml:language:sbml"}
 IV = "urn:sedml:symbol:time"
 
@@ -181,7 +181,7 @@ def test_the_default_mode_is_strict():
 
 def test_every_ledger_entry_has_its_draft_and_every_draft_its_entry():
     if not os.path.isdir(UPSTREAM):
-        pytest.skip("work/others (the drafts of reports about other projects) is a local, git-ignored folder; not present here")
+        pytest.skip("../work/others (the drafts of reports about other projects) is a local, git-ignored folder; not present here")
     drafts = {re.match(r"(W-\d+)-", os.path.basename(p)).group(1) for p in glob.glob(os.path.join(UPSTREAM, "W-*.md")) + glob.glob(os.path.join(UPSTREAM, "addressed_awaiting_release", "W-*.md"))}   # open, or fixed and awaiting a release; the file name starts with the ledger id
     assert drafts == {i for i in providers.LEDGER if i.startswith("W-")}
     for i in providers.LEDGER:

@@ -40,7 +40,7 @@ a written kill list; nothing existing is edited.  Section 3.11 has the rules, th
 4. **Use the community wrappers (viva-tellurium, viva-copasi) when possible**, and own steps over the host's `runtime` as
    the fallback (section 3.12).  Every wrapper gap that stops a SED2 setting from being passed (no tolerance, no start
    time, no model input) is recorded in a ledger (W-1 to W-10 when this was written; W-14 now; W-9, "no OpenCOR wrapper", was wrong and is withdrawn) and **drafted** as an issue text for
-   the wrapper maintainers (`work/others/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
+   the wrapper maintainers (`../work/others/`).  I never file anything; you report them.  Confirmed by running: viva-tellurium's UTC
    step accepts tolerances and a seed and ignores them (W-1); viva-copasi cannot start at a time other than 0 (W-2), cannot
    choose a method or tolerances (W-3), cannot take SBML text (W-4); both UTC steps continue from their previous end state when
    fired twice (W-10).  Mode `--wrappers strict|prefer|off`, **default `strict`** (your answer).
@@ -263,7 +263,7 @@ Read 2026-10-09: Agmon and Spangler, arXiv:2512.23754v2 (main text), Supplement 
   or deferred and written down (section 6), not patched around.
 * ASCII only in files.  Do not commit.
 * **Nothing is filed upstream by the assistant** (your rule, 2026-10-09).  A wrapper gap, a framework question or a simulator
-  disagreement becomes a drafted file (`work/others/` for other projects' trackers; `work/todo/` for this project's own
+  disagreement becomes a drafted file (`../work/others/` for other projects' trackers; `../work/todo/` for this project's own
   `disagreements.json` and SED2/TODO.md entries), and you decide whether and where to report it.
 
 ### 3.2 Command line and files
@@ -579,7 +579,7 @@ ever want it, is another engine with the same two functions.
 a setting that SED2 needs, such as a tolerance, that is a bug or feature request for the wrapper maintainers, recorded and
 submitted, and not something the translator quietly works around.  This reverses the first draft of this plan, which built
 its own steps only (section 1, recommendation 4, is rewritten).  **Filing is yours:** every ledger entry is drafted as a text file
-under `work/others/` and the assistant files nothing, anywhere, on its own.
+under `../work/others/` and the assistant files nothing, anywhere, on its own.
 
 **Providers.**  Inside engine `v1` (so the rule of 3.11 holds: nothing outside `pbg/` knows about this), every task that
 runs a simulator is produced by a *provider*, selected by `--wrappers {strict,prefer,off}` (default `strict`):
@@ -630,8 +630,8 @@ where marked, confirmed by running them (2026-10-09, tellurium 2.2.13.1 / roadru
 
 Four framework items found on the way (P-1 unknown config keys accepted silently, P-2 step cycles broken silently, P-3 which time
 the longer-interval process reads the state at, P-4 the README and tutorial 3 point at `MathExpressionStep` in process_bigraph, but it lives in pbg-basic-processes) are drafted the same way for the
-process-bigraph maintainers.  All 16 drafts are in `work/others/` with an index (`work/INDEX.md`) and the order I would suggest.
-Each W-id is a short issue text under `work/others/` (title, minimal reproduction, expected behaviour, environment), **drafted,
+process-bigraph maintainers.  All 16 drafts are in `../work/others/` with an index (`../work/INDEX.md`) and the order I would suggest.
+Each W-id is a short issue text under `../work/others/` (title, minimal reproduction, expected behaviour, environment), **drafted,
 not filed**; you report them.  W-1 is a plain bug and can go first, then W-10, P-1, W-2, W-3.  The ledger lives in the repository so the table above is regenerated from
 it (and from the `strict` run), not edited by hand.
 
@@ -740,7 +740,7 @@ product of the lists over the kinds each case actually uses (a case without FBA 
 translates and runs each combination, and compares it with the canonical data.  `--crosscheck` also compares the combinations with
 each other: ODE series at the suite's tolerance; FBA by the objective value and the *uniquely determined* fluxes (3.13), since
 alternate optima make full flux vectors differ legitimately.  Output: a case x combination table.  A disagreement between two
-combinations is written as a draft entry (for `disagreements.json`) under `work/todo/`, which you move or discard; nothing is
+combinations is written as a draft entry (for `disagreements.json`) under `../work/todo/`, which you move or discard; nothing is
 added to the suite's own files by the tool.  The cosimulation test case (5.1) is the main user: every ODE backend x every FBA
 backend must agree within tolerance, which is the "test against each other and in combinations" you described.
 
@@ -1269,7 +1269,7 @@ ports.  Shape tested with stand-in classes (section 2.9); the real classes do no
 | `new_ode` sets values from the whole `fbasim` result (fluxes), again with no id mapping or rate conversion. | Same; and rates versus fluxes need units. |
 | The `FBA_model` loop variable is `fbasim.model`, but nothing reads the FBA model of iteration k - 1 other than the next `new_fba`, which changes it again. | Harmless; kept, because the translation of loop variables must not depend on whether the author needed them. |
 | The report is 3-dimensional (iterations x time points x species). | The existing Report writer handles it as HDF5 only; the CSV writer refuses.  Same behaviour as the script target. |
-| An FBA problem can be **infeasible** (found with iAF1260 once glucose is exhausted: the maintenance reaction cannot be supplied).  SED2 does not say what a `FluxBalanceAnalysis` task returns then. | The mock pair avoids it by construction.  The real-model case needs a rule in the document (a Calculation that maps "no solution" to zero growth) and the backend must report infeasibility as data or as a refusal, not as a made-up flux table.  Recorded as a question in SED2/TODO.md; the evidence is item T-1 in SED2's `work/todo/`. |
+| An FBA problem can be **infeasible** (found with iAF1260 once glucose is exhausted: the maintenance reaction cannot be supplied).  SED2 does not say what a `FluxBalanceAnalysis` task returns then. | The mock pair avoids it by construction.  The real-model case needs a rule in the document (a Calculation that maps "no solution" to zero growth) and the backend must report infeasibility as data or as a refusal, not as a made-up flux table.  Recorded as a question in SED2/TODO.md; the evidence is item SED2-T-1 in `../work/todo/`. |
 | `fluxBalanceAnalysis` is deferred on every backend in `capabilities.json`. | The case can be translated and structurally tested now, but cannot run end to end until an FBA backend exists.  The FBA to pull in is COBRApy (section 3.13).  Exit status 11 with the usual skip line until then. |
 | Process-bigraph's own cosimulation couples **processes** with a clock; SED2's loop runs the sub-tasks **in sequence**, each reading the previous one's result.  In process-bigraph, two processes with the same interval read the state at the start of the interval (tested), so the same models wired as processes give different numbers. | The translation preserves SED2's sequential semantics (all sub-tasks are steps).  The coupled-process form is a different, parallel scheme; see `pbg2sed2/process-bigraph-clock.md`. |
 
@@ -1323,7 +1323,7 @@ libsed2; `disagreements.json` for simulators).  None of these has been logged ye
    larger list of things SED2 cannot say about process-bigraph's clock (coupled and multi-rate processes, adaptive
    steps, conditional and open-ended loops, stateful continuation); they are written up with proposed SED2 extensions
    in `pbg2sed2/process-bigraph-clock.md`, and none is needed for the translation itself.
-8. **Upstream notes** are drafted, not filed (P-1 to P-4 in `work/others/`): unknown config keys accepted silently, step cycles
+8. **Upstream notes** are drafted, not filed (P-1 to P-4 in `../work/others/`): unknown config keys accepted silently, step cycles
    broken silently, the read time of longer-interval processes, the README and tutorial 3 pointing at `MathExpressionStep` in process_bigraph although it now lives in pbg-basic-processes.  The opaque "two different
    wrappings" error is not drafted.  Reporting is yours.
 9. **Wrapper churn and gaps.**  The wrappers are at 0.1.2 and were renamed once already; a wrapper update can change a
@@ -1379,7 +1379,7 @@ because the code path is shared; a difference is a bug in one of the new layers)
 (wrapper output -> labelled `AnnotatedData`), `--wrappers strict|prefer|off` (default `strict`), and the ledger (3.12).  Acceptance: `strict`
 run over the whole suite produces the list of tasks the wrappers can take and, for the rest, the W-ids; every task the
 wrapper takes agrees with the canonical data at the suite's tolerance, or is a recorded finding.  Deliverable beside the code:
-the drafted issue texts under `work/others/` (16 exist already; W-1 first), never filed by the assistant.
+the drafted issue texts under `../work/others/` (16 exist already; W-1 first), never filed by the assistant.
 
 **Phase 3 - repeats and files.**  `SedLoop` with the `SedClock` process and the `SedStep` init guard (Loop, clock
 form), `SedRepeat` (Scatter, ParameterScan, and Loop under `--loop-form nested`), `SedCsvImport`, `Plot2D`/`Plot3D`
@@ -1409,8 +1409,8 @@ Files (the layout of section 3.11; everything is under `pbg/`):
 ```
 pbg/pyproject.toml, requirements-lock.txt, README.md, NOTES.md
 pbg/research/                                   # experiments, runnable, with expected output (README says how to rerun)
-work/others/                                    # drafted issue texts for other projects (16 files); never filed by the assistant
-work/todo/                                      # our own work items, one file each
+../work/others/                                    # drafted issue texts for other projects (16 files); never filed by the assistant
+../work/todo/                                      # our own work items, one file each
 pbg/tools/pbg2py.py                             # scheduler exporter for tier C (route 2); not imported by the engine
 pbg/tests/advanced/data/cosimulation/           # mock ODE and FBA models, builder, plain-Python reference loops
 pbg/tests/native/                               # tier C documents, translated scripts, expected output
@@ -1493,7 +1493,7 @@ ledger ids in the expected-gaps file; (e) the modularity rules M1 to M9 of secti
 | 8 | PBG to SED2 | Set aside: "let's see what we can do without it for now". | `pbg2sed2/process-bigraph-to-sed2.md` unchanged; tier C route 2 first (section 7) |
 | 9 | Where FBA lives | In the main group (the host).  More sophisticated command-line switches are needed for two FBA simulators, for testing them against each other and in combinations (copasi with cobra, and so on). | 3.13 (H-1 to H-5), 3.14, phase 3b |
 | 10 | Wrapper default | `--strict` for now. | 3.12, summary, phase 2b |
-| 11 | Filing bug reports | Never by the assistant.  Always a file somewhere, and you report. | 3.1, 3.12, `work/others/` (16 drafts), `work/todo/` |
+| 11 | Filing bug reports | Never by the assistant.  Always a file somewhere, and you report. | 3.1, 3.12, `../work/others/` (16 drafts), `../work/todo/` |
 | 12 | COBRApy licence | Fine, as a dependency. | 3.13 |
 | 13 | Tier C before the reverse direction | Do not wait: create tier C tests now. | Section 7 (scheduler exporter, cases C1 to C5) |
 | 14 | The real CRM-FBA models | Look for them; mock something simple up regardless, and test the real ones too. | 3.13 (found: iAF1260 and four more; the CRMs are Python classes), 5.1 stages 3 and 4, mock pair delivered |
@@ -1510,14 +1510,14 @@ Earlier answers: the separate `pbg/` package and the small M1 host test were app
 3. **The real models.**  The CRM-FBA repository has no licence file that I found, so the models are fetched at a pinned commit and not
    copied here.  If you prefer them stored in the repository, that needs the authors' permission first.
 4. **Infeasible FBA.**  SED2 does not say what a `FluxBalanceAnalysis` task returns for an infeasible problem (found with iAF1260).  A
-   question is recorded in SED2/TODO.md; the evidence is item T-1 in SED2's `work/todo/`.
+   question is recorded in SED2/TODO.md; the evidence is item SED2-T-1 in `../work/todo/`.
 
 ## 9. Status: what was built (2026-10-09)
 
 Almost everything is in `pbg/` (`pbg/README.md` has the layout and the kill list; `pbg/NOTES.md` the lessons).  Outside `pbg/`, this work
 changed the host for flux balance analysis only (the approved edits H-1 to H-5: the `cobra` backend, the capability table, the command
 line, the suite runner, tests and docs), added the FBA series to sed2-test-suite, and added a section at the end of `SED2/TODO.md`.
-Nothing is committed and nothing has been filed upstream (16 drafts wait in `work/others/`; two more were withdrawn).
+Nothing is committed and nothing has been filed upstream (16 drafts wait in `../work/others/`; two more were withdrawn).
 
 **Built, with the tests that pin it.**
 
@@ -1556,7 +1556,7 @@ model without species (W-14).  Every difference from this file fails the test.
 
 * Phase 5 (the native-process form, section 3.9) is not started; it was optional.
 * The reverse direction (PBG to SED2) is set aside, as you said; tier C scripts come from the scheduler exporter.
-* The 16 drafts are for you to report; the order I would suggest is in `work/INDEX.md` (W-1, W-10, W-14, P-1, W-12, W-13 first).
+* The 16 drafts are for you to report; the order I would suggest is in `../work/INDEX.md` (W-1, W-10, W-14, P-1, W-12, W-13 first).
 * The Monod CRM-FBA model as SBML (docs/deferred.md), after which the real cosimulation template can run.
 * If a wrapper gains a missing feature, `tests/providers` will say so by failing; the ledger entry is then closed and the case moves from
   refused to wrapped in `expected_gaps.json` (a reviewed change, not an automatic one).

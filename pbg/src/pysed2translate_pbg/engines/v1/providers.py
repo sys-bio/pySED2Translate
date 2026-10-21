@@ -9,7 +9,7 @@ from the viva-* family (viva-tellurium: libroadrunner; viva-copasi: COPASI).  `-
     off      the host runtime only.
 
 Every reason a wrapper cannot do something is a ledger entry (`LEDGER`): `W-n` entries are gaps in the wrappers, with a draft
-report with the same id among the drafts (`work/others/`, git-ignored; never filed by an assistant); `L-n` entries are limits of this provider that could be lifted.
+report with the same id among the drafts (`../work/others/`, git-ignored; never filed by an assistant); `L-n` entries are limits of this provider that could be lifted.
 The translator never works around a gap: it states the entry and stops (CLAUDE.md, "never hide a problem").
 """
 from __future__ import annotations
