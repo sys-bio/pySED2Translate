@@ -9,9 +9,6 @@ tellurium
 # COPASI backend
 python-copasi
 copasi-basico
-# OpenCOR backend (libopencor is the Python route; sbml2cellml needs Python >= 3.13)
-libopencor
-sbml2cellml
 # Flux balance analysis backend
 cobra
 pandas
@@ -23,3 +20,5 @@ matplotlib
 jsonschema
 antlr4-python3-runtime
 pytest
+sbml2cellml
+libopencor
