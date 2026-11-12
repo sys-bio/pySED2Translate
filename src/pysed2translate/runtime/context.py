@@ -6,6 +6,8 @@ import os
 import sys
 from contextlib import contextmanager
 
+from .locations import is_url
+
 
 class Context:
     """input_dir  : relative `location` values in the SED2 document are resolved against this directory
@@ -26,7 +28,8 @@ class Context:
         self.manifest: dict = {"reports": {}, "plots": {}}
 
     def input_path(self, location: str) -> str:
-        if os.path.isabs(location):
+        """The path of a local `location` (relative ones are resolved against input_dir); an http(s) URL as it is."""
+        if os.path.isabs(location) or is_url(location):
             return location
         return os.path.normpath(os.path.join(self.input_dir, location))
 

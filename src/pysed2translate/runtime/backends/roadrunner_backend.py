@@ -89,6 +89,12 @@ class RoadRunnerBackend(Backend):
             rr.integrator.setValue("variable_step_size", True)
             # The rows are returned exactly as roadrunner gives them.
             table = np.array(rr.simulate(a, b))
+            # roadrunner ends a variable-step run at max_output_rows with only a warning; such a run is refused.
+            if table.size and table[-1, 0] < b:
+                rows = int(rr.integrator.getValue("max_output_rows"))
+                raise DataError(f"roadrunner stopped at time {float(table[-1, 0]):g}, but the end of the span is {b:g}: a "
+                                f"variable-step run returns at most max_output_rows ({rows}) rows, and this one needs "
+                                f"more (the document can set maxOutputRows)")
         else:
             start = float(tc.start or 0.0)
             rr.model.setTime(start)

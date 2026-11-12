@@ -176,6 +176,26 @@ def test_roadrunner_span_is_the_plain_roadrunner_result(model):
     assert np.array_equal(data.values, plain)
 
 
+def test_roadrunner_span_that_stops_short_of_its_end_is_refused(model):
+    """roadrunner stops a variable-step run at max_output_rows with only a warning and returns the rows it has; the
+    backend must refuse that result, not pass on a time course that ends early as if it were complete."""
+    pytest.importorskip("roadrunner")
+    with pytest.raises(DataError, match=r"roadrunner stopped at time [0-9.e+-]+, but the end of the span is 3\b.*max_output_rows.*5"):
+        backends.get("roadrunner").time_course(
+            model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0),
+                              settings={"maxOutputRows": 5}))
+
+
+def test_copasi_span_that_stops_short_of_its_end_is_refused(model):
+    """COPASI stops an automatic-step run when its integrator reaches max_steps and returns the rows it has; the backend
+    must refuse that result, not pass on a time course that ends early as if it were complete."""
+    pytest.importorskip("basico")
+    with pytest.raises(DataError, match=r"COPASI stopped at time [0-9.e+-]+, but the end of the span is 3\b.*max_steps.*5"):
+        backends.get("copasi").time_course(
+            model, TimeCourse(independent_variable="time", output_variables=["S1"], span=(0.0, 3.0),
+                              settings={"maxNumberOfSteps": 5}))
+
+
 # --------------------------------------------------------------------------- the model at the end of a run
 
 def test_end_of_run_model_continues_the_simulation(backend, model):

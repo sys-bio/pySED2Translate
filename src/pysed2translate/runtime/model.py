@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any, Iterable, Optional, Sequence
 
 from .annotated import DataError
+from .locations import read_text
 
 SBML_LANGUAGE_PREFIX = "urn:sedml:language:sbml"
 
@@ -52,12 +53,7 @@ class SbmlModel:
     def load(cls, path: str, language: str) -> "SbmlModel":
         if not language.startswith(SBML_LANGUAGE_PREFIX):
             raise DataError(f"model language {language!r} is not supported (only SBML)")
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                text = f.read()
-        except OSError as e:
-            raise DataError(f"cannot read the model file {path}: {e}") from e
-        model = cls(text, path)
+        model = cls(read_text(path, "model"), path)
         model._document()  # checks that it parses
         return model
 
