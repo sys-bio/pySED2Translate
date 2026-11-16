@@ -26,7 +26,7 @@ Warnings from libsed2 validation are logged but do not stop translation.
 * Needs Python 3.13, numpy, the `pysed2translate` package (for `pysed2translate.runtime`), and the chosen
   simulator.  It does not need libsed2.
 * **Inputs.** `location` values in the document are resolved against `--input-dir`.  The default is the
-  directory containing the script, unless the translator was given `--input-dir`, which becomes the default.
+  directory containing the script, unless the translator was given `--input-dir`, which becomes the default.  A `location` that is an `http` or `https` URL (model or CSV data) is read from the URL in memory, as written, and no copy is saved; it must be the URL of the file itself, so a URL that answers with an HTML page (such as a model repository's web page about a model, rather than its download link) is refused with that reason, and an unreachable URL is an error (60-second timeout).
 * **Outputs.** Result files are written to `--output-dir` (default: the current directory, unless the translator
   was given `--output-dir`), created if needed.  Names are `<prefix>.<id>.<ext>`:
   * `<prefix>.<report_id>.csv`, or `.h5` for data with three or more dimensions

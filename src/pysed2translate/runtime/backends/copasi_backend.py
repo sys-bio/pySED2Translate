@@ -143,6 +143,14 @@ class CopasiBackend(Backend):
             logging.getLogger("basico").setLevel(before)
         if frame is None or len(frame) == 0:
             raise DataError("COPASI could not run the time course")
+        # COPASI ends an automatic-step run when its integrator reaches max_steps and returns the rows it has; such a
+        # run is refused.
+        if times is None and float(cols.value(frame, "time")[-1]) < b:
+            last = float(cols.value(frame, "time")[-1])
+            limit = kwargs["max_steps"] if "max_steps" in kwargs else "COPASI's default"
+            raise DataError(f"COPASI stopped at time {last:g}, but the end of the span is {b:g}: its integrator stops "
+                            f"after max_steps ({limit}) internal steps, and this run needs more (the document can set "
+                            f"maxNumberOfSteps)")
         if times is not None and len(times) == 1:  # COMP-3: a lone point at the start: COPASI also writes a second row
             frame = frame.iloc[:1]
         if times is not None and len(frame) != len(times):

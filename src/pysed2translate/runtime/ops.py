@@ -4,6 +4,7 @@ All values are AnnotatedData (or Python floats/strings where noted).
 """
 from __future__ import annotations
 
+import io
 import itertools
 import math
 from typing import Any, Optional, Sequence
@@ -11,6 +12,7 @@ from typing import Any, Optional, Sequence
 import numpy as np
 
 from .annotated import AnnotatedData, DataError, special_value
+from .locations import read_text
 
 
 # --------------------------------------------------------------------------- scalars and lists from data
@@ -142,7 +144,8 @@ def scan_table(rows: Sequence[Sequence[Any]], ranges: Sequence[Sequence[float]],
 def csv_import(path: str, separator: Optional[str] = None, headers: Optional[bool] = None,
                column_names: Optional[Sequence[str]] = None, ncols: Optional[int] = None,
                nrows: Optional[int] = None) -> AnnotatedData:
-    """CsvImport: a delimiter-separated file of numbers -> 2-D data (rows x columns).
+    """CsvImport: a delimiter-separated file of numbers (a path, or an http(s) URL read in memory) -> 2-D data
+    (rows x columns).
 
     separator    one character, default ","
     headers      True: the first row holds the column names (they become the labels of the column dimension);
@@ -155,11 +158,9 @@ def csv_import(path: str, separator: Optional[str] = None, headers: Optional[boo
     sep = "," if separator is None else separator
     if len(sep) != 1:
         raise DataError(f"the separator must be a single character, not {sep!r}")
-    try:
-        with open(path, "r", encoding="utf-8-sig", newline="") as f:
-            rows = [[c.strip() for c in row] for row in csv.reader(f, delimiter=sep) if any(c.strip() for c in row)]
-    except OSError as e:
-        raise DataError(f"cannot read the data file {path}: {e}") from e
+    text = read_text(path, "data", encoding="utf-8-sig")
+    rows = [[c.strip() for c in row] for row in csv.reader(io.StringIO(text, newline=""), delimiter=sep)
+            if any(c.strip() for c in row)]
     labels = None
     if headers:
         if not rows:
